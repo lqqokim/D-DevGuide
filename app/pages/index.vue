@@ -1,17 +1,5 @@
 <template>
   <ProjectCard />
-  <!--  <div class="navbar">-->
-  <!--    <a href="#home"></a>-->
-  <!--    <div class="subnav">-->
-  <!--      <button class="subnavbtn">About <i class="fa fa-caret-down"></i></button>-->
-  <!--      <div class="subnav-content">-->
-  <!--        <a href="#company">Company</a>-->
-  <!--        <a href="#team">Team</a>-->
-  <!--        <a href="#careers">Careers</a>-->
-  <!--      </div>-->
-  <!--    </div>-->
-  <!--    <a href="#contact">Contact</a>-->
-  <!--  </div>-->
 </template>
 
 <script lang="ts">

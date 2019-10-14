@@ -4,15 +4,36 @@ import { UploadModel } from './../models/upload';
 const { Router } = require('express');
 const router = Router();
 
+// 파일 조회
 router.get('/upload', (req, res, next) => {
-  res.send('success!');
+  UploadModel.find(function(err, result) {
+    if (err) return res.status(500).send({ error: 'database failure' });
+    res.json(result);
+  });
 });
 
-router.post('/upload', upload.single('bin'), (req, res) => {
-  const { file, name } = req.body;
-  // console.log(req.file); // 콘솔(터미널)을 통해서 req.file Object 내용 확인 가능.
+// 파일 등록
+router.post('/upload', upload.single('file'), (req, res) => {
+  const { file } = req;
 
-  // res.send(req.file); // object를 리턴함
+  console.log('file :: ', file);
+
+  const uploadModel = new UploadModel();
+  uploadModel.name = file.filename;
+  uploadModel.originalName = file.originalname;
+  uploadModel.mimeType = file.mimetype;
+  uploadModel.encoding = file.encoding;
+  uploadModel.size = file.size;
+
+  uploadModel.save(function(err) {
+    if (err) {
+      console.error(err);
+      res.json({ result: 0 });
+      return;
+    }
+
+    res.json({ result: 1 });
+  });
 });
 
 module.exports = router;

@@ -13,7 +13,7 @@ export const mutations = {
 export const actions = {
   async [GET_PROJECT_LIST]({ commit }) {
     const url = '/api/projects';
-    const projects = await this.$axios.get(url);
+    const projects = await this.$axios.$get(url);
     commit(SET_PROJECT_LIST, projects);
   },
 };

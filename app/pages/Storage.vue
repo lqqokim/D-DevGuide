@@ -1,53 +1,28 @@
 <template>
   <div>
     <h2>자료실 페이지</h2>
-    <div class="fileUpload">
-      <input
-        type="file"
-        name="storageFile"
-        accept=".jpg, .jpeg, .png"
-        @change="onSelect"
-      />
-      <button @click="upload">전송</button>
-    </div>
+    <hr />
+
+    <!--파일 업로드 컴포넌트-->
+    <FileRegister></FileRegister>
+    <hr />
+    <!--파일 리스트 영역-->
+    <FileList></FileList>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
+import FileList from '@/components/FileComponent/FileList.vue';
+import FileRegister from '@/components/FileComponent/FileRegister.vue';
 
-@Component
-export default class Storage extends Vue {
-  private file: any;
-
-  onSelect($event): void {
-    this.file = $event.target as Element;
-  }
-
-  upload(): void {
-    const formData = new FormData();
-    formData.append('name', this.file.name);
-    formData.append('bin', this.file.files[0]);
-
-    this.$axios
-      .post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
-  //   try {
-  //   this.$store.dispatch('sdfsdf')
-  // } catch (e) {
-  // }
-}
+@Component({
+  components: {
+    FileRegister,
+    FileList,
+  },
+})
+export default class Storage extends Vue {}
 </script>
 
 <style scoped></style>
