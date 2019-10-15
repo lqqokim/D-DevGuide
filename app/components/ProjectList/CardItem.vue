@@ -1,5 +1,8 @@
 <template>
-  <nuxt-link :to="`/project/${project.id}`" class="project-link">
+  <nuxt-link
+    :to="{ name: 'detail', params: { data: project } }"
+    class="project-link"
+  >
     {{ project.name }}
   </nuxt-link>
 </template>
@@ -17,6 +20,17 @@ export default Vue.extend({
     project: {
       type: Object as PropType<Project>,
       default: () => {},
+    },
+  },
+  methods: {
+    created() {
+      console.log('project :: ', this.$props.project);
+    },
+    beforeUpdate() {
+      console.log('beforeUpdate prj:: ', this.$props);
+    },
+    updated() {
+      console.log('project :: ', this.$props.project);
     },
   },
 });

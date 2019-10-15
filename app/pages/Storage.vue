@@ -17,6 +17,7 @@ import FileList from '@/components/FileComponent/FileList.vue';
 import FileRegister from '@/components/FileComponent/FileRegister.vue';
 
 @Component({
+  layout: 'type1',
   components: {
     FileRegister,
     FileList,
