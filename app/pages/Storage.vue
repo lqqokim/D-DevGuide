@@ -4,17 +4,17 @@
     <hr />
 
     <!--파일 업로드 컴포넌트-->
-    <FileRegister></FileRegister>
+    <file-register></file-register>
     <hr />
     <!--파일 리스트 영역-->
-    <FileList></FileList>
+    <file-list></file-list>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import FileList from '@/components/FileComponent/FileList.vue';
-import FileRegister from '@/components/FileComponent/FileRegister.vue';
+import FileList from '@/components/common/file/FileList.vue';
+import FileRegister from '@/components/common/file/FileRegister.vue';
 
 @Component({
   layout: 'type1',

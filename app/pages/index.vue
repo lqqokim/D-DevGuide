@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ProjectCard from '@/components/ProjectList/ProjectCard.vue';
+import ProjectCard from '~/components/product/list/ProductCardList.vue';
 import { GET_PROJECT_LIST } from '@/utils/storeTypes';
 
 export default Vue.extend({
