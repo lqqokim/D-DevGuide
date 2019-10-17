@@ -25,7 +25,7 @@ app.use(require('./routes/upload'));
 // mongoose 연결
 mongoose.connect(
   'mongodb://localhost:27017/dev-doc',
-  { useNewUrlParser: true },
+  { useNewUrlParser: true, useUnifiedTopology: true },
   (err) => {
     if (err) return console.error(err);
     console.info('mongoose connected!');

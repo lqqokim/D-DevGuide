@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import RegisterForm from './register/RegisterForm.vue';
+import RegisterForm from './RegisterForm.vue';
 
 @Component({
   components: {

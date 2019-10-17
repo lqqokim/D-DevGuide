@@ -10,8 +10,8 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import VideoContents from './detail/VideoContents.vue';
-import VideoPlaylist from './detail/VideoPlaylist.vue';
+import VideoContents from './VideoContents.vue';
+import VideoPlaylist from './VideoPlaylist.vue';
 
 @Component({
   components: {

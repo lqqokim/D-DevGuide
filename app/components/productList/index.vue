@@ -11,19 +11,19 @@
     <search-bar></search-bar>
 
     <!--   프로젝트 리스트 영역 -->
-    <project-card></project-card>
+    <product-card-list></product-card-list>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import ProjectCard from './list/ProductCardList.vue';
-import TopImage from './list/TopImage.vue';
-import SearchBar from './list/SearchBar.vue';
+import ProductCardList from './ProductCardList.vue';
+import TopImage from './TopImage.vue';
+import SearchBar from './SearchBar.vue';
 
 @Component({
   layout: 'TypeA',
   components: {
-    ProjectCard,
+    ProductCardList,
     TopImage,
     SearchBar,
   },

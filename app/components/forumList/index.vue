@@ -1,5 +1,10 @@
 <template>
-  <div>질문답변 {{ this.$route.params.categoryName }} 리스트 페이지</div>
+  <div>
+    <div>
+      질문답변 리스트 페이지
+    </div>
+    카테고리 : {{ this.$route.params.categoryName }}
+  </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

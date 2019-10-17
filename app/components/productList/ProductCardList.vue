@@ -1,18 +1,19 @@
 <template>
   <ul>
     <li v-for="project in projects" :key="project.id">
-      <CardItem :project="project"></CardItem>
+      <product-card-list-item :project="project"></product-card-list-item>
     </li>
   </ul>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import CardItem from './ProductCardListItem.vue';
+import ProductCardListItem from '~/components/productList/ProductCardListItem.vue';
 
 export default Vue.extend({
+  name: 'ProductCardList',
   components: {
-    CardItem,
+    ProductCardListItem,
   },
   computed: {
     projects(): [] {

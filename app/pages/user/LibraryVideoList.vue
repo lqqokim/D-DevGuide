@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import VideoList from '~/components/library/video/VideoList.vue';
+import VideoList from '~/components/libraryVideoList/index.vue';
 
 @Component({
   layout: 'TypeA',

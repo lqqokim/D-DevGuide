@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import ProductList from '~/components/product/ProductList.vue';
+import ProductList from '~/components/productList/index.vue';
 
 import { GET_PROJECT_LIST } from '~/utils/storeTypes';
 

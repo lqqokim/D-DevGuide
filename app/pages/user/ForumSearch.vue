@@ -1,14 +1,14 @@
 <template>
-  <library-document-detail></library-document-detail>
+  <forum-search></forum-search>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import LibraryDocumentDetail from '~/components/libraryDocumentDetail/index.vue';
+import ForumSearch from '~/components/forumSearch/index.vue';
 
 @Component({
   layout: 'TypeA',
   components: {
-    LibraryDocumentDetail,
+    ForumSearch,
   },
 })
 export default class extends Vue {}

@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import ForumList from '~/components/forum/ForumList.vue';
+import ForumList from '~/components/forumList/index.vue';
 
 @Component({
   layout: 'TypeA',

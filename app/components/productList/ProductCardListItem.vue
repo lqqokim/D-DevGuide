@@ -16,6 +16,7 @@ interface Project {
 }
 
 export default Vue.extend({
+  name: 'ProductCardListItem',
   props: {
     project: {
       type: Object as PropType<Project>,

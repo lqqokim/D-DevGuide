@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      제품 문서 뷰 페이지
+      제품 문서 뷰 편집 페이지
     </div>
 
     <!-- 제품 문서 메뉴 영역-->
@@ -16,9 +16,9 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import DocMenu from './docView/DocMenu.vue';
-import DocContents from './docView/DocContents.vue';
-import SearchContents from './docView/SearchContents.vue';
+import DocMenu from './DocMenu.vue';
+import DocContents from './DocContents.vue';
+import SearchContents from './SearchContents.vue';
 
 @Component({
   components: {
@@ -27,7 +27,7 @@ import SearchContents from './docView/SearchContents.vue';
     SearchContents,
   },
 })
-export default class ProductDocView extends Vue {}
+export default class ProductEdit extends Vue {}
 </script>
 
 <style scoped></style>

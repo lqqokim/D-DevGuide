@@ -13,6 +13,7 @@ import ProductRegisterPage from '@/pages/user/ProductRegister.vue';
 import ForumRegisterPage from '@/pages/user/ForumRegister.vue';
 import ForumListPage from '@/pages/user/ForumList.vue';
 import ForumDetailPage from '@/pages/user/ForumDetail.vue';
+import ForumSearchPage from '@/pages/user/ForumSearch.vue';
 
 import LibraryVideoListPage from '@/pages/user/LibraryVideoList.vue';
 import LibraryVideoDetailPage from '@/pages/user/LibraryVideoDetail.vue';
@@ -71,6 +72,11 @@ const forumRoute = [
     // 질문답변 게시물 상세 페이지
     path: '/qna/:productId/:rowId',
     component: ForumDetailPage,
+  },
+  {
+    // 질문답변 통합검색 페이지
+    path: '/qna/search',
+    component: ForumSearchPage,
   },
   {
     // 질문 등록 페이지
