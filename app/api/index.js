@@ -2,15 +2,19 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 // app.use(express.static(__dirname + '/public')); //public 폴더 안에 javascript 파일과 css파일을 모아
 
 // NODE_ENV는 입력해야 하는 값 (backend에서 NODE_ENV=xxx node ./bin/www)
-console.log('process.env.NODE_ENV :: ', process.env.NODE_ENV + 'started!');
+console.log('process.env.NODE_ENV :: ', process.env.NODE_ENV);
+app.use(cors());
+// if (process.env.NODE_ENV !== 'production') app.use(cors());
 
 // app.use(users);
 app.use(require('./routes/gitlab'));
 app.use(require('./routes/upload'));
+app.use(require('./routes/token'));
 // app.use(require('./routes/download'));
 
 /***

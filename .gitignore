@@ -89,3 +89,6 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# static upload directory contents
+app/static/uploads/*

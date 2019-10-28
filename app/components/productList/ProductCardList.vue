@@ -7,18 +7,17 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Component, Vue } from 'nuxt-property-decorator';
 import ProductCardListItem from '~/components/productList/ProductCardListItem.vue';
 
-export default Vue.extend({
-  name: 'ProductCardList',
+@Component({
   components: {
     ProductCardListItem,
   },
-  computed: {
-    projects(): [] {
-      return this.$store.state.projects.list;
-    },
-  },
-});
+})
+export default class ProductCardList extends Vue {
+  get projects() {
+    return this.$store.state.projects.list;
+  }
+}
 </script>
