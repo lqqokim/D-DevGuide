@@ -1,18 +1,31 @@
 <template>
-  <nuxt-link
-    :to="{ name: 'detail', params: { productId: project.id, data: project } }"
-    class="project-link"
-  >
-    {{ project.name }}
-  </nuxt-link>
+  <div>
+    <!--<nuxt-link-->
+    <!--:to="{-->
+    <!--name: 'detail',-->
+    <!--params: {-->
+    <!--productId: project.projectId,-->
+    <!--data: project,-->
+    <!--pageType: 'Documents',-->
+    <!--},-->
+    <!--}"-->
+    <!--tag="div"-->
+    <!--class="product"-->
+    <!--&gt;-->
+    <!--<h2>{{ project.projectId }}</h2>-->
+    <!--<h2>{{ project.productName }}</h2>-->
+    <!--<h4>{{ project.productDescription }}</h4>-->
+    <!--</nuxt-link>-->
+    <!--<div class="product">{{ project.productName }}</div>-->
+  </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue';
 
 interface Project {
-  id: number;
-  name: string;
+  projectId: string;
+  productName: string;
 }
 
 export default Vue.extend({
@@ -37,8 +50,4 @@ export default Vue.extend({
 });
 </script>
 
-<style lang="scss">
-.project-link {
-  color: $green-color;
-}
-</style>
+<style></style>

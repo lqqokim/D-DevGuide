@@ -1,5 +1,5 @@
 <template>
-  <forum-search></forum-search>
+  <div></div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
@@ -14,4 +14,4 @@ import ForumSearch from '~/components/forumSearch/index.vue';
 export default class extends Vue {}
 </script>
 
-<style scoped></style>
+<style lang="scss"></style>

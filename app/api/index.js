@@ -9,12 +9,17 @@ const cors = require('cors');
 // NODE_ENV는 입력해야 하는 값 (backend에서 NODE_ENV=xxx node ./bin/www)
 console.log('process.env.NODE_ENV :: ', process.env.NODE_ENV);
 app.use(cors());
+app.use(express.json());
 // if (process.env.NODE_ENV !== 'production') app.use(cors());
 
+app.use(require('./routes'));
+
 // app.use(users);
-app.use(require('./routes/gitlab'));
-app.use(require('./routes/upload'));
-app.use(require('./routes/token'));
+// app.use(require('./routes/gitlab'));
+// app.use(require('./routes/upload'));
+// app.use(require('./routes/token'));
+// app.use(require('./routes/login'));
+app.use(require('./routes/product'));
 // app.use(require('./routes/download'));
 
 /***

@@ -1,5 +1,5 @@
 <template>
-  <download-list></download-list>
+  <div></div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
@@ -14,4 +14,4 @@ import DownloadList from '~/components/libraryDownloadList/index.vue';
 export default class extends Vue {}
 </script>
 
-<style scoped></style>
+<style lang="scss"></style>

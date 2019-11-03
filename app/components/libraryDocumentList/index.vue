@@ -1,20 +1,15 @@
 <template>
   <div>
     <div>
-      자료실 문서 페이지
+      자료실 문서 메인 페이지
     </div>
-
-    <doc-list></doc-list>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import DocList from './DocList.vue';
 
 @Component({
-  components: {
-    DocList,
-  },
+  components: {},
 })
 export default class LibraryDocumentList extends Vue {}
 </script>

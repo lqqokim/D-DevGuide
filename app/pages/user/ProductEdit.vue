@@ -1,5 +1,5 @@
 <template>
-  <product-edit></product-edit>
+  <div></div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
@@ -14,4 +14,4 @@ import ProductEdit from '~/components/productEdit/index.vue';
 export default class extends Vue {}
 </script>
 
-<style scoped></style>
+<style lang="scss"></style>

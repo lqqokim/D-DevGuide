@@ -1,5 +1,5 @@
 <template>
-  <library-document-list></library-document-list>
+  <div></div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
@@ -14,4 +14,4 @@ import LibraryDocumentList from '~/components/libraryDocumentList/index.vue';
 export default class extends Vue {}
 </script>
 
-<style scoped></style>
+<style lang="scss"></style>

@@ -1,0 +1,132 @@
+@import 'variables';
+@import 'mixins';
+
+.w-300 {
+  width: 300px !important;
+}
+.w-100p {
+  width: 100% !important;
+}
+
+.inp-base {
+  display: inline-block;
+  width: 140px;
+  height: 34px;
+  padding: 0 9px;
+  font-size: 14px;
+  color: #444;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  &.readonly,
+  &[readonly] {
+    color: #000;
+    background: #f7f7f7;
+    border-bottom-color: #ccc;
+  }
+  &.disabled,
+  &[disabled] {
+    color: #a6a6a6;
+    border-bottom-color: #ccc;
+    background: #f2f2f2;
+  }
+  &.required {
+    background: #fef4f4;
+    border-color: #fad2d2;
+  }
+}
+.caution {
+  position: relative;
+  margin-top: 10px;
+  padding-left: 10px;
+  font-size: 13px;
+  line-height: 1.35;
+  word-break: keep-all;
+  word-wrap: break-word;
+  &:before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    background-color: #333;
+  }
+}
+
+.srch-wrap{
+  position: relative;
+  height: 100%;
+  .m-srch-bar{
+    width: calc(100% - 30px);
+    height: 100%;
+    padding-left: 10px;
+    color: #000;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+  }
+  .btn-search{
+    position: absolute;
+    top: 18px;
+    right: 30px;
+    width: 26px;
+    height: 26px;
+    font-size: 0;
+    border: none;
+    background: transparent no-repeat center;
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNiIgaGVpZ2h0PSIyNiIgdmlld0JveD0iMCAwIDI2IDI2Ij4KICAgIDxkZWZzPgogICAgICAgIDxzdHlsZT4KICAgICAgICAgICAgLmNscy0xe2ZpbGw6cmdiYSgyNTUsMCwwLDApO29wYWNpdHk6LjEwMn0uY2xzLTJ7ZmlsbDojNjU2NTY1fQogICAgICAgIDwvc3R5bGU+CiAgICA8L2RlZnM+CiAgICA8ZyBpZD0iYnRuX3NlYXJjaF9ub3JtYWwiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xMTkuMDEgLTEwNS4wMykiPgogICAgICAgIDxwYXRoIGlkPSJhcmVhIiBkPSJNMCAwaDI2djI2SDB6IiBjbGFzcz0iY2xzLTEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDExOS4wMSAxMDUuMDMpIi8+CiAgICAgICAgPGcgaWQ9Imljb18iIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00MDEgLTM2NikiPgogICAgICAgICAgICA8cGF0aCBpZD0iUmVjdGFuZ2xlXzE3MTYiIGQ9Ik01MzQuOTk0IDQ4NC45OTRsNiA2LTEgMS02LTZ6IiBjbGFzcz0iY2xzLTIiIGRhdGEtbmFtZT0iUmVjdGFuZ2xlIDE3MTYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIgMikiLz4KICAgICAgICAgICAgPHBhdGggaWQ9IkVsbGlwc2VfMV9jb3B5IiBkPSJNNTMyIDQ5MmE5IDkgMCAxIDEgOS05IDkuMDEgOS4wMSAwIDAgMS05IDl6bTAtMTYuNzEzYTcuNzE0IDcuNzE0IDAgMSAwIDcuNzE0IDcuNzEzIDcuNzIzIDcuNzIzIDAgMCAwLTcuNzE0LTcuNzE0eiIgY2xhc3M9ImNscy0yIiBkYXRhLW5hbWU9IkVsbGlwc2UgMSBjb3B5IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMSAtMSkiLz4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPgo=);
+    outline: none;
+    cursor: pointer;
+    &:hover{
+      background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNiIgaGVpZ2h0PSIyNiIgdmlld0JveD0iMCAwIDI2IDI2Ij4KICAgIDxkZWZzPgogICAgICAgIDxzdHlsZT4KICAgICAgICAgICAgLmNscy0xe2ZpbGw6cmdiYSgyNTUsMCwwLDApO29wYWNpdHk6LjEwMn0uY2xzLTJ7ZmlsbDojNDM3ZmUzfQogICAgICAgIDwvc3R5bGU+CiAgICA8L2RlZnM+CiAgICA8ZyBpZD0iYnRuX3NlYXJjaF9vdmVyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTE5LjAxIC0xMDUuMDMpIj4KICAgICAgICA8cGF0aCBpZD0iYXJlYSIgZD0iTTAgMGgyNnYyNkgweiIgY2xhc3M9ImNscy0xIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMTkuMDEgMTA1LjAzKSIvPgogICAgICAgIDxnIGlkPSJpY29fIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNDAxIC0zNjYpIj4KICAgICAgICAgICAgPHBhdGggaWQ9IlJlY3RhbmdsZV8xNzE2IiBkPSJNNTM0Ljk5NCA0ODQuOTk0bDYgNi0xIDEtNi02eiIgY2xhc3M9ImNscy0yIiBkYXRhLW5hbWU9IlJlY3RhbmdsZSAxNzE2IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyIDIpIi8+CiAgICAgICAgICAgIDxwYXRoIGlkPSJFbGxpcHNlXzFfY29weSIgZD0iTTUzMiA0OTJhOSA5IDAgMSAxIDktOSA5LjAxIDkuMDEgMCAwIDEtOSA5em0wLTE2LjcxM2E3LjcxNCA3LjcxNCAwIDEgMCA3LjcxNCA3LjcxMyA3LjcyMyA3LjcyMyAwIDAgMC03LjcxNC03LjcxNHoiIGNsYXNzPSJjbHMtMiIgZGF0YS1uYW1lPSJFbGxpcHNlIDEgY29weSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTEgLTEpIi8+CiAgICAgICAgPC9nPgogICAgPC9nPgo8L3N2Zz4K);
+    }
+  }
+}
+.srch-wrap-bar{
+  width: 680px;
+  height: 60px;
+  margin: 20px auto 0;
+  border: 1px solid #dbdbdb;
+  border-radius: 30px;
+  .m-srch-bar{
+    font-size: 18px;
+    &::placeholder{
+      color: #b2b2b2;
+    }
+  }
+}
+.srch-tag{
+  display: flex;
+  align-items: center;
+  width: 680px;
+  margin: 0 auto;
+  padding: 0 20px;
+  color: #333;
+  strong{
+    font-size: 16px;
+    letter-spacing: -0.16px;
+    color: #565656;
+    font-weight: normal;
+  }
+  .keyword-list{
+    @include clearfix;
+    overflow: hidden;
+    margin-left: 10px;
+    li{
+      display: inline-block;
+      padding: 2px 10px;
+      background: #f1f1f1;
+      border-radius: 10px;
+      a{
+        font-size: 13px;
+        color: #8e8e8e;
+      }
+    }
+  }
+}

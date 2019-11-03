@@ -1,5 +1,5 @@
 import { Configuration } from '@nuxt/types';
-import Stylelint  from 'stylelint-webpack-plugin';
+import Stylelint from 'stylelint-webpack-plugin';
 
 const config: Configuration = {
   mode: 'universal',
@@ -51,10 +51,10 @@ const config: Configuration = {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/style-resources'
+    '@nuxtjs/style-resources',
   ],
   styleResources: {
-    scss: ['./assets/scss/*.scss']
+    scss: ['./assets/scss/*.scss'],
   },
   axios: {},
   /*
@@ -70,14 +70,16 @@ const config: Configuration = {
         ['@babel/plugin-proposal-class-properties', { loose: true }],
       ],
     },
-    extend (config, { isDev, isClient }) {
+    extend(config, { isDev, isClient }) {
       if (isDev && isClient) {
         // @ts-ignore
-        config.plugins.push(new Stylelint({
-          files: '**/*.{css,scss,vue}'
-        }))
+        config.plugins.push(
+          new Stylelint({
+            files: '**/*.{css,scss,vue}',
+          })
+        );
       }
-    }
+    },
   },
 };
 

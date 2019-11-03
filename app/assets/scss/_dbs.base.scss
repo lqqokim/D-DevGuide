@@ -1,0 +1,274 @@
+@import 'variables';
+@import 'mixins';
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../fonts/NotoSans-Regular.woff2') format('woff2'), url('../fonts/NotoSans-Regular.woff') format('woff'), url('../fonts/NotoSans-Regular.otf') format('opentype');
+}
+html,
+body {
+  font-family: 'Noto Sans KR', '굴림', Helvetica, Arial, Verdana, Tahoma, sans-serif;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: visible;
+}
+
+body {
+  position: relative;
+  display: table;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  table-layout: fixed;
+  margin: 0 auto;
+  padding: 0;
+  font-size: $base-font-size;
+  line-height: 19px;
+  color: #000;
+  background-color: #fff;
+  box-sizing: border-box;
+  -webkit-text-size-adjust: none;
+}
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+form,
+fieldset,
+p,
+button,
+iframe,
+tr,
+tbody,
+thead,
+table,
+th,
+td,
+b,
+span,
+strong {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+dl,
+dt,
+dd,
+ul,
+ol,
+li {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+img,
+fieldset,
+iframe,
+button {
+  border: 0 none;
+}
+legend {
+  display: none;
+}
+abbr {
+  text-decoration: none;
+}
+ul,
+li {
+  list-style: none;
+}
+em,
+u,
+cite,
+i {
+  font-style: normal;
+}
+a {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+body,
+textarea,
+button,
+table {
+  -webkit-appearance: none;
+  outline: none;
+}
+button {
+  border: 0;
+  color: #222;
+  background: transparent;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+input,
+textarea {
+  outline: 0;
+  box-sizing: border-box;
+}
+/* input box color */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px #fff inset;
+  -webkit-text-fill-color: #000;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* clears the 'X' from Internet Explorer */
+input[type='search']::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+input[type='search']::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* clears the 'X' from Chrome */
+input[type='search']::-webkit-search-decoration,
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-results-button,
+input[type='search']::-webkit-search-results-decoration {
+  display: none;
+}
+
+.not_scroll {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.hide {
+  position: absolute;
+  overflow: hidden;
+  width: 0;
+  height: 0;
+  padding: 0;
+  color: transparent;
+  font-size: xx-small;
+  line-height: 0;
+  z-index: -1;
+}
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.txt-center {
+  text-align: center;
+}
+.txt-left {
+  text-align: left;
+}
+.txt-right {
+  text-align: right;
+}
+.ellipsis {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: normal;
+}
+.fit {
+  footer {
+    position: absolute;
+    bottom: 0;
+  }
+}
+.line{
+  width: 100%;
+  height: 1px;
+  background-color: #dbdbdb;
+}
+/* font size */
+
+/*  간격 */
+@for $i from 1 through 20 {
+  .mgt-#{$i *5} {
+    margin-top: $i * 5px !important;
+  }
+  .mgb-#{$i *5} {
+    margin-bottom: $i * 5px !important;
+  }
+}
+
+/* title */
+[class^='tit'] {
+  line-height: 1.35;
+  $this: &;
+}
+.tit {
+  font-size: $base-font-size + 4px;
+  font-weight: 500;
+  &-main {
+    font-size: $base-font-size * 2.5;
+    font-weight: 500;
+  }
+  &-main-sub {
+    font-size: $base-font-size + 1px;
+  }
+  &-con {
+    margin: 0 0 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #555;
+    font-size: 26px;
+    line-height: 36px;
+    letter-spacing: -1px;
+    color: #101010;
+    font-weight: bold;
+  }
+  &-con-small {
+    font-size: 20px;
+    line-height: 27px;
+    color: #222;
+  }
+  &-con-med {
+    font-size: $base-font-size - 2px;
+  }
+  &-con-large {
+    margin: 0;
+    padding: 0 0 10px;
+    font-size: $base-font-size + 2px;
+    color: #000;
+  }
+  &-video{
+    font-size: 24px;
+    line-height: 33px;
+    color: #222;
+  }
+  &-video-small{
+    font-size: 16px;
+    line-height: 22px;
+    color: #101010;
+  }
+}

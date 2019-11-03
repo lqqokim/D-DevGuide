@@ -19,7 +19,7 @@ import VideoPlaylist from './VideoPlaylist.vue';
     VideoPlaylist,
   },
 })
-export default class VideoDetail extends Vue {}
+export default class LibraryVideoDetail extends Vue {}
 </script>
 
 <style scoped></style>

@@ -1,32 +1,21 @@
 <template>
-  <div class="container">
-    <header-gnb></header-gnb>
-    <nuxt class="content"></nuxt>
-    <base-footer></base-footer>
+  <div class="base-wrap">
+    <header-comp></header-comp>
+    <nuxt></nuxt>
+    <footer-comp></footer-comp>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'nuxt-property-decorator';
-import HeaderGnb from './header/GNB.vue';
-import BaseFooter from './footer/BaseFooter.vue';
+import HeaderComp from '@/components/common/header/index.vue';
+import FooterComp from '@/components/common/footer/index.vue';
 
 @Component({
   components: {
-    HeaderGnb,
-    BaseFooter,
+    HeaderComp,
+    FooterComp,
   },
 })
-export default class Header extends Vue {}
+export default class CommonLayout extends Vue {}
 </script>
-<style>
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-.content {
-  height: 600px;
-}
-</style>
+<style lang="scss"></style>
