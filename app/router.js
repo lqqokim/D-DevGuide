@@ -40,6 +40,9 @@ import AdminDownloadPage from '~/pages/admin/AdminDownload';
 import LoginPage from '~/pages/user/Login';
 import UserInfoPage from '~/pages/user/UserInfo';
 
+// Error 페이지
+import NotFoundPage from '~/pages/Error/NotFound';
+
 Vue.use(Router);
 Vue.prototype.$EventBus = new Vue();
 
@@ -193,6 +196,11 @@ const testRoute = [
     name: 'storage',
     path: '/storage',
     component: Storage,
+  },
+  {
+    name: 'error',
+    path: '*',
+    component: NotFoundPage,
   },
 ];
 

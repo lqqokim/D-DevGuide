@@ -1,7 +1,6 @@
 import {
   memberCheckDBS,
   createTokenDBS,
-  updateAuthority,
   createUser,
 } from '../../../controllers/auth/dbs';
 
@@ -29,14 +28,6 @@ router.post('/createToken', (req, res) => {
   //   message: '회원정보를 찾을 수 없습니다.',
   //   key: ''
   // }
-});
-
-router.post('/updateAuthority', (req, res) => {
-  const { user } = req.body;
-
-  updateAuthority(user, (result) => {
-    res.send(result.key);
-  });
 });
 
 router.post('/createUser', (req, res) => {
