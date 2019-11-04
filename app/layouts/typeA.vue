@@ -1,8 +1,8 @@
 <template>
   <div class="base-wrap">
-    <header-comp></header-comp>
+    <HeaderComp></HeaderComp>
     <nuxt></nuxt>
-    <footer-comp></footer-comp>
+    <FooterComp></FooterComp>
   </div>
 </template>
 <script lang="ts">

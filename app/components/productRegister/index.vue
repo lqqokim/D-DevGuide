@@ -200,12 +200,12 @@ export default class ProductRegister extends Vue {
 
   @Projects.Action('setProduct') setProductAction;
   @Projects.Action('getProductList') getProductListAction;
-  @Projects.Getter('wholeProductList') productList!: projects.Product;
+  @Projects.Getter('wholeProductList') productList!: projects.Product[];
 
   created() {
     this.getProductListAction({});
   }
-  onProductRegister() {
+  onProductRegister(): void {
     const self = this;
 
     // * 표시되어 있는 항목들의 입력 여부 체크
@@ -224,7 +224,7 @@ export default class ProductRegister extends Vue {
     } else if (self.manualDocPath === '') {
       alert('제품 사용법 문서 경로를 입력해주세요.');
     } else {
-      const projectIdArray = [];
+      const projectIdArray: string[] = [];
       if (self.productList.length > 0) {
         for (let idx = 0; idx < self.productList.length; idx++) {
           projectIdArray.push(self.productList[idx].projectId);

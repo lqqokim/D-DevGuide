@@ -1,4 +1,4 @@
-import { checkGWA, userGWA } from '../../../controllers/auth/groupware';
+import { checkLogin, searchUser } from './../../../controllers/auth/gw';
 
 const { Router } = require('express');
 const router = Router();
@@ -8,12 +8,12 @@ router.post('/checkLogin', (req, res) => {
 
   if (user) {
     // 그룹웨어 직원 확인
-    checkGWA(user, (requestRes) => {
+    checkLogin(user, (requestRes) => {
       if (requestRes.resultCode === '0') {
-        res.status(200).send(requestRes);
-        // 그룹웨어 직원 정보 확인
+        // 존재
+        res.status(200).send(0);
       } else {
-        // 존재 하지 않음
+        res.status(200).send(1);
       }
     });
   }
@@ -24,7 +24,7 @@ router.post('/searchUser', (req, res) => {
 
   if (user) {
     // 그룹웨어 직원 정보 확인
-    userGWA(user, (requestRes) => {
+    searchUser(user, (requestRes) => {
       if (requestRes.resultCode === '0') {
         res.status(200).send(requestRes);
       } else {

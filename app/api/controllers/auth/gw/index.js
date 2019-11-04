@@ -5,9 +5,7 @@ const request = require('request');
  * @param user
  * @param cb
  */
-export const checkGWA = (user, cb) => {
-  console.log('user :: ', user);
-
+export const checkLogin = (user, cb) => {
   const requestBody = {
     header: {
       empSeq: '',
@@ -32,15 +30,21 @@ export const checkGWA = (user, cb) => {
   request(options, function(error, response, body) {
     console.log('========================');
     console.log('[statusCode]', response && response.statusCode);
-    console.log('[직원 체크]', body);
+    console.log('[그룹웨어 체크]', body);
+
+    /* {                                                                                                                                                     12:24:12
+      resultCode: '0',
+      resultMessage: 'SUCCESS',
+      result: {}
+    } */
 
     if (!error && response.statusCode === 200) {
-      cb(body);
+      const { resultCode } = body;
+      cb(resultCode);
     } else {
       console.log(error);
     }
   });
-  console.log('========================');
 };
 
 /***
@@ -48,7 +52,7 @@ export const checkGWA = (user, cb) => {
  * @param user
  * @param cb
  */
-export const userGWA = (user, cb) => {
+export const searchUser = (user, cb) => {
   const requestBody = {
     header: {
       empSeq: '',
@@ -71,7 +75,8 @@ export const userGWA = (user, cb) => {
   };
 
   request(options, function(error, response, body) {
-    console.log('[직원 정보]', body);
+    console.log('[statusCode]', response && response.statusCode);
+    console.log('[그룹웨어 조회]', body);
     if (!error && response.statusCode === 200) {
       cb(body);
     } else {

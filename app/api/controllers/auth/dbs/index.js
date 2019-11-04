@@ -2,7 +2,7 @@ const request = require('request');
 
 export const memberCheckDBS = (user, cb) => {
   const options = {
-    url: 'http://localhost:3000/html/MemberChcek.jsp',
+    url: 'http://localhost:3000/html/MemberCheck.jsp',
     method: 'POST',
     headers: {
       Accept: 'text/plain, */*; q=0.01',
@@ -21,12 +21,24 @@ export const memberCheckDBS = (user, cb) => {
   };
 
   function callback(error, response, body) {
-    console.log('[DBS 맴버 체크]', body);
     console.log('[statusCode]', response && response.statusCode);
+    console.log('[DBS 맴버 체크]', JSON.parse(body));
+
+    /* {                                                                                                                                                                                                                                                   17:21:54
+        result: true,
+        data: {
+          ID: 'kis4204@douzone.com',
+          IDX: '376',
+          NAME: '김인수',
+          AUTHORITY: 'M'
+        },
+        resultCode: '0',
+        message: ''
+      } */
 
     if (!error && response.statusCode === 200) {
-      const result = JSON.parse(body);
-      cb(result);
+      const { resultCode } = JSON.parse(body);
+      cb(resultCode);
     } else {
       console.error('DBS 에서 유저정보를 가져오는데 문제가 발생하였습니다.');
     }
@@ -56,15 +68,14 @@ export const createTokenDBS = (user, cb) => {
   };
 
   function callback(error, response, body) {
-    console.log('[DBS 토큰 생성]', body);
     console.log('[statusCode]', response && response.statusCode);
+    console.log('[DBS 토큰 생성]', JSON.parse(body));
 
     if (!error && response.statusCode === 200) {
-      const result = JSON.parse(body);
-      cb(result);
+      cb(JSON.parse(body));
     } else {
+      // status: 500 서버에러 // 프론트 서버에러 화면 위임필요
       console.error('DBS 에서 Token 을 가져오는데 문제가 발생하였습니다.');
-      // 프론트 서버에러 화면 위임필요
     }
   }
 
@@ -92,8 +103,8 @@ export const updateAuthority = (user, cb) => {
   };
 
   function callback(error, response, body) {
-    console.log('[DBS 토큰 생성]', body);
     console.log('[statusCode]', response && response.statusCode);
+    console.log('[DBS 토큰 생성]', body);
 
     if (!error && response.statusCode === 200) {
       const result = JSON.parse(body);
@@ -128,8 +139,8 @@ export const createUser = (user, cb) => {
   };
 
   function callback(error, response, body) {
-    console.log('[DBS 토큰 생성]', body);
     console.log('[statusCode]', response && response.statusCode);
+    console.log('[DBS 유저 추가]', body);
 
     if (!error && response.statusCode === 200) {
       const result = JSON.parse(body);

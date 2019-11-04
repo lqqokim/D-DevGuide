@@ -9,9 +9,10 @@ const { Router } = require('express');
 const router = Router();
 
 router.post('/memberCheck', (req, res) => {
-  const { loginId } = req.body;
+  console.log('memberCheck :: ');
+  const { user } = req.body;
 
-  memberCheckDBS(loginId, (result) => {
+  memberCheckDBS(user, (result) => {
     res.send(result.data);
   });
 });

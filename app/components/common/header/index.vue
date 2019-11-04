@@ -40,12 +40,7 @@
           </li>
         </ul>
         <!-- 마우스 오버시 display: block 되어야 함 -->
-        <div
-          ref="submenu"
-          class="gnb-menu-wrap"
-          style="display: block;"
-          @mouseleave="closeSubMenu"
-        >
+        <div ref="submenu" class="gnb-menu-wrap" @mouseleave="closeSubMenu">
           <ul class="menu-list">
             <li class="mn-list">
               <ul class="menu-sub-list">
@@ -128,9 +123,9 @@
 import { Component, Vue } from 'nuxt-property-decorator';
 
 @Component
-export default class Header extends Vue {
+export default class HeaderComp extends Vue {
   readonly dbsPath = 'html/PagePanel.html';
-  private $refs!: {
+  $refs!: {
     submenu: HTMLFormElement;
     bar: HTMLFormElement;
   };

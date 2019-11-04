@@ -1,14 +1,14 @@
 <template>
-  <login></login>
+  <LoginComp></LoginComp>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import Login from '~/components/login/index.vue';
+import LoginComp from '~/components/login/index.vue';
 
 @Component({
   layout: 'TypeA',
   components: {
-    Login,
+    LoginComp,
   },
 })
 export default class extends Vue {}

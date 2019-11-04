@@ -115,5 +115,7 @@
 import { Component, Vue } from 'nuxt-property-decorator';
 
 @Component
-export default class FooterComp extends Vue {}
+export default class FooterComp extends Vue {
+  readonly dbsPath = 'html/PagePanel.html';
+}
 </script>
