@@ -6,6 +6,21 @@ events.EventEmitter.defaultMaxListeners = 50;
 // const ExtractTextPlugin = require('extract-text-webpack-plugin');
 // const extractCSS = new ExtractTextPlugin('stylesheets/[name]-one.css');
 
+const dbsProxy = process.env.DBS_URL
+  ? [
+      `${process.env.DBS_URL}/html`,
+      `${process.env.DBS_URL}/css`,
+      `${process.env.DBS_URL}/images`,
+      `${process.env.DBS_URL}/**.jsp`,
+      `${process.env.DBS_URL}/scripts`,
+      `${process.env.DBS_URL}/jqGrid`,
+      `${process.env.DBS_URL}/Highcharts-5.0.14`,
+      `${process.env.DBS_URL}/jqUI`,
+      `${process.env.DBS_URL}/sweetalert`,
+      `${process.env.DBS_URL}/GPW`,
+    ]
+  : [];
+
 const config: Configuration = {
   mode: 'universal',
   srcDir: 'app/',
@@ -82,18 +97,7 @@ const config: Configuration = {
     scss: ['./assets/scss/*.scss'],
   },
   axios: {},
-  proxy: [
-    `${process.env.DBS_URL}/html`,
-    `${process.env.DBS_URL}/css`,
-    `${process.env.DBS_URL}/images`,
-    `${process.env.DBS_URL}/**.jsp`,
-    `${process.env.DBS_URL}/scripts`,
-    `${process.env.DBS_URL}/jqGrid`,
-    `${process.env.DBS_URL}/Highcharts-5.0.14`,
-    `${process.env.DBS_URL}/jqUI`,
-    `${process.env.DBS_URL}/sweetalert`,
-    `${process.env.DBS_URL}/GPW`,
-  ],
+  proxy: dbsProxy,
   /*
    ** Build configuration
    */

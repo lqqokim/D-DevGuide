@@ -64,11 +64,11 @@ export const actions: ActionTree<VideoState, RootState> = {
   async getVideosByProduct({ commit }, payload: string): Promise<any> {
     try {
       const videoListRes = await this.$axios.get(
-        'api/library/video/list/:productType'
+        'api/library/video/list/' + payload
       );
 
-      console.log('videoListRes :: ', videoListRes);
-      commit('setVideosByProduct', videoListRes.data);
+      console.log('videoListRes :: ', videoListRes.data);
+      commit('setVideosByProduct', videoListRes.data.data);
     } catch (e) {
       console.error(e);
     }

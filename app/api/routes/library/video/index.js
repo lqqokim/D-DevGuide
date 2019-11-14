@@ -50,6 +50,4 @@ router.post('/register', (req, res) => {
  */
 router.delete('/remove/:_id', (req, res) => {});
 
-// router.delete('/remove/');
-
 module.exports = router;

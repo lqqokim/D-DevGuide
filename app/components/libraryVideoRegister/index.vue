@@ -32,7 +32,7 @@ export default class LibraryVideoProductManage extends Vue {
       description: '더존 DEWS_UI 제픔관련 동영상 입니다.',
 
       isSeries: true,
-      seriesTitle: 'DEWS_UI',
+      seriesTitle: 'DEWS/UI 모음',
       series: [
         {
           videoTitle: 'DEWS_UI 첫번째 영상',
@@ -72,7 +72,7 @@ export default class LibraryVideoProductManage extends Vue {
       description: '더존 세미나 동영상 입니다.',
 
       isSeries: false,
-      seriesTitle: 'DEWS_UI',
+      seriesTitle: 'D_ERP 영상',
       series: [],
     });
   }

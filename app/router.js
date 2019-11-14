@@ -248,32 +248,34 @@ const libraryRoute = [
   },
   {
     // 자료실 > 동영상 > 리스트 페이지
-    path: '/library/video/:productType',
+    path: '/video/:productType',
     component: LibraryVideoListPage,
   },
   {
     // 자료실 > 동영상 > 등록 페이지
-    path: '/library/video/register/:productType',
+    path: '/video/register/:productType',
     component: LibraryVideoRegisterPage,
   },
   {
     // 자료실 > 동영상 > 상세 페이지
-    path: '/library/video/:productType/:_id',
+    path: '/video/:productType/:_id',
     component: LibraryVideoDetailPage,
+    name: 'videoDetail',
+    // props: true,
   },
   {
     // 자료실 > 동영상 > 수정 페이지
-    path: '/library/video/edit/:_id',
+    path: '/video/edit/:_id',
     component: LibraryVideoEditPage,
   },
   {
     // 자료실 동영상 제품 관리 페이지
-    path: '/library/video/manage/product',
+    path: '/video/manage/product',
     component: LibraryVideoProductManagePage,
   },
   {
     // 자료실 동영상 홈화면 관리 페이지
-    path: '/library/video/manage/home',
+    path: '/video/manage/home',
     component: LibraryVideoHomeManagePage,
   },
 ];
@@ -341,6 +343,12 @@ const router = new Router({
 export function createRouter() {
   return router;
 }
+
+/**
+ * vue-router
+ * 1. path, query 매칭
+ * 2. name, params 매칭
+ */
 
 // const apiRootPath = 'http://localhost:3000/api';
 // Vue.prototype.$apiRootPath = apiRootPath;

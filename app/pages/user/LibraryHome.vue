@@ -178,8 +178,16 @@ import LibraryHome from '~/components/libraryHome/index.vue';
   components: {
     LibraryHome,
   },
-  asyncData({ store }): any {
-    store.dispatch('projects/getProductList');
+  async asyncData({ store }): Promise<any> {
+    try {
+      await store.dispatch('projects/getProductList');
+      await store.dispatch(
+        'video/getVideosByProduct',
+        store.state.projects.productList[0].productType
+      );
+    } catch (e) {
+      console.error(e);
+    }
   },
 })
 export default class extends Vue {}
