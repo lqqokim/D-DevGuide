@@ -3,19 +3,32 @@
     <div class="gnb-header">
       <div class="aside">
         <p class="notification">
-          <span class="noti"
-            ><nuxt-link to="/" class="noti-link">Settings</nuxt-link></span
-          >
-          <span class="noti log"
-            ><nuxt-link to="/login" class="noti-link" @click.native="clearToken"
-              >로그아웃</nuxt-link
-            ></span
-          >
-          <span class="noti mypage"
-            ><nuxt-link to="/myinfo" class="noti-link"
-              >마이페이지</nuxt-link
-            ></span
-          >
+          <template v-if="$store.state.user.user.authToken">
+            <span class="noti">
+              {{ $store.state.user.user.name }} 님 반갑습니다.
+            </span>
+            <span class="noti">
+              [권한 : {{ $store.state.user.user.authority }}]
+            </span>
+            <span class="noti"
+              ><nuxt-link to="/admin/video" class="noti-link"
+                >Settings</nuxt-link
+              ></span
+            >
+            <span v-if="token" class="noti log">
+              <a class="noti-link" @click="logout">로그아웃</a>
+            </span>
+            <span v-if="token" class="noti mypage"
+              ><nuxt-link to="/myinfo" class="noti-link"
+                >마이페이지</nuxt-link
+              ></span
+            >
+          </template>
+          <template v-else>
+            <span class="noti log"
+              ><nuxt-link to="/login" class="noti-link">로그인</nuxt-link></span
+            >
+          </template>
         </p>
       </div>
     </div>
@@ -31,12 +44,6 @@
           <li class="ui-menu"><a :href="dbsPath + '?pageId=forum'">포럼</a></li>
           <li class="ui-menu selected">
             <nuxt-link to="/docs">개발자 지원</nuxt-link>
-          </li>
-          <li class="ui-menu">
-            <nuxt-link to="/qna/:categoryName">질문 / 답변</nuxt-link>
-          </li>
-          <li class="ui-menu">
-            <nuxt-link to="/library/video">자료실</nuxt-link>
           </li>
         </ul>
         <!-- 마우스 오버시 display: block 되어야 함 -->
@@ -68,39 +75,13 @@
             <li class="mn-list">
               <ul class="menu-sub-list">
                 <li class="mn-sub-list">
-                  <nuxt-link to="/docs">제품리스트</nuxt-link>
+                  <nuxt-link to="/docs">개발자 문서</nuxt-link>
                 </li>
                 <li class="mn-sub-list">
-                  <nuxt-link to="docs/register">제품등록</nuxt-link>
+                  <nuxt-link to="/qna/:categoryName">질문/답변</nuxt-link>
                 </li>
                 <li class="mn-sub-list">
-                  <nuxt-link
-                    to="/docs/:productId/branch/:branchName/:pageType/:pageId"
-                    >문서뷰/편집</nuxt-link
-                  >
-                </li>
-              </ul>
-            </li>
-            <li class="mn-list">
-              <ul class="menu-sub-list">
-                <li class="mn-sub-list">
-                  <nuxt-link to="/qna/:categoryName">나의 문의내역</nuxt-link>
-                </li>
-                <li class="mn-sub-list">
-                  <nuxt-link to="/qna/:categoryName">제품별 통합질문</nuxt-link>
-                </li>
-              </ul>
-            </li>
-            <li class="mn-list">
-              <ul class="menu-sub-list">
-                <li class="mn-sub-list">
-                  <nuxt-link to="/library/video">동영상</nuxt-link>
-                </li>
-                <li class="mn-sub-list">
-                  <nuxt-link to="/library/doc">문서</nuxt-link>
-                </li>
-                <li class="mn-sub-list">
-                  <nuxt-link to="/library/download">다운로드</nuxt-link>
+                  <nuxt-link to="/library">자료실</nuxt-link>
                 </li>
               </ul>
             </li>
@@ -120,15 +101,53 @@
   </header>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator';
+import { Component, namespace, Vue } from 'nuxt-property-decorator';
+import * as user from '@/store/modules/user';
+import * as common from '@/store/modules/common';
+
+const User = namespace('user');
+const Common = namespace('common');
 
 @Component
 export default class HeaderComp extends Vue {
-  readonly dbsPath = 'html/PagePanel.html';
+  // @User.Action('encryptToken') encryptTokenAction!: () => void;
+  // @User.Mutation('setTokenSSR') setTokenSSRMutation!: (any) => void;
+  @User.Mutation('userLogout') logoutAction!: () => void;
+  @User.Getter('getToken') authToken!: string | null;
+  @Common.State('authPages') authPages!: string[];
+
+  readonly dbsPath: string = '/html/PagePanel.html';
   $refs!: {
     submenu: HTMLFormElement;
     bar: HTMLFormElement;
   };
+
+  get token() {
+    return this.authToken;
+  }
+
+  mounted() {
+    // @ts-ignore
+    const cookie: string | null = this.$cookies.get('KEY');
+
+    // if (cookie) {
+    //   this.setTokenSSRMutation(cookie);
+    //   // 토큰으로 유저정보를 가져옴
+    //   this.encryptTokenAction();
+    //
+    //   // white_list 아닌 페이지에 대한 SSR 담당
+    // }
+
+    if (!cookie) {
+      this.logoutAction();
+
+      if (this.authPages.includes(this.$route.path)) {
+        this.$router.push({
+          path: '/',
+        });
+      }
+    }
+  }
 
   openSubMenu($event): void {
     this.$refs.submenu.style.display = 'block';
@@ -140,10 +159,13 @@ export default class HeaderComp extends Vue {
     this.$refs.bar.style.display = 'none';
   }
 
-  clearToken(): void {
-    const storage = window.sessionStorage;
-    if (storage.KEY) {
-      storage.removeItem('KEY');
+  logout(): void {
+    this.logoutAction();
+
+    if (this.authPages.includes(this.$route.path)) {
+      this.$router.push({
+        path: '/',
+      });
     }
   }
 }

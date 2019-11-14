@@ -8,5 +8,6 @@ const router = express.Router();
 
 router.use('/auth', require('./auth'));
 router.use('/docs', require('./docs'));
+router.use('/library', require('./library'));
 
 module.exports = router;

@@ -1,14 +1,14 @@
 <template>
-  <div></div>
+  <forum-product></forum-product>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import LibraryVideoAll from '~/components/libraryVideoAll/index.vue';
+import ForumProduct from '~/components/forumProduct/index.vue';
 
 @Component({
   layout: 'TypeA',
   components: {
-    LibraryVideoAll,
+    ForumProduct,
   },
 })
 export default class extends Vue {}

@@ -1,7 +1,5 @@
 <template>
-  <div>
-    동영상 관리자 페이지
-  </div>
+  <div></div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

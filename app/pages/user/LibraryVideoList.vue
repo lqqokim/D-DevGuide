@@ -17,7 +17,7 @@
       <h1 class="tit-con mgt-50">동영상</h1>
       <div class="position-wrap">
         <h2 class="tit-con-small">D_ERP</h2>
-        <a class="pst-more">더보기</a>
+        <nuxt-link class="pst-more" to="/library/video/all">더보기</nuxt-link>
       </div>
       <ul class="thumb-list mgt-10">
         <li>
@@ -169,8 +169,10 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
+import { Vue, Component, Getter, namespace } from 'nuxt-property-decorator';
 import LibraryVideoList from '~/components/libraryVideoList/index.vue';
+
+const User = namespace('user');
 
 @Component({
   layout: 'TypeA',

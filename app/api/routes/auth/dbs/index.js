@@ -1,6 +1,6 @@
 import {
-  memberCheckDBS,
-  createTokenDBS,
+  checkDBSUser,
+  createToken,
   createUser,
 } from '../../../controllers/auth/dbs';
 
@@ -11,7 +11,7 @@ router.post('/memberCheck', (req, res) => {
   console.log('memberCheck :: ');
   const { user } = req.body;
 
-  memberCheckDBS(user, (result) => {
+  checkDBSUser(user, (result) => {
     res.send(result.data);
   });
 });
@@ -19,7 +19,7 @@ router.post('/memberCheck', (req, res) => {
 router.post('/createToken', (req, res) => {
   const { user } = req.body;
 
-  createTokenDBS(user, (result) => {
+  createToken(user, (result) => {
     res.send(result.key);
   });
 

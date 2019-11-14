@@ -1,4 +1,4 @@
-import { checkLogin, searchUser } from './../../../controllers/auth/gw';
+import { checkGroupwareUser, searchUser } from './../../../controllers/auth/gw';
 
 const { Router } = require('express');
 const router = Router();
@@ -8,7 +8,7 @@ router.post('/checkLogin', (req, res) => {
 
   if (user) {
     // 그룹웨어 직원 확인
-    checkLogin(user, (requestRes) => {
+    checkGroupwareUser(user, (requestRes) => {
       if (requestRes.resultCode === '0') {
         // 존재
         res.status(200).send(0);

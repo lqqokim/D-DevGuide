@@ -4,64 +4,87 @@ import Router from 'vue-router';
 import Index from '@/pages/index.vue';
 import Storage from '@/pages/Storage.vue';
 
-// 제품 화면
+/**
+ * 제품 화면
+ */
 import ProductListPage from '@/pages/user/ProductList.vue';
 import ProductDetailPage from '@/pages/user/ProductDetail.vue';
 import ProductDocViewPage from '@/pages/user/ProductDocView.vue';
 import ProductEditPage from '@/pages/user/ProductEdit.vue';
 import ProductRegisterPage from '@/pages/user/ProductRegister.vue';
 
-// 질문답변 화면
+import ProductManagePage from '@/pages/admin/ProductManage.vue';
+import ProductBranchManagePage from '@/pages/admin/ProductBranchManage.vue';
+import ProductVerManagePage from '@/pages/admin/ProductVerManage.vue';
+import ProductNoticeManagePage from '@/pages/admin/ProductNoticeManage.vue';
+
+/**
+ * 질문 답변
+ */
 import ForumRegisterPage from '@/pages/user/ForumRegister.vue';
 import ForumListPage from '@/pages/user/ForumList.vue';
 import ForumDetailPage from '@/pages/user/ForumDetail.vue';
 import ForumSearchPage from '@/pages/user/ForumSearch.vue';
 
-// 자료실 > 동영상
-import LibraryVideoListPage from '@/pages/user/LibraryVideoList.vue';
-import LibraryVideoAllPage from '~/pages/user/LibraryVideoAll';
-import LibraryVideoDetailPage from '@/pages/user/LibraryVideoDetail.vue';
+import ForumHomePage from '@/pages/user/ForumHome.vue';
+import ForumAllPage from '@/pages/user/ForumAll.vue';
+import ForumProductPage from '@/pages/user/ForumProduct.vue';
+import ForumProductDetailPage from '@/pages/user/ForumProductDetail.vue';
+import ForumMyPage from '@/pages/user/ForumMy.vue';
+import ForumManagePage from '@/pages/admin/ForumManage.vue';
 
-// 자료실 > 문서
+/**
+ * 자료실
+ */
+import LibraryHomePage from '@/pages/user/LibraryHome';
+
+// 동영상
+import LibraryVideoListPage from '~/pages/user/LibraryVideoList';
+import LibraryVideoDetailPage from '~/pages/user/LibraryVideoDetail';
+import LibraryVideoRegisterPage from '~/pages/user/LibraryVideoRegister';
+import LibraryVideoEditPage from '~/pages/user/LibraryVideoEdit';
+import LibraryVideoProductManagePage from '~/pages/admin/LibraryVideoProductManage';
+import LibraryVideoHomeManagePage from '~/pages/admin/LibraryVideoHomeManage';
+
+// 문서
 import LibraryDocumentListPage from '@/pages/user/LibraryDocumentList.vue';
 import LibraryDocumentAllPage from '~/pages/user/LibraryDocumentAll';
 import LibraryDocumentDetailPage from '@/pages/user/LibraryDocumentDetail.vue';
 
-// 자료실 > 다운로드
+// 다운로드
 import LibraryDownloadListPage from '@/pages/user/LibraryDownloadList.vue';
 import LibraryDownloadAllPage from '~/pages/user/LibraryDownloadAll';
 
-// 관리자 화면
+/**
+ * 관리자 화면
+ */
 import AdminVideoPage from '~/pages/admin/AdminVideo';
 import AdminDocumentPage from '~/pages/admin/AdminDocument';
 import AdminDownloadPage from '~/pages/admin/AdminDownload';
 
-// 로그인, 마이페이지
+/**
+ * 프로젝트 메인, 마이페이지, 로그인
+ */
+import ProjectMainPage from '~/pages/user/Main';
 import LoginPage from '~/pages/user/Login';
 import UserInfoPage from '~/pages/user/UserInfo';
 
-// Error 페이지
+/**
+ * 에러 페이지
+ */
 import NotFoundPage from '~/pages/Error/NotFound';
 
-Vue.use(Router);
-Vue.prototype.$EventBus = new Vue();
+import { state as CommonState } from '@/store/modules/common';
+import { state as UserState } from '@/store/modules/user';
+import ForumProduct from '~/pages/user/ForumProduct';
 
-export function createRouter() {
-  return new Router({
-    mode: 'history',
-    // base: 'DBS',
-    routes: [
-      ...authRoute,
-      ...docsRoute,
-      ...forumRoute,
-      ...libraryRoute,
-      ...adminRoute,
-      ...testRoute,
-    ],
-  });
-}
+Vue.use(Router);
 
 const authRoute = [
+  {
+    path: '/',
+    component: ProjectMainPage,
+  },
   {
     path: '/login',
     component: LoginPage,
@@ -69,6 +92,9 @@ const authRoute = [
   {
     path: '/myinfo',
     component: UserInfoPage,
+    meta: {
+      auth: true,
+    },
   },
 ];
 
@@ -100,6 +126,30 @@ const docsRoute = [
     path: '/docs/:productId/branch/:branchName/:pageType/:pageId',
     component: ProductEditPage,
   },
+  /****************************************
+   [제품 화면] 19.11.11
+   기획 변경에 따른 라우터 추가
+   ****************************************/
+  {
+    // 개발자 문서 > 제품관리
+    path: '/docs/manage/product',
+    component: ProductManagePage,
+  },
+  {
+    // 개발자 문서 > 문서관리 > 작업 브랜치 관리
+    path: '/docs/manage/:productId/branch',
+    component: ProductBranchManagePage,
+  },
+  {
+    // 개발자 문서 > 문서관리 > 버전 관리
+    path: '/docs/manage/:productId/version',
+    component: ProductVerManagePage,
+  },
+  {
+    // 개발자 문서 > 문서관리 > 공지 사항 관리
+    path: '/docs/manage/:productId/notice',
+    component: ProductNoticeManagePage,
+  },
 ];
 
 const forumRoute = [
@@ -124,24 +174,44 @@ const forumRoute = [
     path: '/qna/register',
     component: ForumRegisterPage,
   },
+  /****************************************
+   [질문 / 답변 화면] 19.11.11
+   기획 변경에 따른 라우터 추가
+   ****************************************/
+  {
+    // 질문답변 > 홈
+    path: '/qna',
+    name: 'Forum',
+    component: ForumHomePage,
+  },
+  {
+    // 질문답변 > 제품별 질문답변 > 전체
+    path: '/qna/all',
+    component: ForumAllPage,
+  },
+  {
+    // 질문답변 > 제품별 질문답변
+    path: '/qna/:productId',
+    component: ForumProductPage,
+  },
+  {
+    // 질문답변 > 제품별 질문답변 > 질문 보기
+    path: '/qna/:productId/:rowId',
+    component: ForumProductDetailPage,
+  },
+  {
+    // 질문답변 > 내 질문답변
+    path: '/qna/my',
+    component: ForumMyPage,
+  },
+  {
+    // 질문답변 > 제품관리
+    path: '/qna/manage',
+    component: ForumManagePage,
+  },
 ];
 
 const libraryRoute = [
-  {
-    // 자료실 동영상 카테고리 메인 페이지
-    path: '/library/video',
-    component: LibraryVideoListPage,
-  },
-  {
-    // 자료실 동영상 전체목록 페이지
-    path: '/library/video/all',
-    component: LibraryVideoAllPage,
-  },
-  {
-    // 자료실 동영상 상세 페이지
-    path: '/library/video/:videoId',
-    component: LibraryVideoDetailPage,
-  },
   {
     // 자료실 문서 카테고리 메인 페이지
     path: '/library/doc',
@@ -167,6 +237,45 @@ const libraryRoute = [
     path: '/library/download/all',
     component: LibraryDownloadAllPage,
   },
+  /****************************************
+   [자료실 화면] 19.11.13
+   기획 변경에 따른 라우터 추가
+   ****************************************/
+  {
+    // 자료실 홈 페이지
+    path: '/library',
+    component: LibraryHomePage,
+  },
+  {
+    // 자료실 > 동영상 > 리스트 페이지
+    path: '/library/video/:productType',
+    component: LibraryVideoListPage,
+  },
+  {
+    // 자료실 > 동영상 > 등록 페이지
+    path: '/library/video/register/:productType',
+    component: LibraryVideoRegisterPage,
+  },
+  {
+    // 자료실 > 동영상 > 상세 페이지
+    path: '/library/video/:productType/:_id',
+    component: LibraryVideoDetailPage,
+  },
+  {
+    // 자료실 > 동영상 > 수정 페이지
+    path: '/library/video/edit/:_id',
+    component: LibraryVideoEditPage,
+  },
+  {
+    // 자료실 동영상 제품 관리 페이지
+    path: '/library/video/manage/product',
+    component: LibraryVideoProductManagePage,
+  },
+  {
+    // 자료실 동영상 홈화면 관리 페이지
+    path: '/library/video/manage/home',
+    component: LibraryVideoHomeManagePage,
+  },
 ];
 
 const adminRoute = [
@@ -188,10 +297,10 @@ const adminRoute = [
 ];
 
 const testRoute = [
-  {
-    path: '/',
-    component: Index,
-  },
+  // {
+  //   path: '/',
+  //   component: Index,
+  // },
   {
     name: 'storage',
     path: '/storage',
@@ -203,6 +312,35 @@ const testRoute = [
     component: NotFoundPage,
   },
 ];
+
+const router = new Router({
+  mode: 'history',
+  // base: 'DBS',
+  routes: [
+    ...authRoute,
+    ...docsRoute,
+    ...forumRoute,
+    ...libraryRoute,
+    ...adminRoute,
+    ...testRoute,
+  ],
+});
+
+// router.beforeEach((to, from, next) => {
+//   console.log('[beforeEach UserState]', UserState().user);
+//
+//   if (CommonState().authPages.includes(to.path)) {
+//     if (!UserState().user.authority) {
+//       next('/');
+//       return;
+//     }
+//   }
+//   next();
+// });
+
+export function createRouter() {
+  return router;
+}
 
 // const apiRootPath = 'http://localhost:3000/api';
 // Vue.prototype.$apiRootPath = apiRootPath;

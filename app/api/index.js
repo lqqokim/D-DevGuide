@@ -31,10 +31,17 @@ app.use(require('./routes/product'));
 // console.log('path :: ', path.join(__dirname, '../static/uploads'));
 // app.use('/files', express.static(path.join(__dirname, '../static/uploads')));
 
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+};
+
 // mongoose 연결
 mongoose.connect(
   'mongodb://localhost:27017/dev-doc',
-  { useNewUrlParser: true, useUnifiedTopology: true },
+  mongooseOptions,
   (err) => {
     if (err) return console.error(err);
     console.info('mongoose connected!');

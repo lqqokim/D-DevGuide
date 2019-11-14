@@ -1,11 +1,10 @@
-const request = require('request');
+const request = require('request-promise-native');
 
 /**
  * 로그인 정보로 해당 직원이 그룹웨어에 존재하는지 확인한다.
  * @param user
- * @param cb
  */
-export const checkLogin = (user, cb) => {
+export const checkGroupwareUser = (user) => {
   const requestBody = {
     header: {
       empSeq: '',
@@ -27,32 +26,15 @@ export const checkLogin = (user, cb) => {
     json: true,
   };
 
-  request(options, function(error, response, body) {
-    console.log('========================');
-    console.log('[statusCode]', response && response.statusCode);
-    console.log('[그룹웨어 체크]', body);
-
-    /* {                                                                                                                                                     12:24:12
-      resultCode: '0',
-      resultMessage: 'SUCCESS',
-      result: {}
-    } */
-
-    if (!error && response.statusCode === 200) {
-      const { resultCode } = body;
-      cb(resultCode);
-    } else {
-      console.log(error);
-    }
-  });
+  return request(options);
 };
 
-/***
+/**
  * 로그인 정보를 통해 그룹웨어 직원 정보를 가져온다.
  * @param user
- * @param cb
+ * @private
  */
-export const searchUser = (user, cb) => {
+export const searchUser = (user) => {
   const requestBody = {
     header: {
       empSeq: '',
@@ -74,13 +56,5 @@ export const searchUser = (user, cb) => {
     json: true,
   };
 
-  request(options, function(error, response, body) {
-    console.log('[statusCode]', response && response.statusCode);
-    console.log('[그룹웨어 조회]', body);
-    if (!error && response.statusCode === 200) {
-      cb(body);
-    } else {
-      console.log(error);
-    }
-  });
+  return request(options);
 };

@@ -184,7 +184,9 @@
             flex: none;
             width: 120px;
             height: 80px;
-            border-radius: 3px;
+            img{
+              border-radius: 3px;
+            }
           }
           dl {
             flex: none;

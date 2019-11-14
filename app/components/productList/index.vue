@@ -30,11 +30,11 @@ import SearchBar from './SearchBar.vue';
 })
 export default class ProductList extends Vue {
   mounted() {
-    const token = window.sessionStorage.getItem('KEY');
+    // const token = window.sessionStorage.getItem('KEY');
 
     this.$axios
       .post('/api/token', {
-        token,
+        token: this.$store.state.user.user.authToken,
       })
       .then((res) => {
         console.log(res);

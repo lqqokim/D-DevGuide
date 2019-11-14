@@ -87,6 +87,7 @@ export const actions: ActionTree<ProductState, RootState> = {
   async getProductList({ commit }) {
     try {
       await this.$axios.get('api/productList').then((res) => {
+        console.log('productList :: ', res.data);
         commit('setProductList', res.data);
       });
     } catch (err) {

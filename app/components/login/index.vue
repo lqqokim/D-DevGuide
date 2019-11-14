@@ -1,18 +1,34 @@
 <template>
   <div class="login_area">
-    <!--<p style="font-size: 15px;">{{ user.empName }}님 반갑습니다!</p>-->
+    <div class="switch-button">
+      <input
+        id="radio-one"
+        type="radio"
+        name="switch-member"
+        value="employee"
+        checked=""
+      />
+      <label for="radio-one">직원</label>
+      <input
+        id="radio-two"
+        type="radio"
+        name="switch-member"
+        value="normal"
+        @click="moveCustomer"
+      />
+      <label for="radio-two">고객</label>
+    </div>
     <div>
       <span>아이디</span>
-      <input v-model="loginId" />
+      <input v-model="loginId" type="text" />
     </div>
     <div>
       <span>비밀번호</span>
-      <input v-model="loginPw" />
+      <input v-model="loginPw" type="password" />
     </div>
-    <button @click="login">로그인</button>
-
-    <!--<p>{{ user }}</p>-->
-    <!--<img :src="parseImg" alt="image" width="100" />-->
+    <input type="button" value="로그인" @click="login" />
+    <!--    <input type="button" value="삭제" @click="remove" />-->
+    <!--    <img :src="parseImg" alt="image" width="100" />-->
   </div>
 </template>
 <script lang="ts">
@@ -36,73 +52,31 @@ export default class LoginComp extends Vue {
     loginPw,
   }: ILogin) => void;
 
-  // @User.Mutation('setLogin') setLoginMutation!: ({ loginId, loginPw }: ILogin) => void; // loginId, loginPw state에 저정
-  // @User.Action('checkLogin_gw') checkLoginAction!: () => Promise<boolean>; // 그룹웨어 직원 여부
-  // @User.Getter('isMember_gw') isMember!: () => boolean; // 그룹웨어 직원 여부
-  // @User.Action('memberCheck') memberCheckAction!: () => Promise<any>; // DBS 직원 조회
-  // @User.Getter('isEmp') isEmp!: () => boolean; // DBS AUTHORITY 'E' 여부
-  //
-  // @User.Action('createToken') createTokenAction!: () => void; // 토큰 생성 및 저장
-  // @User.Action('updateAuth') updateAuthAction!: (string) => void; // DBS AUTHORITY 변경
-  // @User.Action('searchUser_gw') searchUser!: () => void; // 그룹웨어 직원 조회
-  // @User.Action('createUser') createUserAction!: () => void; // DBS 직원 추가
-  //
-  // @User.Action('getUser') userAction: any;
-  // @User.Getter('currentUser')
-  // user!: user.User;
+  @User.Action('removeUser') userRemoveAction!: (string) => void;
 
-  login(): any {
+  login() {
     if (!this.loginValidator()) return null;
 
     this.userLoginAction({
       loginId: this.loginId,
       loginPw: this.loginPw,
     });
-    // try {
-    //   // 그룹웨어 직원 여부
-    //   if (await this.checkLoginAction()) {
-    //     // DBS 직원 여부
-    //     if (await this.memberCheckAction()) {
-    //       // DBS AUTHORITY 'E' 여부
-    //       if (this.isEmp()) {
-    //         alert('직원 확인 / 토큰 생성');
-    //         // 토큰 생성
-    //         this.createTokenAction();
-    //       } else {
-    //         // AUTHORITY 'E 변경
-    //         await this.updateAuthAction('E');
-    //         alert('직원 확인x / E로 변경후 토큰 생성');
-    //         this.createTokenAction();
-    //       }
-    //     } else {
-    //       await this.searchUser();
-    //       alert('직원 확인x / 직원을 신규로 추가합니다.');
-    //       this.createUserAction();
-    //     }
-    //   } else {
-    //     // DBS 직원 여부
-    //     if (await this.memberCheckAction()) {
-    //       // DBS AUTHORITY 'E' 여부
-    //       if (this.isEmp()) {
-    //         // AUTHORITY 'E 변경
-    //         await this.updateAuthAction('M');
-    //         alert('퇴사자 / M 변경 / 직원정보를 찾을 수 없습니다.');
-    //       } else {
-    //         alert('퇴사자 / 직원정보를 찾을 수 없습니다.');
-    //       }
-    //     } else {
-    //       alert('회원정보를 찾을 수 없습니다.');
-    //     }
-    //
-    //     console.log('a');
-    //   }
-    // } catch (e) {
-    //   console.error(e);
-    // }
+  }
+
+  remove() {
+    this.userRemoveAction(this.loginId);
   }
 
   loginValidator(): boolean {
     return true;
+  }
+
+  moveCustomer(): void {
+    // this.$router.push({
+    //   name: '/html/Login.html?123',
+    // });
+    window.location.href = '/html/Login.html?';
+    // this.$router.push({ path: '/html/Login.html', query: { no: '2000' } });
   }
 
   // get parseImg() {
