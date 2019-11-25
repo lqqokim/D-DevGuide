@@ -172,19 +172,30 @@
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
 import LibraryHome from '~/components/libraryHome/index.vue';
+import { Product } from '@/store/modules/projects';
+import { Product as DocProduct } from '@/store/modules/document';
 
 @Component({
   layout: 'TypeA',
   components: {
     LibraryHome,
   },
-  async asyncData({ store }): Promise<any> {
+  async fetch({ store }): Promise<any> {
     try {
+      // 제품 목록을 조회
       await store.dispatch('projects/getProductList');
-      await store.dispatch(
-        'video/getVideosByProduct',
-        store.state.projects.productList[0].productType
-      );
+      await store.dispatch('document/docProducts');
+
+      // 첫번째 제품에 대한 동영상 목록 조회
+      const productList: Array<Product> = store.state.projects.productList;
+
+      // 첫번째 제품에 대한 문서 목록 조회
+      const docProducts: Array<DocProduct> = store.state.document.products;
+
+      if (productList) {
+        await store.dispatch('video/getVideosByProduct', productList[0]);
+        await store.dispatch('document/getDocsByProduct', docProducts[0]);
+      }
     } catch (e) {
       console.error(e);
     }

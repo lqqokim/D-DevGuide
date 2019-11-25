@@ -123,14 +123,17 @@ export const actions: ActionTree<UserState, RootState> = {
   async userLogin({ commit, state }, payload: ILogin): Promise<any> {
     try {
       // [1] 로그인 정보로 Token 생성
-      const authLoginRes: IResponse = await this.$axios.post('api/auth/login', {
-        user: {
-          loginId: payload.loginId,
-          loginPw: payload.loginPw,
-        },
-      });
+      const authLoginRes: IResponse = await this.$axios.post(
+        '/api/auth/login',
+        {
+          user: {
+            loginId: payload.loginId,
+            loginPw: payload.loginPw,
+          },
+        }
+      );
 
-      console.log('[auth Login] ', authLoginRes.data);
+      // console.log('[auth Login] ', authLoginRes.data);
       const key: string = authLoginRes.data.data.key;
 
       if (authLoginRes.status === 200 && key) {
@@ -147,9 +150,9 @@ export const actions: ActionTree<UserState, RootState> = {
 
         // [2] 토큰에서 획득한 유저 아이디로 디테일 정보 조회 후 스토어 세팅
         const userMongoRes: IResponse = await this.$axios.get(
-          'api/auth/user/' + payload.loginId
+          '/api/auth/user/' + payload.loginId
         );
-        console.log('[user Mongo] ', userMongoRes.data);
+        // console.log('[user Mongo] ', userMongoRes.data);
         const userEmployee: User = userMongoRes.data[0];
 
         commit('setUser', userEmployee);
@@ -159,7 +162,7 @@ export const actions: ActionTree<UserState, RootState> = {
           path: '/',
         });
       } else {
-        alert(`로그인 도중 문제가 발생하였습니다. (${authLoginRes.data.msg})`);
+        // alert(`로그인 도중 문제가 발생하였습니다. (${authLoginRes.data.msg})`);
       }
     } catch (e) {
       console.error(e);
@@ -173,16 +176,16 @@ export const actions: ActionTree<UserState, RootState> = {
         token: state.userToken,
       });
 
-      console.log('[SSR : auth Token] ', authTokenRes.data);
+      // console.log('[SSR : auth Token] ', authTokenRes.data);
       const userByToken: UserByToken = authTokenRes.data.data;
-      console.log('userByToken ::::::: ', userByToken);
+      // console.log('userByToken ::::::: ', userByToken);
       let loginId: string;
       if (userByToken) {
         loginId = userByToken.ID;
       } else {
         // 토큰 세션 종료 ...
         commit('userLogout');
-        alert(authTokenRes.data.msg);
+        // alert(authTokenRes.data.msg);
         return;
       }
 
@@ -223,9 +226,9 @@ export const actions: ActionTree<UserState, RootState> = {
 
       console.log('[gitlabTokenRes] ', gitlabTokenRes);
       if (gitlabTokenRes.data.success) {
-        alert('토큰 등록을 완료하였습니다.');
+        // alert('토큰 등록을 완료하였습니다.');
       } else {
-        alert('토큰 등록을 실패하였습니다.');
+        // alert('토큰 등록을 실패하였습니다.');
       }
     } catch (e) {
       console.error(e);
@@ -244,9 +247,9 @@ export const actions: ActionTree<UserState, RootState> = {
       console.log('removeRes ', removeRes);
 
       if (removeRes.data.success) {
-        alert('삭제 완료.');
+        // alert('삭제 완료.');
       } else {
-        alert('토큰 등록을 실패하였습니다.');
+        // alert('토큰 등록을 실패하였습니다.');
       }
     } catch (e) {
       console.error(e);

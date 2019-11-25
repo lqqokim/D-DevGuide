@@ -19,11 +19,11 @@ export default class LibraryVideoProductManage extends Vue {
   registerSeries() {
     this.registerVideoAction({
       videoTitle: '',
-      youtubeId: '=W12SW11SQ1DFFGF1123123=',
-      thumbnail: '=12=31-E=1E-DD1KLOKOPSKDPLAD=',
-      productType: 'DEWS_UI',
-      uploadDate: new Date(),
-      updateDate: new Date(),
+      youtubeId: '',
+      projectId: '2',
+      productName: 'D_ERP',
+      uploadDate: Date.now(),
+      updateDate: Date.now(),
       playTime: 1010,
       viewCount: 500,
 
@@ -32,25 +32,39 @@ export default class LibraryVideoProductManage extends Vue {
       description: '더존 DEWS_UI 제픔관련 동영상 입니다.',
 
       isSeries: true,
-      seriesTitle: 'DEWS/UI 모음',
+      seriesTitle: 'DEWS/UI 데모 시리즈',
       series: [
         {
-          videoTitle: 'DEWS_UI 첫번째 영상',
-          youtubeId: '=W12SW11SQ1DFFGF1123123=',
-          thumbnail: '=12=31-E=1E-DD1KLOKOPSKDPLAD=',
-          uploadDate: new Date(),
-          updateDate: new Date(),
+          videoTitle: 'DEWS/UI 첫번째',
+          youtubeId: 'ttt',
+          projectId: '2',
+          productName: 'D_ERP',
+          uploadDate: Date.now(),
+          updateDate: Date.now(),
           playTime: 1010,
           viewCount: 500,
+
+          empName: '김인수',
+          depthPath: '플랫폼개발1팀',
+          description: '더존 DEWS_UI 제픔관련 동영상 입니다.',
+
+          isSeries: false,
         },
         {
-          videoTitle: 'DEWS_UI 두번째 영상',
-          youtubeId: '=W12SW11SQ1DFFGF1123123=',
-          thumbnail: '=12=31-E=1E-DD1KLOKOPSKDPLAD=',
-          uploadDate: new Date(),
-          updateDate: new Date(),
-          playTime: 2020,
-          viewCount: 202,
+          videoTitle: 'DEWS/UI 두번째',
+          youtubeId: 'ttt',
+          projectId: '2',
+          productName: 'D_ERP',
+          uploadDate: Date.now(),
+          updateDate: Date.now(),
+          playTime: 1010,
+          viewCount: 500,
+
+          empName: '김인수',
+          depthPath: '플랫폼개발1팀',
+          description: '더존 DEWS_UI 제픔관련 동영상 입니다.',
+
+          isSeries: false,
         },
       ],
     });
@@ -58,21 +72,20 @@ export default class LibraryVideoProductManage extends Vue {
 
   registerSingle() {
     this.registerVideoAction({
-      videoTitle: '세미나 영상',
-      youtubeId: '=W12SW11SQ1DFFGF1123123=',
-      thumbnail: '=12=31-E=1E-DD1KLOKOPSKDPLAD=',
-      productType: 'DEWS_UI',
-      uploadDate: new Date(),
-      updateDate: new Date(),
+      videoTitle: '더존 클라우드 시연 영상',
+      youtubeId: 'ttt',
+      projectId: '2',
+      productName: 'D_ERP',
+      uploadDate: Date.now(),
+      updateDate: Date.now(),
       playTime: 1010,
       viewCount: 500,
 
       empName: '김인수',
       depthPath: '플랫폼개발1팀',
-      description: '더존 세미나 동영상 입니다.',
+      description: '더존 DEWS_UI 제픔관련 동영상 입니다.',
 
       isSeries: false,
-      seriesTitle: 'D_ERP 영상',
       series: [],
     });
   }

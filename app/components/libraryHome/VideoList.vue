@@ -2,28 +2,51 @@
   <div class="dbs-container">
     <h1 class="tit-con mgt-50">동영상</h1>
     <div class="position-wrap">
-      <h2 class="tit-con-small">D_ERP</h2>
-      <nuxt-link class="pst-more" to="/library/video/:productType"
+      <h2 class="tit-con-small">
+        {{ $store.state.video.selectedProduct.productName }}
+      </h2>
+      <div id="productTab" style="text-align: center;">
+        <input
+          v-for="product in $store.state.projects.productList"
+          id="btn"
+          :key="product._id"
+          type="button"
+          :value="product.productName"
+          style="width: 90px;"
+          @click="onClickProduct(product)"
+        />
+      </div>
+      <nuxt-link
+        class="pst-more"
+        :to="{
+          name: 'videoList',
+          params: {
+            productName: $store.state.video.selectedProduct.productName,
+            projectId: $store.state.video.selectedProduct.projectId,
+          },
+        }"
         >더보기</nuxt-link
       >
     </div>
     <ul class="thumb-list mgt-10">
-      <li
-        v-for="video in $store.state.video.videosByProduct.slice(0, 5)"
-        :key="video._id"
-      >
+      <li v-for="video in $store.state.video.videosByProduct" :key="video._id">
         <nuxt-link
           :to="{
             name: 'videoDetail',
             params: {
-              productType: video.productType,
+              productName: video.productName,
+              projectId: video.projectId,
               _id: video._id,
             },
           }"
         >
           <div class="thumb">
             <img
-              src="https://i.ytimg.com/vi/huF9H9SHAGA/hqdefault.jpg?sqp=-oaymwEZCNACELwBSFXyq4qpAwsIARUAAIhCGAFwAQ==&rs=AOn4CLD7292MGL79hY8MiMFu51WOa3MaTg"
+              :src="
+                `https://img.youtube.com/vi/${
+                  video.isSeries ? video.series[0].youtubeId : video.youtubeId
+                }/maxresdefault.jpg`
+              "
             />
           </div>
         </nuxt-link>
@@ -32,7 +55,7 @@
             :to="{
               name: 'videoDetail',
               params: {
-                productType: video.productType,
+                productName: video.productName,
                 _id: video._id,
               },
             }"
@@ -42,7 +65,10 @@
             }}</nuxt-link
           >
           <dd>
-            {{ video.uploadDate }} <span class="name">{{ video.empName }}</span>
+            {{ video.uploadDate }}
+            <span class="name"
+              >{{ video.empName }} | {{ video.depthPath }}</span
+            >
           </dd>
         </dl>
         <span class="thumb-info"
@@ -181,9 +207,21 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator';
+import { Component, Vue, namespace } from 'nuxt-property-decorator';
+import * as video from '@/store/modules/video';
+import { Product } from '@/store/modules/projects';
+
+const Video = namespace('video');
 
 @Component({})
-export default class VideoList extends Vue {}
+export default class VideoList extends Vue {
+  @Video.Action('getVideosByProduct') videosByProductAction!: (
+    arg0: Product
+  ) => void;
+
+  onClickProduct(product: Product): void {
+    this.videosByProductAction(product);
+  }
+}
 </script>
-<style lang="scss"></style>
+<style scoped></style>

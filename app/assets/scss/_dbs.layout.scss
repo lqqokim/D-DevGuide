@@ -153,7 +153,7 @@
       position: absolute;
       top: 61px;
       left: 0;
-      width: 100%;
+      width: calc(100% - 368px);
       padding: 0;
       color: #333;
       background: transparent;
@@ -161,7 +161,7 @@
       z-index: 100;
       .menu-list {
         overflow: hidden;
-        margin: 50px 0 60px 365px;
+        margin: 50px 0 60px 368px;
         .mn-list {
           position: relative;
           float: left;
@@ -169,6 +169,9 @@
           box-sizing: border-box;
           & + .mn-list {
             margin-left: 102px;
+          }
+          & + .mn-list:last-child{
+            margin-left: 119px;
           }
         }
         ul.menu-sub-list {
@@ -220,9 +223,9 @@
       @include clearfix;
       display: flex;
       align-items: center;
-      width: 1200px;
+      width: 1280px;
       margin: 0 auto;
-      padding: 46px 0;
+      padding: 46px 40px;
       text-align: left;
       h1.footer-logo {
         flex: none;
@@ -285,12 +288,18 @@
   position: relative;
   width: 1280px;
   height: auto;
-  margin: 0 auto 60px;
+  margin: 0 auto;
   padding: 0 40px;
   text-align: left;
 }
 .position-wrap{
   position: relative;
+  .pst-rbtn{
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
   .pst-more{
     position: absolute;
     right: 10px;

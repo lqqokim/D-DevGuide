@@ -14,14 +14,14 @@
       </div>
     </div>
     <div class="dbs-container mgb-0">
-      <div class="qna-wrap">
-        <div class="qna-menu">
+      <div class="content-wrap">
+        <div class="left-menu">
           <p class="tit-con-left">DEWS UI</p>
           <ul class="ui-navi">
             <li class="selected"><a href="#">Document</a></li>
             <li class=""><a href="#">API</a></li>
           </ul>
-          <div class="ui-tab-left-pnl">
+          <div class="ui-accordion-left-pnl">
             <ul>
               <li class="nav-item depth-1 folder"><a href="#">버튼</a></li>
               <li class="nav-item depth-1 folder">
@@ -111,6 +111,24 @@
                 <li>스크립트 초기화</li>
               </ul>
               <h1 class="tit-con-sub">사용방법</h1>
+              <div class="ui-tab small mgb-60">
+                <div class="ui-tab-btns" role="tablist">
+                  <a href="#tab1" class="ui-tab-btn active"><i>HTML</i></a>
+                  <a href="#tab2" class="ui-tab-btn"><i>Javascript</i></a>
+                  <a href="#tab3" class="ui-tab-btn"><i>Result</i></a>
+                </div>
+                <div class="ui-tab-pnls">
+                  <section id="tab1" class="ui-tab-pnl active" role="tabpanel">
+                    <pre><code>HTML 코드 들어갑니다</code></pre>
+                  </section>
+                  <section id="tab2" class="ui-tab-pnl" role="tabpanel">
+                    <pre><code>Javascript 코드 들어갑니다.</code></pre>
+                  </section>
+                  <section id="tab3" class="ui-tab-pnl" role="tabpanel">
+                    <pre><code>결과 내용 들어갑니다.</code></pre>
+                  </section>
+                </div>
+              </div>
             </div>
           </div>
           <div class="view-page-side">

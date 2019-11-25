@@ -14,10 +14,10 @@
       </div>
     </div>
     <div class="dbs-container mgb-0">
-      <div class="qna-wrap">
-        <div class="qna-menu">
+      <div class="content-wrap">
+        <div class="left-menu">
           <p class="tit-con-left">질문 / 답변</p>
-          <div class="ui-tab-left-pnl">
+          <div class="ui-accordion-left-pnl">
             <ul>
               <li class="nav-item depth-1"><a href="#">나의 문의내역</a></li>
               <li class="nav-item depth-1 folder">
@@ -46,7 +46,7 @@
             </ul>
           </div>
         </div>
-        <div class="qna-content">
+        <div class="container-panel">
           <div class="view-top">
             <h2 class="tit-con-qna">Search Place 연동 관련 질문</h2>
             <div class="register">

@@ -2,12 +2,12 @@
 @import 'mixins';
 
 /* qna */
-.qna-wrap {
+.content-wrap {
   position: relative;
   display: flex;
   width: 100%;
   min-height: 100%;
-  .qna-tit-wrap {
+  .left-tit-wrap {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,7 +33,7 @@
     transform: translateY(-50%);
     font-size: 0;
   }
-  .qna-menu {
+  .left-menu {
     flex: 0 0 auto;
     width: 220px;
     padding: 50px 40px 0 0;
@@ -63,9 +63,9 @@
       }
     }
   }
-  .qna-content {
+  .container-panel {
     position: relative;
-    flex: 1 1 auto;
+    flex: 1 1 899px;
     padding: 50px 0 0 40px;
     box-sizing: border-box;
     .qna-content-panel {
@@ -284,7 +284,7 @@
     justify-content: space-between;
     align-self: center;
     align-items: center;
-    padding-bottom: 20px;
+    padding-bottom: 14px;
     border-bottom: 1px solid #565656;
     p.tit-con-qna{
       display: inline-block;
@@ -347,6 +347,25 @@
     }
     .register{
       flex: none;
+    }
+  }
+  .product-manage-wrap{
+    display: flex;
+    margin: 14px 0 0;
+    .left-proc-menu{
+      flex: none;
+      overflow: hidden;
+      width: 384px;
+      height: 740px;
+      margin-right: 30px;
+      border: 1px solid #d6dbe3;
+      background-color: #f8f8f8;
+      box-sizing: border-box;
+      .manage{
+        height: 720px;
+        margin: 10px 0 10px 20px;
+        overflow-y: auto;
+      }
     }
   }
 }

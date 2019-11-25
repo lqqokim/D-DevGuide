@@ -3,29 +3,38 @@ const mongoose = require('mongoose');
 const seriesVideoSchema = new mongoose.Schema({
   videoTitle: { type: String, required: true },
   youtubeId: { type: String, required: true },
-  thumbnail: { type: String, required: true },
-  uploadDate: { type: Date, default: Date.now },
-  updateDate: { type: Date, default: Date.now },
-  playTime: { type: Number, default: 0 },
-  viewCount: { type: Number, default: 0 },
+  projectId: { type: String, required: true },
+  productName: { type: String, required: true },
+  uploadDate: { type: Number, required: true },
+  updateDate: { type: Number, required: true },
+  playTime: { type: Number, required: true },
+  viewCount: { type: Number, required: true },
+
+  empName: { type: String, required: true },
+  depthPath: { type: String, required: true },
+  description: { type: String },
+
+  isSeries: { type: Boolean, default: false, required: true },
+  seriesTitle: { type: String },
 });
 
 const videoSchema = new mongoose.Schema({
   videoTitle: { type: String },
-  youtubeId: { type: String, required: true },
-  thumbnail: { type: String, default: '' },
-  productType: { type: String, default: '' },
+  youtubeId: { type: String },
+  projectId: { type: String, required: true },
+  productName: { type: String, required: true },
+  uploadDate: { type: Number, required: true },
+  updateDate: { type: Number, required: true },
+  playTime: { type: Number, required: true },
+  viewCount: { type: Number, required: true },
 
-  uploadDate: { type: Date, default: Date.now },
-  playTime: { type: Number, default: 0 },
-  viewCount: { type: Number, default: 0 },
+  empName: { type: String, required: true },
+  depthPath: { type: String, required: true },
+  description: { type: String },
 
-  empName: { type: String, default: '' },
-  depthPath: { type: String, default: '' },
-  description: { type: String, default: '' },
+  isSeries: { type: Boolean, required: true },
 
-  isSeries: { type: Boolean, default: false },
-  seriesTitle: { type: String, default: '' },
+  seriesTitle: { type: String },
   series: [seriesVideoSchema],
 });
 

@@ -1,5 +1,5 @@
 <template>
-  <forum-product></forum-product>
+  <div></div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

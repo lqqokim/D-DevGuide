@@ -7,7 +7,7 @@ const request = require('request-promise-native');
  */
 export const checkDBSUser = (user) => {
   const options = {
-    url: 'http://localhost:3000/html/MemberCheck.jsp',
+    url: process.env.BASE_URL + '/html/MemberCheck.jsp',
     method: 'POST',
     headers: {
       Accept: 'text/plain, */*; q=0.01',
@@ -34,7 +34,7 @@ export const checkDBSUser = (user) => {
  */
 export const createToken = (user) => {
   const options = {
-    url: 'http://localhost:3000/html/LoginBL.jsp',
+    url: process.env.BASE_URL + '/html/LoginBL.jsp',
     method: 'POST',
     headers: {
       Accept: 'text/plain, */*; q=0.01',
@@ -61,7 +61,7 @@ export const createToken = (user) => {
  */
 export const createUser = async (user) => {
   const options = {
-    url: 'http://localhost:3000/html/CreateUser.jsp',
+    url: process.env.BASE_URL + '/html/CreateUser.jsp',
     method: 'POST',
     headers: {
       Accept: 'text/plain, */*; q=0.01',
@@ -96,7 +96,7 @@ export const createUser = async (user) => {
 
 export const deleteUser = (user) => {
   const options = {
-    url: 'http://localhost:3000/html/CreateUser.jsp',
+    url: process.env.BASE_URL + '/html/CreateUser.jsp',
     method: 'POST',
     headers: {
       Accept: 'text/plain, */*; q=0.01',

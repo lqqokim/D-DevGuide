@@ -17,29 +17,24 @@ import { Vue, Component } from 'nuxt-property-decorator';
 export default class FileRegister extends Vue {
   private file: any;
   readonly FILE_ACCEPT_TYPES: Array<String> = [
-    'image/*',
-    'video/*',
-    'audio/*',
-    '.csv',
-    'text/plain',
+    // 'image/*',
+    // 'video/*',
+    // 'audio/*',
+    // '.csv',
+    // 'text/plain',
     'application/pdf',
-    'application/msword',
-    'application/vnd.ms-excel',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // 'application/msword',
+    // 'application/vnd.ms-excel',
+    // 'application/vnd.ms-powerpoint',
+    // 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+    // 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   ];
 
   // for TS2339 $refs error
   $refs!: {
     fileInput: HTMLFormElement;
   };
-
-  /***
-   * lifecycle hooks
-   */
-  mounted() {}
 
   onSelect(): void {
     this.file = this.$refs.fileInput;
@@ -52,8 +47,12 @@ export default class FileRegister extends Vue {
     formData.append('name', this.file.name);
     formData.append('file', this.file.files[0]);
 
+    /**
+     * TODO 화면 디자인 나오면 폼 바인딩 데이터로 변경
+     */
+
     this.$axios
-      .post('/api/upload', formData)
+      .post('api/library/download/upload', formData)
       .then((res) => {
         console.log(res);
 

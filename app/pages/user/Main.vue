@@ -1,72 +1,61 @@
 <template>
   <div class="base-wrap">
     <div class="indx-top">
-      <HeaderComp></HeaderComp>
       <div class="dbs-index-slider-wrap">
         <div class="indx-slider slide-01" style="display: block;">
           <div class="indx-slider-desc fl">
-            <p class="slide-info">D-BUSINESS SCHOOL</p>
             <dl>
-              <dt>
+              <dt class="main-top">
                 <strong>국내 최초 경영교육</strong><br />시뮬레이션 프로그램
               </dt>
-              <dd>
+              <dd class="main-sub">
                 실제 경영 사례에서 도출한 경영 문제와 시나리오를 기반으로
                 문제해결을 시도하고 경쟁하는 롤플레잉 형태의 경영교육 시뮬레이션
                 게임입니다.
               </dd>
             </dl>
-            <div class="btn-wrap txt-left mgt-20">
+            <div class="btn-wrap txt-left mgt-30">
               <button type="button" class="btn-main blue">
                 자세히 보기
               </button>
             </div>
           </div>
-          <a role="button" class="arrow prev"></a>
-          <a role="button" class="arrow next"></a>
         </div>
-        <div class="indx-slider slide-02">
+        <div class="indx-slider slide-02" style="display: none;">
           <div class="indx-slider-desc fl">
-            <span class="info">D-BUSINESS SCHOOL</span>
             <dl>
-              <dt>
+              <dt class="main-top">
                 <strong>국내 최초 경영교육</strong><br />시뮬레이션 프로그램
               </dt>
-              <dd>
+              <dd class="main-sub">
                 실제 경영 사례에서 도출한 경영 문제와 시나리오를 기반으로
                 문제해결을 시도하고 경쟁하는 롤플레잉 형태의 경영교육 시뮬레이션
                 게임입니다.
               </dd>
             </dl>
-            <div class="btn-wrap txt-left mgt-20">
+            <div class="btn-wrap txt-left mgt-30">
               <button type="button" class="btn-main blue">
                 자세히 보기
               </button>
             </div>
           </div>
-          <a role="button" class="arrow prev"></a>
-          <a role="button" class="arrow next"></a>
         </div>
       </div>
+      <p><a role="button" class="arrow prev"></a></p>
+      <p><a role="button" class="arrow next"></a></p>
       <div class="quick-folder">
         <ul>
           <li>
-            <a href=""><strong>DEWS UI</strong>Project sub description</a>
+            <a href=""><span>DEWS UI</span>Project sub description</a>
           </li>
           <li>
-            <a href=""><strong>DEWS J</strong>Project sub description</a>
+            <a href=""><span>DEWS J</span>Project sub description</a>
           </li>
           <li>
-            <a href=""><strong>DEWS FD</strong>Project sub description</a>
+            <a href=""><span>DEWS FD</span>Project sub description</a>
           </li>
           <li>
-            <a href=""><strong>DEWS BD</strong>Project sub description</a>
-          </li>
-          <li>
-            <a href=""><strong>DEWS Q</strong>Project sub description</a>
-          </li>
-          <li>
-            <a href=""><strong>D_ERP</strong>Project sub description</a>
+            <a href=""><span>DEWS BD</span>Project sub description</a>
           </li>
         </ul>
       </div>
@@ -91,13 +80,27 @@
           </ul>
         </div>
       </div>
-      <div class="dbs-indx-second">
-        2번째 영역
-      </div>
     </section>
-    <section class="dbs-index-third">
+    <section class="dbs-index-service">
       <div class="document illust01">
-        <p class="info third">질문 / 답변</p>
+        <p class="info sub-desc">개발자 문서</p>
+        <dl>
+          <dt>
+            <strong>DEWS 개발자 문서를</strong><br />
+            만나보세요!
+          </dt>
+          <dd>
+            DEWS/UI, DEWS/J, DEWS/FD, DEWS/BD 에 대한 정보를 알고싶으신가요?
+            DEWS 개발자 문서에서 다양한 정보를 제공 받으세요 각 제품에 대한 최신
+            정보를 알려드릴께요!
+          </dd>
+        </dl>
+        <div class="btn-wrap mgt-20">
+          <button type="button" class="btn-main blue">자세히 보기</button>
+        </div>
+      </div>
+      <div class="document illust02">
+        <p class="info sub-desc">질문 / 답변</p>
         <dl>
           <dt>
             <strong>궁금한 내용은 개발자에게</strong><br />
@@ -113,8 +116,8 @@
           <button type="button" class="btn-main blue">자세히 보기</button>
         </div>
       </div>
-      <div class="document illust02">
-        <p class="info third">개발자 문서</p>
+      <div class="document illust03">
+        <p class="info sub-desc">개발자 문서</p>
         <dl>
           <dt>
             <strong>원하는 API는 DBS에서</strong><br />
@@ -131,7 +134,7 @@
         </div>
       </div>
     </section>
-    <section class="dbs-index-forth">
+    <section class="dbs-index-download">
       <div class="forth-box-wrap">
         <div class="forth-box">
           <p class="info forth">LET'S DOWNLOAD</p>
@@ -150,8 +153,6 @@
         </div>
       </div>
     </section>
-    <nuxt></nuxt>
-    <FooterComp></FooterComp>
   </div>
 </template>
 <script lang="ts">
@@ -160,13 +161,7 @@ import HeaderComp from '@/components/common/header/index.vue';
 import FooterComp from '@/components/common/footer/index.vue';
 
 @Component({
-  components: {
-    HeaderComp,
-    FooterComp,
-  },
-  fetch(a) {
-    // console.log('fetch', a);
-  },
+  layout: 'TypeA',
 })
 export default class CommonLayout extends Vue {}
 </script>

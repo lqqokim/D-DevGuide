@@ -43,7 +43,7 @@
           </li>
           <li class="ui-menu"><a :href="dbsPath + '?pageId=forum'">포럼</a></li>
           <li class="ui-menu selected">
-            <nuxt-link to="/docs">개발자 지원</nuxt-link>
+            <nuxt-link to="/docs">DEWS 개발자 지원</nuxt-link>
           </li>
         </ul>
         <!-- 마우스 오버시 display: block 되어야 함 -->

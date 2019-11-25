@@ -47,9 +47,13 @@ import LibraryVideoProductManagePage from '~/pages/admin/LibraryVideoProductMana
 import LibraryVideoHomeManagePage from '~/pages/admin/LibraryVideoHomeManage';
 
 // 문서
-import LibraryDocumentListPage from '@/pages/user/LibraryDocumentList.vue';
+import LibraryDocListPage from '~/pages/user/LibraryDocList';
 import LibraryDocumentAllPage from '~/pages/user/LibraryDocumentAll';
-import LibraryDocumentDetailPage from '@/pages/user/LibraryDocumentDetail.vue';
+import LibraryDocDetailPage from '~/pages/user/LibraryDocDetail';
+
+import LibraryDocRegisterPage from '~/pages/user/LibraryDocRegister';
+import LibraryDocEditPage from '~/pages/user/LibraryDocEdit';
+import LibraryDocProductManagePage from '~/pages/admin/LibraryDocProductManage';
 
 // 다운로드
 import LibraryDownloadListPage from '@/pages/user/LibraryDownloadList.vue';
@@ -110,74 +114,51 @@ const docsRoute = [
     component: ProductRegisterPage,
   },
   {
-    // 제품 상세 페이지 (진입시 문서 뷰 페이지로 변경)
-    path: '/docs/:productId',
-    name: 'detail',
-    component: ProductDetailPage,
-    props: { newsletterPopup: false },
+    // 개발자 문서 > 문서관리 > 작업 브랜치 관리
+    path: '/docs/manage/:projectId/branch',
+    component: ProductBranchManagePage,
   },
-  {
-    // 제품 문서 뷰 페이지
-    path: '/docs/:productId/:pageType/:pageId',
-    component: ProductDocViewPage,
-  },
-  {
-    // 제품 문서 뷰 편집 페이지
-    path: '/docs/:productId/branch/:branchName/:pageType/:pageId',
-    component: ProductEditPage,
-  },
-  /****************************************
-   [제품 화면] 19.11.11
-   기획 변경에 따른 라우터 추가
-   ****************************************/
   {
     // 개발자 문서 > 제품관리
     path: '/docs/manage/product',
     component: ProductManagePage,
   },
   {
-    // 개발자 문서 > 문서관리 > 작업 브랜치 관리
-    path: '/docs/manage/:productId/branch',
-    component: ProductBranchManagePage,
-  },
-  {
     // 개발자 문서 > 문서관리 > 버전 관리
-    path: '/docs/manage/:productId/version',
+    path: '/docs/manage/:projectId/version',
     component: ProductVerManagePage,
   },
   {
     // 개발자 문서 > 문서관리 > 공지 사항 관리
-    path: '/docs/manage/:productId/notice',
+    path: '/docs/manage/:projectId/notice',
     component: ProductNoticeManagePage,
   },
+  {
+    // 제품 문서 뷰 - 작성 중 브랜치
+    path: '/docs/:projectId/branch/:branchName/:pageType/:pageId',
+    name: 'branchDocView',
+    component: ProductEditPage,
+  },
+  {
+    // 제품 문서 뷰 - 버전
+    path: '/docs/:projectId/version/:versionName/:pageType/:pageId',
+    name: 'versionDocView',
+    component: ProductEditPage,
+  },
+  // {
+  //   // 제품 문서 뷰 편집 페이지
+  //   path: '/docs/:projectId/branch/:branchName/:pageType/:pageId',
+  //   component: ProductEditPage,
+  // },
+  // {
+  //   // 제품 상세 페이지 (진입시 문서 뷰 페이지로 변경)
+  //   path: '/docs/:projectId/:pageType/:pageId',
+  //   name: 'detail',
+  //   component: ProductDetailPage,
+  // },
 ];
 
 const forumRoute = [
-  {
-    // 질문답변 내 게시물 리스트 페이지 (질문답변 메인)
-    path: '/qna/:categoryName',
-    name: 'ForumList',
-    component: ForumListPage,
-  },
-  {
-    // 질문답변 게시물 상세 페이지
-    path: '/qna/:productId/:rowId',
-    component: ForumDetailPage,
-  },
-  {
-    // 질문답변 통합검색 페이지
-    path: '/qna/search',
-    component: ForumSearchPage,
-  },
-  {
-    // 질문 등록 페이지
-    path: '/qna/register',
-    component: ForumRegisterPage,
-  },
-  /****************************************
-   [질문 / 답변 화면] 19.11.11
-   기획 변경에 따른 라우터 추가
-   ****************************************/
   {
     // 질문답변 > 홈
     path: '/qna',
@@ -185,22 +166,17 @@ const forumRoute = [
     component: ForumHomePage,
   },
   {
-    // 질문답변 > 제품별 질문답변 > 전체
+    // 질문답변 > 제품 별 질문 / 답변 > 전체
     path: '/qna/all',
     component: ForumAllPage,
   },
   {
-    // 질문답변 > 제품별 질문답변
-    path: '/qna/:productId',
-    component: ForumProductPage,
+    // 질문답변 > 질문 작성
+    path: '/qna/register',
+    component: ForumRegisterPage,
   },
   {
-    // 질문답변 > 제품별 질문답변 > 질문 보기
-    path: '/qna/:productId/:rowId',
-    component: ForumProductDetailPage,
-  },
-  {
-    // 질문답변 > 내 질문답변
+    // 질문답변 > 내 질문 / 답변
     path: '/qna/my',
     component: ForumMyPage,
   },
@@ -209,24 +185,117 @@ const forumRoute = [
     path: '/qna/manage',
     component: ForumManagePage,
   },
+  {
+    // 질문답변 > 제품 별 질문 / 답변
+    path: '/qna/:productName',
+    component: ForumProductPage,
+  },
+  {
+    // 질문답변 > 질문 보기
+    path: '/qna/:productName/:postId',
+    component: ForumProductDetailPage,
+  },
+
+  // {
+  //   // 질문답변 > 통합검색 페이지
+  //   path: '/qna/search',
+  //   component: ForumSearchPage,
+  // },
+  // {
+  //   // 질문답변 > 내 게시물 리스트 페이지 (질문답변 메인)
+  //   path: '/qna/:categoryName',
+  //   name: 'ForumList',
+  //   component: ForumListPage,
+  // },
+  // {
+  //   // 질문답변 > 게시물 상세 페이지
+  //   path: '/qna/:projectId/:rowId',
+  //   component: ForumDetailPage,
+  // },
 ];
 
 const libraryRoute = [
   {
-    // 자료실 문서 카테고리 메인 페이지
-    path: '/library/doc',
-    component: LibraryDocumentListPage,
+    // 자료실 홈 페이지
+    path: '/library',
+    name: 'library',
+    component: LibraryHomePage,
+    // newsletterPopup: false,
+  },
+  /*******************************************
+   자료실 > 문서
+   *******************************************/
+  {
+    // 자료실 > 문서 > 제품 관리 페이지
+    path: '/doc/manage/product',
+    component: LibraryDocProductManagePage,
   },
   {
-    // 자료실 문서 전체목록 페이지
-    path: '/library/doc/all',
-    component: LibraryDocumentAllPage,
+    // 자료실 > 문서 > 리스트 페이지
+    path: '/doc/list/:productName',
+    name: 'docList',
+    component: LibraryDocListPage,
   },
   {
-    // 자료실 문서 상세 페이지
-    path: '/library/doc/:docId',
-    component: LibraryDocumentDetailPage,
+    // 자료실 문서 등록 페이지
+    path: '/doc/register/:productName',
+    name: 'docRegister',
+    component: LibraryDocRegisterPage,
   },
+  {
+    // 자료실 > 문서 > 수정 페이지
+    path: '/doc/edit/:productName/:docName',
+    name: 'docEdit',
+    component: LibraryDocEditPage,
+  },
+  {
+    // 자료실 > 문서 > 상세 페이지
+    path: '/doc/:productName/:docName',
+    name: 'docDetail',
+    component: LibraryDocDetailPage,
+    props: true,
+  },
+  /*******************************************
+   자료실 > 동영상
+   *******************************************/
+  {
+    // 자료실 > 동영상 > 리스트 페이지
+    path: '/video/list/:productName/:projectId',
+    name: 'videoList',
+    component: LibraryVideoListPage,
+  },
+  {
+    // 자료실 > 동영상 > 등록 페이지
+    path: '/video/register/:productName',
+    component: LibraryVideoRegisterPage,
+  },
+  {
+    // 자료실 > 동영상 > 수정 페이지
+    path: '/video/edit/:_id',
+    name: 'videoEdit',
+    component: LibraryVideoEditPage,
+  },
+  {
+    // 자료실 > 동영상 > 제품 관리 페이지
+    path: '/video/manage/product',
+    component: LibraryVideoProductManagePage,
+  },
+  {
+    // 자료실 > 동영상 > 홈화면 관리 페이지
+    path: '/video/manage/home',
+    component: LibraryVideoHomeManagePage,
+  },
+  {
+    // 자료실 > 동영상 > 상세 페이지
+    path: '/video/:productName/:_id',
+    component: LibraryVideoDetailPage,
+    name: 'videoDetail',
+    props: true,
+    // newsletterPopup: false,
+  },
+  /*******************************************
+   자료실 > 다운로드
+   *******************************************/
   {
     // 자료실 다운로드 카테고리 메인 페이지
     path: '/library/download',
@@ -236,47 +305,6 @@ const libraryRoute = [
     // 자료실 다운로드 전체목록 페이지
     path: '/library/download/all',
     component: LibraryDownloadAllPage,
-  },
-  /****************************************
-   [자료실 화면] 19.11.13
-   기획 변경에 따른 라우터 추가
-   ****************************************/
-  {
-    // 자료실 홈 페이지
-    path: '/library',
-    component: LibraryHomePage,
-  },
-  {
-    // 자료실 > 동영상 > 리스트 페이지
-    path: '/video/:productType',
-    component: LibraryVideoListPage,
-  },
-  {
-    // 자료실 > 동영상 > 등록 페이지
-    path: '/video/register/:productType',
-    component: LibraryVideoRegisterPage,
-  },
-  {
-    // 자료실 > 동영상 > 상세 페이지
-    path: '/video/:productType/:_id',
-    component: LibraryVideoDetailPage,
-    name: 'videoDetail',
-    // props: true,
-  },
-  {
-    // 자료실 > 동영상 > 수정 페이지
-    path: '/video/edit/:_id',
-    component: LibraryVideoEditPage,
-  },
-  {
-    // 자료실 동영상 제품 관리 페이지
-    path: '/video/manage/product',
-    component: LibraryVideoProductManagePage,
-  },
-  {
-    // 자료실 동영상 홈화면 관리 페이지
-    path: '/video/manage/home',
-    component: LibraryVideoHomeManagePage,
   },
 ];
 

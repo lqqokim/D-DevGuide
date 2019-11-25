@@ -18,7 +18,7 @@ router.post('/', (req, res) => {
 
 const checkUserByToken = (token) => {
   const options = {
-    url: 'http://localhost:3000/html/__LoginCheckBL.jsp',
+    url: process.env.BASE_URL + '/html/__LoginCheckBL.jsp',
     method: 'POST',
     headers: {
       Accept: 'text/plain, */*; q=0.01',
@@ -52,7 +52,7 @@ router.post('/delete', (req, res) => {
 
 const deleteUserByToken = (token, cb) => {
   const options = {
-    url: 'http://localhost:3000/html/Settings/ServiceLeave.jsp',
+    url: process.env.BASE_URL + '/html/Settings/ServiceLeave.jsp',
     method: 'POST',
     headers: {
       Accept: 'text/plain, */*; q=0.01',

@@ -8,7 +8,7 @@ import ProjectCard from '~/components/productList/ProductCardList.vue';
 import { GET_PROJECT_LIST } from '@/utils/storeTypes';
 
 export default Vue.extend({
-  layout: 'typeA',
+  layout: 'TypeA',
   components: {
     ProjectCard,
   },

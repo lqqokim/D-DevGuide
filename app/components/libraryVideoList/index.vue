@@ -1,20 +1,16 @@
 <template>
-  <div>
-    <div>
-      자료실 동영상 메인 페이지
-    </div>
-  </div>
+  <video-list></video-list>
 </template>
 <script lang="ts">
-import { Vue, Component, namespace } from 'nuxt-property-decorator';
-import * as video from '@/store/modules/video';
+import { Vue, Component } from 'nuxt-property-decorator';
+import VideoList from './VideoList.vue';
 
-const Video = namespace('video');
-
-@Component
-export default class LibraryVideoList extends Vue {
-  @Video.Action('getVideosByProduct') videosByProductAction!: () => void;
-}
+@Component({
+  components: {
+    VideoList,
+  },
+})
+export default class LibraryVideoList extends Vue {}
 </script>
 
 <style scoped></style>

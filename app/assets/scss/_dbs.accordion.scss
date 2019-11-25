@@ -1,0 +1,95 @@
+@import 'variables';
+@import 'mixins';
+
+.ui-accordion-left-pnl{
+  position: relative;
+  width: 100%;
+  margin-bottom: 50px;
+  border-top: 2px solid #555;
+  color: #000;
+  text-align: left;
+  ul{
+    li{
+      position: relative;
+      border-bottom: 1px solid #e3e3e3;
+      .nav-text{
+        position: relative;
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        color: #222;
+      }
+      &.depth-1{
+        width: 220px;
+        padding-bottom: 16px;
+        .nav-text{
+          padding: 16px 0 0;
+          &:after{
+            content: "";
+            position: absolute;
+            right: 3px;
+            top: 18px;
+            width: 16px;
+            height: 16px;
+            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJidG5fYXJyb3dfcmlnaHRfbm9ybWFsXzE2cHgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICAgIDxkZWZzPgogICAgICAgIDxzdHlsZT4KICAgICAgICAgICAgLmNscy0xe2ZpbGw6cmdiYSgyNDAsMCwwLDApfS5jbHMtMntmaWxsOiM3Njc2NzZ9CiAgICAgICAgPC9zdHlsZT4KICAgIDwvZGVmcz4KICAgIDxwYXRoIGlkPSJhcmVhIiBkPSJNMCAwaDE2djE2SDB6IiBjbGFzcz0iY2xzLTEiLz4KICAgIDxwYXRoIGlkPSLtjKjsiqRfMjc3MCIgZD0iTS41IDBoOC40MTRhLjUuNSAwIDAgMSAwIDFILjVhLjUuNSAwIDAgMSAwLTF6IiBjbGFzcz0iY2xzLTIiIGRhdGEtbmFtZT0i7Yyo7IqkIDI3NzAiIHRyYW5zZm9ybT0icm90YXRlKDQ1IDEuNjQ2IDcuMzg5KSIvPgogICAgPHBhdGggaWQ9Iu2MqOyKpF8yNzcxIiBkPSJNLjUgMGg4LjQxNGEuNS41IDAgMSAxIDAgMUguNWEuNS41IDAgMCAxIDAtMXoiIGNsYXNzPSJjbHMtMiIgZGF0YS1uYW1lPSLtjKjsiqQgMjc3MSIgdHJhbnNmb3JtPSJyb3RhdGUoLTQ1IDE5LjExNiAuODQ3KSIvPgo8L3N2Zz4K) no-repeat center;
+          }
+        }
+        &.folder{
+          .nav-text:after{
+            transform: rotate(90deg);
+          }
+          .nav-container{
+            display: none;
+            &.depth-2{
+              margin: 14px 0 0;
+              .nav-item{
+                border-bottom: 0;
+                a{
+                  padding: 4px 0 8px 8px;
+                  font-size: 16px;
+                  line-height: 22px;
+                  color: #222;
+                  box-sizing: border-box;
+                  &:after{
+                    display: none;
+                  }
+                }
+                .nav-container.depth-3{
+                  display: none;
+                  margin-left: 8px;
+                  a{
+                    color: #898989;
+                    padding-bottom: 4px;
+                  }
+                  .selected{
+                    a{
+                      color: $theme-main-color;
+                    }
+                  }
+                  .nav-container.depth-4{
+                    margin-left: 8px;
+                    .selected{
+                      a{
+                        color: $theme-main-color;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        &.selected{
+          .nav-text:after{
+            transform: rotate(-90deg);
+          }
+          &.page{
+            .nav-text:after{
+              transform: rotate(0);
+            }
+          }
+        }
+      }
+    }
+  }
+}

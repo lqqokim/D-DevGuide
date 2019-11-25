@@ -5,6 +5,7 @@ import * as common from './modules/common';
 import * as user from './modules/user';
 import * as projects from './modules/projects';
 import * as video from './modules/video';
+import * as document from './modules/document';
 
 export type RootState = root.State;
 
@@ -19,6 +20,7 @@ const createStore = () => {
       user,
       projects,
       video,
+      document,
     },
   });
 };

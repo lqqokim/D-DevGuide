@@ -7,9 +7,8 @@ const upload = multer({
       cb(null, 'app/static/uploads/');
     },
     filename(req, file, cb) {
-      console.log('file :: ', file);
-      const originalnamet = file.originalname.split('.')[0];
-      console.log('originalnamet :: ', originalnamet);
+      console.log('[Multer File] ', file);
+      const originalname = file.originalname.split('.')[0];
       cb(null, new Date().valueOf() + path.extname(file.originalname));
     },
   }),

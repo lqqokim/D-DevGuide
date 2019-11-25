@@ -28,10 +28,12 @@
         </tr>
       </tbody>
     </table>
+    <div id="example1"></div>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
+import * as PDFObject from 'pdfobject';
 import { IFile } from './IFile';
 
 @Component
@@ -39,8 +41,10 @@ export default class FileList extends Vue {
   files: Array<IFile> = [];
 
   getFiles(): void {
+    PDFObject.embed('/uploads/1574311947405.pdf', '#example1');
+
     this.$axios
-      .get('/api/upload')
+      .get('api/library/download/list')
       .then((res) => {
         this.files = res.data as Array<IFile>;
         console.log(res);
@@ -52,6 +56,11 @@ export default class FileList extends Vue {
 }
 </script>
 <style scoped>
+.pdfobject-container {
+  height: 30rem;
+  border: 1rem solid rgba(0, 0, 0, 0.1);
+}
+
 .list-area {
   margin-top: 100px;
 }

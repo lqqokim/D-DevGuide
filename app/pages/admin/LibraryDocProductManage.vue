@@ -1,14 +1,14 @@
 <template>
-  <div></div>
+  <doc-product-manage></doc-product-manage>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import LibraryDocumentList from '~/components/libraryDocumentList/index.vue';
+import DocProductManage from '~/components/libraryDocProductManage/index.vue';
 
 @Component({
   layout: 'TypeA',
   components: {
-    LibraryDocumentList,
+    DocProductManage,
   },
 })
 export default class extends Vue {}
