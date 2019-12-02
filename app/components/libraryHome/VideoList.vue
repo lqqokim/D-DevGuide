@@ -1,83 +1,90 @@
 <template>
-  <div class="dbs-container">
-    <h1 class="tit-con mgt-50">동영상</h1>
-    <div class="position-wrap">
-      <h2 class="tit-con-small">
-        {{ $store.state.video.selectedProduct.productName }}
-      </h2>
-      <div id="productTab" style="text-align: center;">
-        <input
-          v-for="product in $store.state.projects.productList"
-          id="btn"
-          :key="product._id"
-          type="button"
-          :value="product.productName"
-          style="width: 90px;"
-          @click="onClickProduct(product)"
-        />
+  <div>
+    <h1 class="tit-h1">동영상</h1>
+    <div class="view-top pdb-0">
+      <div class="sorting-qna">
+        <div class="sorting-option">
+          <div
+            v-for="(product, index) in $store.state.video.products"
+            :key="product._id"
+          >
+            <input
+              :id="product._id"
+              :checked="index === 0"
+              type="radio"
+              name="sort"
+            />
+            <label :for="product._id" @click="onclickProduct(product)">{{
+              product.productName
+            }}</label>
+          </div>
+        </div>
+        <nuxt-link
+          :to="{
+            name: 'videoList',
+            params: {
+              productName: $store.state.video.selectedProduct.productName,
+              productCode: $store.state.video.selectedProduct.productCode,
+            },
+          }"
+          class="qna-more"
+          >더보기</nuxt-link
+        >
       </div>
-      <nuxt-link
-        class="pst-more"
-        :to="{
-          name: 'videoList',
-          params: {
-            productName: $store.state.video.selectedProduct.productName,
-            projectId: $store.state.video.selectedProduct.projectId,
-          },
-        }"
-        >더보기</nuxt-link
-      >
     </div>
-    <ul class="thumb-list mgt-10">
-      <li v-for="video in $store.state.video.videosByProduct" :key="video._id">
+
+    <ul class="thumb-list mgt-20 mgb-60">
+      <li
+        v-for="video in $store.state.video.videosByProduct"
+        :key="video._id"
+        class="main-video"
+      >
         <nuxt-link
           :to="{
             name: 'videoDetail',
             params: {
               productName: video.productName,
-              projectId: video.projectId,
+              productCode: video.productCode,
               _id: video._id,
+              video: video,
             },
           }"
+          tag="div"
+          class="thumb"
         >
-          <div class="thumb">
-            <img
-              :src="
-                `https://img.youtube.com/vi/${
-                  video.isSeries ? video.series[0].youtubeId : video.youtubeId
-                }/maxresdefault.jpg`
-              "
-            />
+          <img
+            :src="
+              `https://img.youtube.com/vi/${
+                video.isSeries ? video.series[0].youtubeId : video.youtubeId
+              }/maxresdefault.jpg`
+            "
+            alt=""
+          />
+          <div v-if="video.isSeries" class="play">
+            <span class="count">{{ video.series.length }}</span>
+            <em class="icon-playlist"></em>
           </div>
         </nuxt-link>
-        <dl class="thumb-desc">
-          <nuxt-link
-            :to="{
-              name: 'videoDetail',
-              params: {
-                productName: video.productName,
-                _id: video._id,
-              },
-            }"
-            tag="dt"
-            >{{
-              !video.isSeries ? video.videoTitle : video.seriesTitle
-            }}</nuxt-link
-          >
-          <dd>
-            {{ video.uploadDate }}
-            <span class="name"
-              >{{ video.empName }} | {{ video.depthPath }}</span
-            >
-          </dd>
-        </dl>
-        <span class="thumb-info"
-          ><span class="video-view"
-            ><span class="txt">{{ video.playTime }}</span></span
-          ><span class="bookmark"
-            ><span class="txt">{{ video.viewCount }}</span></span
-          ></span
+        <nuxt-link
+          :to="{
+            name: 'videoDetail',
+            params: {
+              productName: video.productName,
+              productCode: video.productCode,
+              _id: video._id,
+              video: video,
+            },
+          }"
+          tag="dl"
+          class="thumb-desc"
         >
+          <!-- TO DO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
+          <dt>
+            <i class="icon-new">N</i
+            >{{ !video.isSeries ? video.videoTitle : video.seriesTitle }}
+          </dt>
+          <dd>{{ formatDate(video.uploadDate) }}</dd>
+        </nuxt-link>
       </li>
     </ul>
 
@@ -203,24 +210,32 @@
     <!--&gt;-->
     <!--</li>-->
     <!--</ul>-->
-    <div class="line"></div>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, namespace } from 'nuxt-property-decorator';
 import * as video from '@/store/modules/video';
-import { Product } from '@/store/modules/projects';
 
 const Video = namespace('video');
 
 @Component({})
 export default class VideoList extends Vue {
   @Video.Action('getVideosByProduct') videosByProductAction!: (
-    arg0: Product
+    arg0: video.Product
   ) => void;
 
-  onClickProduct(product: Product): void {
+  onclickProduct(product: video.Product): void {
     this.videosByProductAction(product);
+  }
+
+  formatDate(date) {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+    return [year, month, day].join('-');
   }
 }
 </script>

@@ -6,7 +6,7 @@ import { Vue, Component } from 'nuxt-property-decorator';
 import LibraryDocList from '~/components/libraryDocList/index.vue';
 
 @Component({
-  layout: 'TypeA',
+  layout: 'default',
   components: {
     LibraryDocList,
   },

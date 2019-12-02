@@ -10,7 +10,7 @@ import * as IAuth from './../auth-interface';
 const { Router } = require('express');
 const router = Router();
 
-router.post('/', (request, response) => {
+router.post('/', (request, response, next) => {
   const { user } = request.body;
 
   checkGroupwareUser(user)
@@ -89,6 +89,8 @@ router.post('/', (request, response) => {
           data: '',
           msg: err.message,
         });
+
+        next('asd');
       });
   };
 

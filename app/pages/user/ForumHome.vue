@@ -98,7 +98,7 @@
                       있습니다. 어떻게 처리해야…
                     </dd></a
                   >
-                  <dd class="user-info">
+                  <dd class="user-info mgt-15">
                     <i class="flag-qna">FD</i><span>2시간전</span
                     ><span>김고객(customer01)</span><span>조회 14</span>
                   </dd>
@@ -126,7 +126,7 @@
                       있습니다. 어떻게 처리해야…
                     </dd></a
                   >
-                  <dd class="user-info">
+                  <dd class="user-info mgt-15">
                     <i class="flag-qna">D</i><span>2시간전</span
                     ><span>김고객(customer01)</span><span>조회 14</span>
                   </dd>
@@ -154,7 +154,7 @@
                       있습니다. 어떻게 처리해야…
                     </dd></a
                   >
-                  <dd class="user-info">
+                  <dd class="user-info mgt-15">
                     <i class="flag-qna">UI</i><span>2시간전</span
                     ><span>김고객(customer01)</span><span>조회 14</span>
                   </dd>
@@ -172,370 +172,112 @@
           </p>
         </div>
         <div class="qna-content">
-          <div class="ui-tab qna">
-            <div class="ui-tab-btns" role="tablist">
-              <a href="#" class="ui-tab-btn active" data-tab="1"
-                ><i>DEWS UI</i></a
-              >
-              <a href="#" class="ui-tab-btn" data-tab="2"><i>DEWS J</i></a>
-              <a href="#" class="ui-tab-btn" data-tab="3"><i>DEWS FD</i></a>
-              <a href="#" class="ui-tab-btn" data-tab="4"><i>DEWS BD</i></a>
-            </div>
-            <div class="ui-tab-pnls">
-              <section id="tab1" class="ui-tab-pnl active" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
-              <section id="tab2" class="ui-tab-pnl" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
-              <section id="tab3" class="ui-tab-pnl" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
-              <section id="tab4" class="ui-tab-pnl" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
+          <div class="sorting-qna">
+            <div class="sorting-option">
+              <div>
+                <input id="sort1" checked="checked" type="radio" name="sort1" />
+                <label for="sort1">DEWS /UI</label>
+              </div>
+              <div>
+                <input id="sort2" type="radio" name="sort1" />
+                <label for="sort2">DEWS / J</label>
+              </div>
+              <div class="process">
+                <input id="sort3" type="radio" name="sort1" />
+                <label for="sort3">DEWS / FD</label>
+              </div>
+              <div class="process">
+                <input id="sort4" type="radio" name="sort1" />
+                <label for="sort4">DEWS / BD</label>
+              </div>
             </div>
           </div>
+          <ul class="dbs-list qna">
+            <li class="list-qna">
+              <div class="qna-list">
+                <ul class="num">
+                  <li><strong>2</strong>추천</li>
+                  <li><strong>1</strong>답변</li>
+                </ul>
+                <dl class="text">
+                  <a href="#11"
+                    ><dt>
+                      <strong
+                        >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할 수
+                        있는 방법이 있나요?</strong
+                      >
+                    </dt>
+                    <dd>
+                      폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
+                      바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것 처럼
+                      보이지만, 실제 동작시에는 이후 프로세스에 문제가 발생하고
+                      있습니다. 어떻게 처리해야…
+                    </dd></a
+                  >
+                  <dd class="user-info mgt-15">
+                    <span>2시간전</span><span>김고객(customer01)</span
+                    ><span>조회 14</span>
+                  </dd>
+                </dl>
+              </div>
+            </li>
+            <li class="list-qna">
+              <div class="qna-list">
+                <ul class="num">
+                  <li><strong>0</strong>추천</li>
+                  <li><strong>1</strong>답변</li>
+                </ul>
+                <dl class="text">
+                  <a href="#11"
+                    ><dt>
+                      <strong
+                        >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할 수
+                        있는 방법이 있나요?</strong
+                      >
+                    </dt>
+                    <dd>
+                      폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
+                      바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것 처럼
+                      보이지만, 실제 동작시에는 이후 프로세스에 문제가 발생하고
+                      있습니다. 어떻게 처리해야…
+                    </dd></a
+                  >
+                  <dd class="user-info mgt-15">
+                    <span>2시간전</span><span>김고객(customer01)</span
+                    ><span>조회 14</span>
+                  </dd>
+                </dl>
+              </div>
+            </li>
+            <li class="list-qna">
+              <div class="qna-list">
+                <ul class="num">
+                  <li><strong>0</strong>추천</li>
+                  <li><strong>1</strong>답변</li>
+                </ul>
+                <dl class="text">
+                  <a href="#11"
+                    ><dt>
+                      <strong
+                        >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할 수
+                        있는 방법이 있나요?</strong
+                      >
+                    </dt>
+                    <dd>
+                      폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
+                      바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것 처럼
+                      보이지만, 실제 동작시에는 이후 프로세스에 문제가 발생하고
+                      있습니다. 어떻게 처리해야…
+                    </dd></a
+                  >
+                  <dd class="user-info mgt-15">
+                    <span>2시간전</span><span>김고객(customer01)</span
+                    ><span>조회 14</span>
+                  </dd>
+                </dl>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
       <div class="qna-wrap mgb-80">
@@ -546,370 +288,148 @@
           </p>
         </div>
         <div class="qna-content">
-          <div class="ui-tab qna">
-            <div class="ui-tab-btns" role="tablist">
-              <a href="#" class="ui-tab-btn active" data-tab="11"
-                ><i>DEWS UI</i></a
-              >
-              <a href="#" class="ui-tab-btn" data-tab="12"><i>DEWS J</i></a>
-              <a href="#" class="ui-tab-btn" data-tab="13"><i>DEWS FD</i></a>
-              <a href="#" class="ui-tab-btn" data-tab="14"><i>DEWS BD</i></a>
-            </div>
-            <div class="ui-tab-pnls">
-              <section id="tab11" class="ui-tab-pnl active" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
-              <section id="tab12" class="ui-tab-pnl" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
-              <section id="tab13" class="ui-tab-pnl" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
-              <section id="tab14" class="ui-tab-pnl" role="tabpanel">
-                <ul class="dbs-list qna">
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>2</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                  <li class="list-qna">
-                    <div class="qna-list">
-                      <ul class="num">
-                        <li><strong>0</strong>추천</li>
-                        <li><strong>1</strong>답변</li>
-                      </ul>
-                      <dl class="text">
-                        <a href="#11"
-                          ><dt>
-                            <strong
-                              >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할
-                              수 있는 방법이 있나요?</strong
-                            >
-                          </dt>
-                          <dd>
-                            폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
-                            바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것
-                            처럼 보이지만, 실제 동작시에는 이후 프로세스에
-                            문제가 발생하고 있습니다. 어떻게 처리해야…
-                          </dd></a
-                        >
-                        <dd class="user-info">
-                          <span>2시간전</span><span>김고객(customer01)</span
-                          ><span>조회 14</span>
-                        </dd>
-                      </dl>
-                    </div>
-                  </li>
-                </ul>
-              </section>
+          <div class="sorting-qna">
+            <div class="sorting-option">
+              <div>
+                <input
+                  id="sort11"
+                  checked="checked"
+                  type="radio"
+                  name="sort2"
+                />
+                <label for="sort11">DEWS /UI</label>
+              </div>
+              <div>
+                <input id="sort12" type="radio" name="sort2" />
+                <label for="sort12">DEWS / J</label>
+              </div>
+              <div class="process">
+                <input id="sort13" type="radio" name="sort2" />
+                <label for="sort13">DEWS / FD</label>
+              </div>
+              <div class="process">
+                <input id="sort14" type="radio" name="sort2" />
+                <label for="sort14">DEWS / BD</label>
+              </div>
             </div>
           </div>
+          <ul class="dbs-list qna">
+            <li class="list-qna">
+              <div class="qna-list">
+                <ul class="num">
+                  <li><strong>2</strong>추천</li>
+                  <li><strong>1</strong>답변</li>
+                </ul>
+                <dl class="text">
+                  <a href="#11">
+                    <dt>
+                      <i class="flag-complete">완료</i>
+                      <strong
+                        >11CodePicker에서 코드 및 텍스트를 커스텀하게 설정할 수
+                        있는 방법이 있나요?</strong
+                      >
+                    </dt>
+                    <dd>
+                      폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
+                      바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것 처럼
+                      보이지만, 실제 동작시에는 이후 프로세스에 문제가 발생하고
+                      있습니다. 어떻게 처리해야…
+                    </dd></a
+                  >
+                  <dd class="user-info mgt-15">
+                    <span>2시간전</span><span>김고객(customer01)</span
+                    ><span>조회 14</span>
+                  </dd>
+                </dl>
+              </div>
+            </li>
+            <li class="list-qna">
+              <div class="qna-list">
+                <ul class="num">
+                  <li><strong>0</strong>추천</li>
+                  <li><strong>1</strong>답변</li>
+                </ul>
+                <dl class="text">
+                  <a href="#11"
+                    ><dt>
+                      <strong
+                        >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할 수
+                        있는 방법이 있나요?</strong
+                      >
+                    </dt>
+                    <dd>
+                      폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
+                      바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것 처럼
+                      보이지만, 실제 동작시에는 이후 프로세스에 문제가 발생하고
+                      있습니다. 어떻게 처리해야…
+                    </dd></a
+                  >
+                  <dd class="user-info mgt-15">
+                    <span>2시간전</span><span>김고객(customer01)</span
+                    ><span>조회 14</span>
+                  </dd>
+                </dl>
+              </div>
+            </li>
+            <li class="list-qna">
+              <div class="qna-list">
+                <ul class="num">
+                  <li><strong>0</strong>추천</li>
+                  <li><strong>1</strong>답변</li>
+                </ul>
+                <dl class="text">
+                  <a href="#11"
+                    ><dt>
+                      <strong
+                        >CodePicker에서 코드 및 텍스트를 커스텀하게 설정할 수
+                        있는 방법이 있나요?</strong
+                      >
+                    </dt>
+                    <dd>
+                      폼 패널 내부의 코드피커에서 코드와 텍스트를 변경하여
+                      바인딩을 하고 싶습니다. 작성을 해보니 잘 되는 것 처럼
+                      보이지만, 실제 동작시에는 이후 프로세스에 문제가 발생하고
+                      있습니다. 어떻게 처리해야…
+                    </dd></a
+                  >
+                  <dd class="user-info mgt-15">
+                    <span>2시간전</span><span>김고객(customer01)</span
+                    ><span>조회 14</span>
+                  </dd>
+                </dl>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="sky-qna">
+        <div class="sky-wrap">
+          <p class="sky-title">내 활동 현황</p>
+          <ul class="sky-list">
+            <li class="sky-content">
+              <span>완료</span><span class="num">0</span>
+            </li>
+            <li class="sky-content">
+              <span>진행</span><span class="num">3</span>
+            </li>
+            <li class="sky-content">
+              <span>답변</span><span class="num">2</span>
+            </li>
+          </ul>
+        </div>
+        <div class="sky-wrap">
+          <p class="sky-title">전체 질문답변 현황</p>
+          <ul class="sky-list">
+            <li class="sky-content">
+              <span>전체</span><span class="num">9,123,456</span>
+            </li>
+            <li class="sky-content">
+              <span>진행</span><span class="num">9,012,345</span>
+            </li>
+            <li class="sky-content">
+              <span>완료</span><span class="num">123</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>

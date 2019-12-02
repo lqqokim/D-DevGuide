@@ -1,26 +1,35 @@
 <template>
-  <div class="dbs-container">
-    <h1 class="tit-con mgt-50">
-      문서 {{ $store.state.document.selectedProduct.productName }}
-    </h1>
-    <div class="position-wrap">
-      <input type="button" value="+추가" @click="onClickDocAdd" />
+  <div class="container-panel">
+    <div class="view-top">
+      <p class="tit-con-qna">문서 {{ $route.params.productName }}</p>
+      <div class="register">
+        <button
+          type="button"
+          class="btn-main blue small"
+          @click="onClickDocAdd"
+        >
+          추가
+        </button>
+      </div>
     </div>
-    <ul class="thumb-list mgt-10">
+
+    <ul class="thumb-list video mgt-20 mgb-60">
       <li v-for="doc in $store.state.document.docsByProduct" :key="doc._id">
         <nuxt-link
           :to="{
-            name: 'videoDetail',
+            name: 'docDetail',
             params: {
               productName: doc.productName,
-              projectId: doc.projectId,
+              docName: doc.docName,
               _id: doc._id,
             },
           }"
         >
           <div class="thumb">
             <img
-              :src="doc.thumbnailPath.replace('app/static', '')"
+              :src="
+                doc.thumbnailPath && doc.thumbnailPath.replace('app/static', '')
+              "
               alt="document"
             />
           </div>
@@ -28,9 +37,10 @@
         <dl class="thumb-desc">
           <nuxt-link
             :to="{
-              name: 'videoDetail',
+              name: 'docDetail',
               params: {
                 productName: doc.productName,
+                docName: doc.docName,
                 _id: doc._id,
               },
             }"
@@ -47,7 +57,7 @@
           </dd>
           <dd>
             {{ doc.empName }}
-            <span class="name">{{ doc.depthPath }}</span>
+            <span class="name">{{ doc.deptPath }}</span>
           </dd>
           <dd>
             <nuxt-link
@@ -87,9 +97,11 @@
         <!--        </div>-->
       </li>
     </ul>
-    <!--    <input type="button" value="더보기" style="width: 100%;"/>-->
-    <div class="line"></div>
+    <div class="btn-wrap mgb-80">
+      <button type="button" class="btn-main small">더보기</button>
+    </div>
   </div>
+  <!-- 컨텐츠 영역 end-->
 </template>
 <script lang="ts">
 import { Vue, Component, namespace } from 'nuxt-property-decorator';

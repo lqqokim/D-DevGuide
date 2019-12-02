@@ -1,10 +1,12 @@
 @import 'variables';
 @import 'mixins';
 //@import '_normalize';
+@import "dbs.admin";
 @import "dbs.base";
 @import "dbs.layout";
 @import "dbs.accordion";
 @import "dbs.checkbox";
+@import "dbs.dialog";
 @import "dbs.table";
 @import "dbs.button";
 @import "dbs.common";

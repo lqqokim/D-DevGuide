@@ -1,10 +1,42 @@
+// eslint-disable-next-line import/named
 import { upload } from './../../../controllers/upload';
 import { UploadModel } from './../../../models/upload';
+import { FileModel, FileProductModel } from './../../../models/download';
+
 const fs = require('fs');
 
 const { Router } = require('express');
 const router = Router();
-const PDFImage = require('pdf-image').PDFImage;
+
+/**
+ * 다운로드 > 제품 등록
+ */
+router.post('/product', (req, res) => {
+  const product = req.body;
+  const fileProductModel = new FileProductModel(product);
+
+  fileProductModel
+    .save()
+    .then((project) => {
+      res.status(200).send({ success: true, data: project });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 다운로드 > 제품 목록 조회
+ */
+router.get('/products', (req, res) => {
+  FileProductModel.find()
+    .then((projects) => {
+      res.status(200).send({ success: true, data: projects });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
 
 // 파일 조회
 router.get('/list', (req, res, next) => {
@@ -15,38 +47,46 @@ router.get('/list', (req, res, next) => {
   });
 });
 
-// 파일 등록
-router.post('/upload', upload.single('file'), (req, res) => {
+// 다운로드 > 파일 등록
+router.post('/register', upload.single('file'), (req, res) => {
   const { file } = req;
+  const data = JSON.parse(req.body.data);
+  const filePath = 'app/static/uploads/';
 
-  console.log('file ::: ', file);
+  console.log('[Download 파일정보] ', file);
+  console.log('[Download 데이터]', data);
 
-  const pdfImage = new PDFImage(file.path);
-  pdfImage.convertPage(0).then(function(imagePath) {
-    // 0-th page (first page) of the slide.pdf is available as slide-0.png
-    if (
-      fs.existsSync(file.destination + file.filename.split('.')[0] + '-0.png')
-    ) {
-      console.log('[Thumbnail Complete !!] ', imagePath);
-    }
-  });
+  const fileModel = new FileModel();
+  // 사용자 입력 정보
+  fileModel.fileTitle = data.fileTitle;
+  fileModel.projectId = data.projectId;
+  fileModel.productName = data.productName;
+  fileModel.empName = data.empName;
+  fileModel.deptPath = data.deptPath;
+  fileModel.description = data.description;
 
-  const uploadModel = new UploadModel();
-  uploadModel.name = file.filename;
-  uploadModel.originalName = file.originalname;
-  uploadModel.mimeType = file.mimetype;
-  uploadModel.encoding = file.encoding;
-  uploadModel.size = file.size;
+  fileModel.uploadDate = new Date().getTime();
+  fileModel.updateDate = new Date().getTime();
+  fileModel.downloadCount = 0;
 
-  uploadModel.save(function(err) {
-    if (err) {
-      console.error(err);
-      res.json({ result: 0 });
-      return;
-    }
+  // multer 파일 정보
+  fileModel.originFileName = file.originalname;
+  // fileModel.fileName = file.filename;
+  fileModel.fileName = fileModel._id + '.' + file.originalname.split('.')[1];
+  // fileModel.filePath = file.filePath;
+  fileModel.filePath = filePath + fileModel.fileName;
+  fileModel.size = file.size;
 
-    res.json({ result: 1 });
-  });
+  console.log('fileModel :: ', fileModel);
+
+  fileModel
+    .save()
+    .then((file) => {
+      res.status(200).send({ success: true, data: file });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
 });
 
 module.exports = router;

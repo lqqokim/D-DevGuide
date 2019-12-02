@@ -78,7 +78,7 @@
                   <nuxt-link to="/docs">개발자 문서</nuxt-link>
                 </li>
                 <li class="mn-sub-list">
-                  <nuxt-link to="/qna/:categoryName">질문/답변</nuxt-link>
+                  <nuxt-link to="/qna">질문/답변</nuxt-link>
                 </li>
                 <li class="mn-sub-list">
                   <nuxt-link to="/library">자료실</nuxt-link>
@@ -142,21 +142,32 @@ export default class HeaderComp extends Vue {
       this.logoutAction();
 
       if (this.authPages.includes(this.$route.path)) {
-        this.$router.push({
-          path: '/',
-        });
+        // TODO 퍼블리싱 작업으로 임시 주석
+        // this.$router.push({
+        //   path: '/',
+        // });
       }
     }
   }
 
   openSubMenu($event): void {
-    this.$refs.submenu.style.display = 'block';
-    this.$refs.bar.style.display = 'block';
+    if (this.$refs.submenu) {
+      this.$refs.submenu.style.display = 'block';
+    }
+
+    if (this.$refs.bar) {
+      this.$refs.bar.style.display = 'block';
+    }
   }
 
   closeSubMenu($event): void {
-    this.$refs.submenu.style.display = 'none';
-    this.$refs.bar.style.display = 'none';
+    if (this.$refs.submenu) {
+      this.$refs.submenu.style.display = 'none';
+    }
+
+    if (this.$refs.bar) {
+      this.$refs.bar.style.display = 'none';
+    }
   }
 
   logout(): void {

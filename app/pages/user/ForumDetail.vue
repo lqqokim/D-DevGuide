@@ -115,7 +115,6 @@
         </div>
       </div>
     </div>
-    <div class="side-button"></div>
   </div>
 </template>
 <script lang="ts">

@@ -21,12 +21,12 @@
       min-height: 52px;
       text-align: center;
       vertical-align: middle;
-      border: 1px solid #dbdbdb;
+      border: 1px solid $light-gray-color;
       border-left: 0 none;
       background-color: #fff;
       box-sizing: border-box;
       &:first-child{
-        border-left: 1px solid #dbdbdb;
+        border-left: 1px solid $light-gray-color;
       }
       i {
         display: table-cell;
@@ -88,7 +88,7 @@
         color: $theme-main-color;
         border-width: 3px 1px 1px;
         border-style: solid;
-        border-color: $theme-main-color #dbdbdb #fff #dbdbdb;
+        border-color: $theme-main-color $light-gray-color #fff $light-gray-color;
       }
     }
   }
@@ -96,7 +96,7 @@
     min-height: 374px;
     margin-top: -1px;
     padding: 20px;
-    border: 1px solid #dbdbdb;
+    border: 1px solid $light-gray-color;
   }
 }
 .ui-tab.qna{
@@ -112,7 +112,7 @@
         width: 1px;
         height: 14px;
         margin: 0 14px;
-        background: #dbdbdb;
+        background: $light-gray-color;
         vertical-align: middle;
       }
       &:first-child:before{

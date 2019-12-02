@@ -1,8 +1,17 @@
-import { DocModel, DocProductModel } from './../../../models/document';
-import { upload } from './../../../controllers/upload';
-
+import { DocProductModel, DocModel } from './../../../models/document';
+import {
+  // eslint-disable-next-line import/named
+  upload,
+  // eslint-disable-next-line import/named
+  previewUpload,
+  // eslint-disable-next-line import/named
+  docModel,
+  // eslint-disable-next-line import/named
+  tempDocModel,
+} from './../../../controllers/libraryUploadController';
 const fs = require('fs');
 const { Router } = require('express');
+const mongoose = require('mongoose');
 const router = Router();
 
 const PDFImage = require('pdf-image').PDFImage;
@@ -85,13 +94,13 @@ router.post('/register', upload.single('file'), (req, res) => {
         // console.log('[Thumbnail Complete !!] ', imagePath);
       }
 
-      const docModel = new DocModel();
+      // const docModel = new DocModel();
       // 사용자 입력 정보
       docModel.docTitle = data.docTitle;
       docModel.projectId = data.projectId;
       docModel.productName = data.productName;
       docModel.empName = data.empName;
-      docModel.depthPath = data.depthPath;
+      docModel.deptPath = data.deptPath;
       docModel.description = data.description;
 
       docModel.uploadDate = new Date().getTime();
@@ -100,8 +109,10 @@ router.post('/register', upload.single('file'), (req, res) => {
 
       // multer 파일 정보
       docModel.originDocName = file.originalname;
-      docModel.docName = file.filename;
-      docModel.docPath = file.path;
+      // docModel.docName = file.filename;
+      docModel.docName = docModel._id + '.' + file.originalname.split('.')[1]; // _id 값을 파일명으로 한다.
+      // docModel.docPath = file.path;
+      docModel.docPath = file.destination + docModel.docName;
       docModel.size = file.size;
       docModel.thumbnailPath = imagePath;
 
@@ -110,6 +121,23 @@ router.post('/register', upload.single('file'), (req, res) => {
       docModel
         .save()
         .then((file) => {
+          // temp 폴더에 있는 문서 제거
+          tempDocModel
+            .deleteOne({ _id: data._id })
+            .then((result) => {
+              if (result.n === 0) {
+                // return res
+                //   .status(404)
+                //   .json({ success: false, msg: 'Document not found' });
+              } else {
+                // return res.status(200).json({ success: true, data: result });
+              }
+            })
+            .catch((err) => {
+              console.log('err ', err);
+              // res.status(500).send({ success: false, msg: err.message });
+            });
+
           res.status(200).send({ success: true, data: file });
         })
         .catch((err) => {
@@ -122,24 +150,92 @@ router.post('/register', upload.single('file'), (req, res) => {
 });
 
 /**
- * 문서 업데이트
+ * 미리보기 파일 업로드
  */
-router.post('/update', (req, res) => {
-  const doc = req.body;
+router.post('/preview', previewUpload.single('file'), (req, res) => {
+  const { file } = req;
 
-  console.log('update doc', doc);
+  console.log('[Preview 파일정보] ', file);
+  const pdfImage = new PDFImage(file.path);
 
-  DocModel.findOneAndUpdate(
-    { _id: doc._id },
-    { $set: { ...doc } },
-    { new: true }
-  )
-    .then((doc) => {
-      res.status(200).send({ success: true, data: doc });
+  pdfImage
+    .convertPage(0)
+    .then(function(imagePath) {
+      if (
+        fs.existsSync(file.destination + file.filename.split('.')[0] + '-0.png')
+      ) {
+        // console.log('[Thumbnail Complete !!] ', imagePath);
+      }
+
+      // 사용자 입력 정보
+      // tempDocModel.docTitle = '';
+      // tempDocModel.projectId = '';
+      // tempDocModel.productName = '';
+      // tempDocModel.empName = '';
+      // tempDocModel.deptPath = '';
+      // tempDocModel.description = '';
+      console.log('tempDocModel idd', tempDocModel._id);
+
+      if (tempDocModel) {
+        tempDocModel.uploadDate = new Date().getTime();
+        tempDocModel.updateDate = new Date().getTime();
+        // tempDocModel.viewCount = 0;
+
+        // multer 파일 정보
+        tempDocModel.originDocName = file.originalname;
+        tempDocModel.docName =
+          tempDocModel._id + '.' + file.originalname.split('.')[1]; // mongodb _id 를 파일명
+        tempDocModel.docPath = file.destination + tempDocModel.docName;
+        tempDocModel.size = file.size;
+        tempDocModel.thumbnailPath = imagePath;
+
+        console.log('tempDocModel :: ', tempDocModel);
+
+        tempDocModel
+          .save()
+          .then((file) => {
+            res.status(200).send({ success: true, data: file });
+          })
+          .catch((err) => {
+            res.status(500).send({ success: false, msg: err.message });
+          });
+      }
     })
     .catch((err) => {
-      res.status(500).send({ success: false, msg: err.message });
+      console.error(err);
     });
+});
+
+/**
+ * 문서 업데이트
+ */
+router.post('/update/:_id', (req, res) => {
+  if (req.body.formData) {
+  } else {
+    const data = req.body; // payload.data (사용자 입력 값)
+
+    console.log('문서 업데이트 :::: ', data);
+
+    // DocModel.findOne({ _id: mongoose.Types.ObjectId(req.params._id) }).then(
+    //   (res) => {
+    //     console.log('findOne', res);
+    //   }
+    // );
+
+    DocModel.findOneAndUpdate(
+      { _id: mongoose.Types.ObjectId(req.params._id) },
+      { $set: data },
+      {
+        new: true,
+      }
+    )
+      .then((doc) => {
+        res.status(200).send({ success: true, data: doc });
+      })
+      .catch((err) => {
+        res.status(500).send({ success: false, msg: err.message });
+      });
+  }
 });
 
 /**

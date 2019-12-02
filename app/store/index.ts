@@ -6,6 +6,7 @@ import * as user from './modules/user';
 import * as projects from './modules/projects';
 import * as video from './modules/video';
 import * as document from './modules/document';
+import * as download from './modules/download';
 
 export type RootState = root.State;
 
@@ -21,6 +22,7 @@ const createStore = () => {
       projects,
       video,
       document,
+      download,
     },
   });
 };

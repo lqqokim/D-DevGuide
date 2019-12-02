@@ -6,7 +6,9 @@ events.EventEmitter.defaultMaxListeners = 50;
 // const ExtractTextPlugin = require('extract-text-webpack-plugin');
 // const extractCSS = new ExtractTextPlugin('stylesheets/[name]-one.css');
 
-const dbsProxy = process.env.DBS_URL
+console.log('process.env.BASE_URL :: ', process.env.BASE_URL);
+
+const DBS_PROXY = process.env.DBS_URL
   ? [
       `${process.env.DBS_URL}/html`,
       `${process.env.DBS_URL}/css`,
@@ -31,17 +33,23 @@ const config: Configuration = {
     // API middleware
     '~/api/index.js',
   ],
+  env: {
+    baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+  },
   router: {
     // middleware: 'check-auth',
   },
   /*
    ** Headers of the page
    */
+
+  // @ts-ignore
   head: {
     title: process.env.npm_package_name || '',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' },
       {
         hid: 'description',
         name: 'description',
@@ -88,16 +96,19 @@ const config: Configuration = {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/style-resources',
+    // '@nuxtjs/style-resources',
     '@nuxtjs/proxy',
-    // '@tui-nuxt/editor',
+    '@tui-nuxt/editor',
     'cookie-universal-nuxt',
   ],
-  styleResources: {
-    scss: ['./assets/scss/*.scss'],
+  // styleResources: {
+  //   scss: ['./assets/scss/*.scss'],
+  // },
+  axios: {
+    // baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    proxy: true,
   },
-  axios: {},
-  proxy: dbsProxy,
+  proxy: DBS_PROXY,
   /*
    ** Build configuration
    */

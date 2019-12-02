@@ -53,7 +53,6 @@
                       </button>
                     </div>
                   </div>
-                  <div class="dim-select"></div>
                 </div>
               </td>
             </tr>

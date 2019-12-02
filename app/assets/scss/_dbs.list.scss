@@ -30,7 +30,7 @@
         &.date{
           width: 200px;
           padding: 0 20px;
-          color: #9d9d9d;
+          color: $normal-gray-color;
         }
       }
     }
@@ -53,17 +53,17 @@
 .dbs-list{
   border-top: 1px solid #a8a8a8;
   &.qna{
-    border-color: #dbdbdb;
+    border-color: $light-gray-color;
   }
   .list-qna{
     position: relative;
     padding: 28px 103px 28px 0;
-    border-bottom: 1px solid #dbdbdb;
+    border-bottom: 1px solid $light-gray-color;
   }
   .list-row{
     position: relative;
     padding: 20px;
-    border-bottom: 1px solid #dbdbdb;
+    border-bottom: 1px solid $light-gray-color;
     &:after{
       display: block;
       clear: both;
@@ -95,7 +95,7 @@
             margin: 0 10px;
             font-size: 14px;
             line-height: 19px;
-            color: #9d9d9d;
+            color: $normal-gray-color;
           }
           .access-role{
             font-size: 15px;
@@ -133,7 +133,7 @@
           margin-right: 12px;
           font-size: 14px;
           line-height: 19px;
-          color: #9d9d9d;
+          color: $normal-gray-color;
           text-align: right;
           p + p{
             margin-top: 6px;

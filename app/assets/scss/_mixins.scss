@@ -10,3 +10,13 @@
     clear: both;
   }
 }
+
+@mixin ellipsis{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+@mixin keep-all{
+  word-wrap: break-word;
+  word-break: keep-all;
+}

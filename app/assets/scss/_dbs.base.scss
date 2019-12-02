@@ -93,6 +93,9 @@ h5,
 h6 {
   font-weight: normal;
 }
+img{
+  max-width: 100%;
+}
 img,
 fieldset,
 iframe,
@@ -178,7 +181,7 @@ input[type='search']::-webkit-search-results-decoration {
 }
 
 .not_scroll {
-  position: fixed;
+  position: fixed !important;
   overflow: hidden;
   width: 100%;
   height: 100%;
@@ -193,6 +196,11 @@ input[type='search']::-webkit-search-results-decoration {
   font-size: xx-small;
   line-height: 0;
   z-index: -1;
+}
+.ellipsis{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 strong{
   font-family: 'Noto Sans M', sans-serif;
@@ -216,14 +224,7 @@ strong{
 .verti-md{
   vertical-align: middle !important;
 }
-.ellipsis {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  word-break: normal;
-}
+
 .fit {
   footer {
     position: absolute;
@@ -233,7 +234,13 @@ strong{
 .line{
   width: 100%;
   height: 1px;
-  background-color: #dbdbdb;
+  background-color: $light-gray-color;
+}
+.mgl-0{
+  margin-left: 0 !important;
+}
+.pdb-0{
+  padding-bottom: 0 !important;
 }
 .bdr-bot-none{
   border-bottom: none !important;
@@ -253,7 +260,18 @@ strong{
 }
 
 .font-accent-color{
+  color: $theme-main-color !important;
+}
+.badge-staff{
+  padding: 0 4px;
+  font-family: 'Noto Sans M', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 17px;
   color: $theme-main-color;
+  border: 1px solid $theme-main-color;
+  border-radius: 3px;
+  vertical-align: middle;
 }
 /* title */
 [class^='tit'] {
@@ -283,19 +301,15 @@ strong{
     line-height: 27px;
     color: #222;
   }
-  &-con-med {
-    font-size: $base-font-size - 2px;
-  }
-  &-con-large {
-    margin: 0;
-    padding: 0 0 10px;
-    font-size: $base-font-size + 2px;
-    color: #000;
-  }
   &-video{
     font-size: $base-font-size + 8px;
     line-height: 33px;
     color: #222;
+  }
+  &-video-desc{
+    font-size: $base-font-size - 1px;
+    line-height: 20px;
+    color: #565656;
   }
   &-video-small{
     font-size: $base-font-size;
@@ -308,12 +322,7 @@ strong{
     letter-spacing: -1px;
     color: #101010;
   }
-  &-con-qna{
-    font-size: $base-font-size + 8px;
-    line-height: 36px;
-    color: #101010;
-  }
-  &-con-text{
+  &-con-qna, &-con-text{
     font-size: $base-font-size + 8px;
     line-height: 36px;
     color: #101010;
@@ -344,6 +353,16 @@ strong{
     line-height: 24px;
     color: #101010;
   }
+  &-con-download{
+    font-size: $base-font-size + 4px;
+    line-height: 27px;
+    color: #101010;
+  }
+}
+.qna-desc{
+  font-size: $base-font-size;
+  line-height: 25px;
+  color: #565656;
 }
 .icon-title{
   &:before{

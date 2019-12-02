@@ -6,9 +6,16 @@ import { Vue, Component } from 'nuxt-property-decorator';
 import VideoProductManage from '~/components/libraryVideoProductManage/index.vue';
 
 @Component({
-  layout: 'TypeA',
+  layout: 'default',
   components: {
     VideoProductManage,
+  },
+  async fetch({ store }) {
+    try {
+      await store.dispatch('video/videoProducts');
+    } catch (e) {
+      console.error(e);
+    }
   },
 })
 export default class extends Vue {}

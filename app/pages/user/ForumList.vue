@@ -16,32 +16,58 @@
     <div class="dbs-container mgb-0">
       <div class="content-wrap">
         <div class="left-menu">
-          <p class="tit-con-left">질문 / 답변</p>
+          <p class="tit-con-left"><strong>개발자 문서 관리</strong></p>
           <div class="ui-accordion-left-pnl">
             <ul>
-              <li class="nav-item depth-1"><a href="#">나의 문의내역</a></li>
-              <li class="nav-item depth-1 folder">
-                <a href="#">나의 문의내역2</a>
-              </li>
-              <li class="nav-item depth-1 folder">
-                <a href="#" class="selected">제품별 통합질문</a>
-                <ul class="nav-container depth-2">
-                  <li class="nav-item page depth-2">
-                    <a href="#" class="selected">DEWS UI</a>
+              <li class="nav-item depth-1 folder selected">
+                <a href="#" class="nav-text">문서관리</a>
+                <ul class="nav-container depth-2" style="display: block;">
+                  <li class="nav-item depth-2 folder selected">
+                    <a href="#" class="nav-text">DEWS/UI</a>
+                    <ul class="nav-container depth-3" style="display: block;">
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">작업 브랜치 관리</a>
+                      </li>
+                      <li class="nav-item depth-3 page selected">
+                        <a href="#" class="nav-text">버전 관리</a>
+                      </li>
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">공지사항 관리</a>
+                      </li>
+                    </ul>
                   </li>
-                  <li class="nav-item page depth-2">
-                    <a href="#">DEWS J</a>
+                  <li class="nav-item depth-2 folder selected">
+                    <a href="#" class="nav-text">DEWS J</a>
+                    <ul class="nav-container depth-3" style="display: block;">
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">작업 브랜치 관리</a>
+                      </li>
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">버전 관리</a>
+                      </li>
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">공지사항 관리</a>
+                      </li>
+                    </ul>
                   </li>
-                  <li class="nav-item page depth-2">
-                    <a href="#">DEWS Q</a>
-                  </li>
-                  <li class="nav-item page depth-2">
-                    <a href="#">DEWS Frontend Designer</a>
-                  </li>
-                  <li class="nav-item page depth-2">
-                    <a href="#">DEWS Backend Designer</a>
+                  <li class="nav-item depth-2 folder selected">
+                    <a href="#" class="nav-text">DEWS Q</a>
+                    <ul class="nav-container depth-3" style="display: block;">
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">작업 브랜치 관리</a>
+                      </li>
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">버전 관리</a>
+                      </li>
+                      <li class="nav-item depth-3 page">
+                        <a href="#" class="nav-text">공지사항 관리</a>
+                      </li>
+                    </ul>
                   </li>
                 </ul>
+              </li>
+              <li class="nav-item depth-1 page selected">
+                <a href="#" class="nav-text">제품관리</a>
               </li>
             </ul>
           </div>
@@ -180,7 +206,6 @@
         </div>
       </div>
     </div>
-    <div class="side-button"></div>
   </div>
 </template>
 <script lang="ts">

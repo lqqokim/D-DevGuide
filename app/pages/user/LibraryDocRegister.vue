@@ -16,6 +16,12 @@ import LibraryDocRegister from '~/components/libraryDocRegister/index.vue';
         await store.dispatch('document/docProducts');
       }
 
+      // if (!store.state.document.selectedProduct) {
+      //   await store.commit('download/selectedProduct', params.productName);
+      // }
+
+      // initialize
+      await store.commit('document/initState', 'selectedTemp');
       await store.commit('document/initState', 'selectedDoc');
     } catch (e) {
       console.error(e);

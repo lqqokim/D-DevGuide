@@ -1,19 +1,18 @@
 <template>
   <library-doc-edit></library-doc-edit>
+  <!--  TODO 캐러셀-->
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import LibraryDocEdit from '~/components/libraryDocEdit/DocEditor.vue';
+import LibraryDocEdit from '@/components/libraryDocEdit/index.vue';
 
 @Component({
-  layout: 'TypeA',
+  layout: 'default',
   components: {
     LibraryDocEdit,
   },
   async fetch({ params, store }) {
     try {
-      console.log('LibraryDocEdit Fetch :: ', params);
-
       if (!store.state.document.producs) {
         await store.dispatch('document/docProducts');
       }
@@ -25,6 +24,9 @@ import LibraryDocEdit from '~/components/libraryDocEdit/DocEditor.vue';
         // doc 존재
         await store.commit('document/selectedDoc', params.doc);
       }
+
+      // initialize
+      await store.commit('document/initState', 'selectedTemp');
     } catch (e) {
       console.error(e);
     }

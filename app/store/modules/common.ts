@@ -12,4 +12,7 @@ export const state = (): CommonState => ({
     '/qna/search',
     '/qna/register',
   ],
+  // pageTypes: [
+  //
+  // ]
 });

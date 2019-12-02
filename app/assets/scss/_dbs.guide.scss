@@ -117,9 +117,9 @@
 }
 .gray-info-box {
   @include clearfix;
-  overflow: hidden;
+  //overflow: hidden;
   padding: 20px;
-  border: 1px solid #dbdbdb;
+  border: 1px solid $light-gray-color;
   background-color: #f8f8f8;
   p {
     padding: 0;

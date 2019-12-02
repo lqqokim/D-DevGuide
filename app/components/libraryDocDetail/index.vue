@@ -51,7 +51,7 @@
               <div class="video-detail">
                 <dl class="tit">
                   <dt>
-                    <strong>{{ doc.empName }} | {{ doc.depthPath }}</strong
+                    <strong>{{ doc.empName }} | {{ doc.deptPath }}</strong
                     ><span>2019.08.15 15:12</span>
                   </dt>
                   <dd class="desc">

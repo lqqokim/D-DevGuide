@@ -6,7 +6,7 @@ import { Vue, Component } from 'nuxt-property-decorator';
 import LibraryVideoEdit from '~/components/libraryVideoEdit/index.vue';
 
 @Component({
-  layout: 'TypeA',
+  layout: 'default',
   components: {
     LibraryVideoEdit,
   },

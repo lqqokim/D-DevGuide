@@ -1,12 +1,11 @@
 <template>
-  <div></div>
+  <download-list></download-list>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
 import DownloadList from '~/components/libraryDownloadList/index.vue';
 
 @Component({
-  layout: 'TypeA',
   components: {
     DownloadList,
   },

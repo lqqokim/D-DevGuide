@@ -161,7 +161,7 @@ import HeaderComp from '@/components/common/header/index.vue';
 import FooterComp from '@/components/common/footer/index.vue';
 
 @Component({
-  layout: 'TypeA',
+  layout: 'default',
 })
 export default class CommonLayout extends Vue {}
 </script>

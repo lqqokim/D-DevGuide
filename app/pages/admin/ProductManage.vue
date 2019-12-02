@@ -13,7 +13,7 @@
         </div>
       </div>
     </div>
-    <div class="dbs-container mgb-0">
+    <div class="dbs-container">
       <div class="content-wrap">
         <div class="left-menu">
           <p class="tit-con-left"><strong>개발자 문서 관리</strong></p>
@@ -180,7 +180,7 @@
                     <tr>
                       <th scope="row">기준 브랜치</th>
                       <td>
-                        <div class="ui-select">
+                        <div class="ui-select w-100p">
                           <select title="품목형태" class="off" tabindex="-1">
                             <option value="0" selected="">master</option>
                             <option value="1">품목1</option>
@@ -215,7 +215,6 @@
                               </button>
                             </div>
                           </div>
-                          <div class="dim-select"></div>
                         </div>
                       </td>
                     </tr>

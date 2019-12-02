@@ -35,6 +35,12 @@
           }
         }
         &.folder{
+          &.selected{
+            > .nav-text{
+              font-family: 'Noto Sans M', sans-serif;
+              font-weight: 500;
+            }
+          }
           .nav-text:after{
             transform: rotate(90deg);
           }
@@ -52,6 +58,11 @@
                   box-sizing: border-box;
                   &:after{
                     display: none;
+                  }
+                }
+                &.page.selected{
+                  a{
+                    color: $theme-main-color;
                   }
                 }
                 .nav-container.depth-3{
@@ -84,8 +95,11 @@
             transform: rotate(-90deg);
           }
           &.page{
-            .nav-text:after{
-              transform: rotate(0);
+            .nav-text{
+              color: $theme-main-color;
+              &:after{
+                transform: rotate(0);
+              }
             }
           }
         }

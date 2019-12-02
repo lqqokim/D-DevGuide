@@ -1,7 +1,13 @@
 <template>
-  <div>
-    자료실 동영상 수정 페이지
-
+  <div class="container-panel">
+    <div class="view-top">
+      <h3 class="tit-con-text">
+        동영상 등록/수정
+      </h3>
+      <div class="position-wrap">
+        <input type="button" value="<-돌아가기" @click="onClickCancel" />
+      </div>
+    </div>
     <series-edit v-if="$store.state.video.selectedVideo.isSeries"></series-edit>
     <single-edit v-else></single-edit>
   </div>
@@ -21,6 +27,8 @@ export default class LibraryVideoEdit extends Vue {
   created() {
     console.log('created ', this.$store.state.video.selectedVideo);
   }
+
+  onClickCancel() {}
 }
 </script>
 

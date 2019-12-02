@@ -40,6 +40,7 @@
             <dt>DEWS UI</dt>
             <dd>Project Sub Description</dd>
           </dl>
+          <button role="button" class="ico-setting">설정</button>
           <p class="icon"><span>UI</span></p>
           <button type="button" class="btn-detail btn-sub-small">
             자세히보기

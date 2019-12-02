@@ -110,7 +110,6 @@
                       </button>
                     </div>
                   </div>
-                  <div class="dim-select"></div>
                 </div>
                 <input
                   type="text"

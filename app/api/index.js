@@ -53,6 +53,7 @@ mongoose.connect(
     console.info('mongoose connected!');
   }
 );
+mongoose.set('debug', true);
 
 app.use(function(err, req, res, next) {
   // Do logging and user-friendly error message display

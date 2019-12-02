@@ -24,7 +24,11 @@
           <td>{{ file.size }}</td>
           <td>{{ file.mimeType }}</td>
           <td>{{ file.encoding }}</td>
-          <td><a :href="`/uploads/${file.name}`" download>다운로드</a></td>
+          <td>
+            <a :href="`/uploads/${file.name}`" :download="file.originalName"
+              >다운로드</a
+            >
+          </td>
         </tr>
       </tbody>
     </table>

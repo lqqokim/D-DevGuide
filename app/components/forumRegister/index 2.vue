@@ -1,17 +1,13 @@
 <template>
   <div>
-    <div>
-      자료실 전체 문서 페이지
-    </div>
+    질문 등록 페이지
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
 
-@Component({
-  components: {},
-})
-export default class LibraryDocumentList extends Vue {}
+@Component
+export default class ForumRegister extends Vue {}
 </script>
 
 <style scoped></style>

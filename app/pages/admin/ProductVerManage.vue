@@ -13,7 +13,7 @@
         </div>
       </div>
     </div>
-    <div class="dbs-container mgb-0">
+    <div class="dbs-container">
       <div class="content-wrap">
         <div class="left-menu">
           <p class="tit-con-left"><strong>개발자 문서 관리</strong></p>
