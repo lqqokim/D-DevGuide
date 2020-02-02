@@ -1,0 +1,110 @@
+@import 'variables';
+@import 'mixins';
+
+.switch-button{
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  label{
+    flex: 1 0 auto;
+    height: 40px;
+    padding: 5px;
+    font-size: 13px;
+    line-height: 30px;
+    color: #606060;
+    text-align: center;
+    border: 1px solid $gray-color1;
+    background: #fff;
+    transition: all 0.1s  ease-in-out;
+    box-sizing: border-box;
+  }
+  input{
+    overflow: hidden;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    &:checked + label{
+      color: #fff;
+      background-color: #7989a3;
+      border-color: #7989a3;
+    }
+  }
+}
+.radio-button-wrap{
+  position: relative;
+  input[type="radio"] {
+    display: inline-block;
+    position: absolute;
+    margin: 0;
+    vertical-align: top;
+    appearance: none;
+    z-index: -1;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    + .dews-radio {
+      position: relative;
+      display: inline-block;
+      width: auto;
+      padding: 0 0 0 20px;
+      font-size: 15px;
+      line-height: 1;
+      color: $font-color2;
+      vertical-align: middle;
+      cursor: pointer;
+      &:before {
+        @include vertical-middle;
+        content: "";
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        width: 14px;
+        height: 14px;
+        text-align: center;
+        border-radius: 100%;
+        border: 1px solid #b2b2b2;
+        background: #fff;
+        cursor: pointer;
+      }
+    }
+    &:checked {
+      + .dews-radio {
+        &:before {
+          border-color: $theme-main-color;
+          background: $theme-main-color;
+          box-shadow: inset 0 0 0 3px #fff;
+        }
+      }
+    }
+    &:disabled {
+      + .radio-label {
+        &:before {
+          border-color: #b2b2b2;
+          background: #f1f1f1;
+          box-shadow: inset 0 0 0 3px #b2b2b2;
+        }
+      }
+      &:checked{
+        + .dews-radio{
+          &:before{
+            border-color: #b2b2b2;
+            background: #b2b2b2;
+            box-shadow: inset 0 0 0 3px #f1f1f1;
+          }
+        }
+      }
+    }
+  }
+  .dialog-form{
+    p{
+      label{
+        width: 45px;
+        text-align: right;
+      }
+      & + p{
+        margin-top: 4px;
+      }
+    }
+  }
+}

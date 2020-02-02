@@ -1,0 +1,244 @@
+<template>
+  <header>
+    <div class="gnb-header">
+      <div class="aside">
+        <p class="notification">
+          <template v-if="$store.state.user.user.authToken">
+            <span class="noti">
+              {{ $store.state.user.user.name }} 님 반갑습니다.
+            </span>
+            <!--            <span class="noti">-->
+            <!--              [권한 : {{ $store.state.user.user.authority }}]-->
+            <!--            </span>-->
+            <!--            <span class="noti"-->
+            <!--              ><nuxt-link to="/admin/video" class="noti-link"-->
+            <!--                >Settings</nuxt-link-->
+            <!--              ></span-->
+            <!--            >-->
+            <span v-if="token" class="noti log">
+              <a class="noti-link" @click="logout">로그아웃</a>
+            </span>
+            <span v-if="token" class="noti mypage"
+              ><a class="noti-link" @click="onclickMyInfo">마이페이지</a></span
+            >
+          </template>
+          <template v-else>
+            <span class="noti log">
+              <!--              <nuxt-link to="/html/Login.html" class="noti-link"-->
+              <!--              >로그인</nuxt-link>-->
+              <a href="/html/Login.html" class="noti-link">로그인</a>
+            </span>
+          </template>
+        </p>
+      </div>
+    </div>
+    <div class="gnb" @mouseover="openSubMenu" @mouseleave="closeSubMenu">
+      <h1 class="logo">
+        <img
+          src="~/assets/images/logo_top.png"
+          alt="dbs_logo"
+          style="cursor: pointer;"
+          @click="onClickDBSLogo"
+        />
+      </h1>
+      <div class="gnb-navi">
+        <ul class="ui-menu-list">
+          <li class="ui-menu">
+            <a :href="dbsPath + '?pageId=dbs'">비지니스 스쿨</a>
+          </li>
+          <li class="ui-menu"><a :href="dbsPath + '?pageId=forum'">포럼</a></li>
+          <li class="ui-menu selected">
+            <nuxt-link to="/docs">DEWS 개발자 지원</nuxt-link>
+          </li>
+        </ul>
+        <!-- 마우스 오버시 display: block 되어야 함 -->
+        <div ref="submenu" class="gnb-menu-wrap" @mouseleave="closeSubMenu">
+          <ul class="menu-list">
+            <li class="mn-list">
+              <ul class="menu-sub-list">
+                <li class="mn-sub-list">
+                  <a :href="dbsPath + '?pageId=dbs'">DBS란</a>
+                </li>
+                <li class="mn-sub-list">
+                  <a :href="dbsPath + '?pageId=game'">학습하기</a>
+                </li>
+                <li class="mn-sub-list">
+                  <a :href="dbsPath + '?pageId=service'">서비스 신청</a>
+                </li>
+              </ul>
+            </li>
+            <li class="mn-list">
+              <ul class="menu-sub-list">
+                <li class="mn-sub-list">
+                  <a :href="dbsPath + '?pageId=forum'">포럼 홈</a>
+                </li>
+                <li class="mn-sub-list">
+                  <a :href="dbsPath + '?pageId=forummy'">마이 포럼</a>
+                </li>
+              </ul>
+            </li>
+            <li class="mn-list">
+              <ul class="menu-sub-list">
+                <li class="mn-sub-list">
+                  <nuxt-link to="/docs">개발자 문서</nuxt-link>
+                </li>
+                <li class="mn-sub-list">
+                  <nuxt-link to="/qna">질문/답변</nuxt-link>
+                </li>
+                <li class="mn-sub-list">
+                  <nuxt-link to="/library">자료실</nuxt-link>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <ul class="right-icon-area">
+        <li><a class="ico-chat disabled"></a></li>
+        <li><a class="ico-notice disabled"></a></li>
+        <li><a class="ico-memo disabled"></a></li>
+      </ul>
+    </div>
+    <!-- 마우스 오버시 display: block 되어야 함 -->
+    <div ref="bar" class="bar">
+      <div class="barwrap"></div>
+    </div>
+  </header>
+</template>
+<script lang="ts">
+import { Component, namespace, Vue } from 'nuxt-property-decorator';
+import { IAlert } from '~/store/modules/common';
+import * as user from '@/store/modules/user';
+import * as common from '@/store/modules/common';
+
+const User = namespace('user');
+const Common = namespace('common');
+
+@Component
+export default class HeaderComp extends Vue {
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
+  // @User.Action('encryptToken') encryptTokenAction!: () => void;
+  // @User.Mutation('setTokenSSR') setTokenSSRMutation!: (any) => void;
+  @User.Mutation('userLogout') logoutAction!: () => void;
+  @User.Getter('getToken') authToken!: string | null;
+  // @Common.State('authPages') authPages!: string[];
+
+  authRequiredPages!: string[];
+
+  readonly dbsPath: string = '/html/PagePanel.html';
+  $refs!: {
+    submenu: HTMLFormElement;
+    bar: HTMLFormElement;
+  };
+
+  get token() {
+    return this.authToken;
+  }
+
+  created() {
+    this.authRequiredPages = this.$store.state.common.authRequiredPages;
+  }
+
+  mounted() {
+    // @ts-ignore
+    const cookie: string | null = this.$cookies.get('KEY');
+    console.log('header mounted :: ', this.$route);
+    // (function() {
+    //   let ef = function() {};
+    //   window.console = window.console || {
+    //     log: ef,
+    //     warn: ef,
+    //     error: ef,
+    //     dir: ef,
+    //   };
+    // })();
+    // };
+
+    // if (cookie) {
+    //   this.setTokenSSRMutation(cookie);
+    //   // 토큰으로 유저정보를 가져옴
+    //   this.encryptTokenAction();
+    //
+    //   // white_list 아닌 페이지에 대한 SSR 담당
+    // }
+
+    if (!cookie) {
+      // console.log('Not found cookie !', this.$route.meta.authRequired);
+      // // this.logoutAction();
+      //
+      // if (this.$route.meta.authRequired) {
+      //   this.alertAction({
+      //     type: 'warning',
+      //     isShow: true,
+      //     msg: '로그인이 필요한 페이지입니다.',ALERT_TYPE.CHECK
+      //   }).then((result) => {
+      //     console.log(result);
+      //     this.$router.push({
+      //       path: '/',
+      //     });
+      //   });
+      // }
+    }
+  }
+
+  onclickMyInfo(): void {
+    const user = this.$store.state.user.user;
+    if (user.authority) {
+      if (user.authority === 'M' || user.authority === 'A') {
+        location.href = this.dbsPath + '?pageId=myinfo';
+      } else if (user.authority === 'E' || user.authority === 'S') {
+        this.$router.push({
+          path: '/myInfo',
+        });
+      }
+    }
+  }
+
+  openSubMenu($event): void {
+    if (this.$refs.submenu) {
+      this.$refs.submenu.style.display = 'block';
+    }
+
+    if (this.$refs.bar) {
+      this.$refs.bar.style.display = 'block';
+    }
+  }
+
+  closeSubMenu($event): void {
+    if (this.$refs.submenu) {
+      this.$refs.submenu.style.display = 'none';
+    }
+
+    if (this.$refs.bar) {
+      this.$refs.bar.style.display = 'none';
+    }
+  }
+
+  async logout(): Promise<any> {
+    await this.logoutAction();
+
+    // if (this.authRequiredPages.includes(this.$route.path)) {
+    //   this.$router.push({
+    //     path: '/',
+    //   });
+    // } else {
+    // @ts-ignore
+    this.$router.go({
+      path: this.$route.path,
+      force: true,
+    });
+    // }
+  }
+
+  onClickDBSLogo(): void {
+    this.$router.push({
+      path: '/',
+    });
+  }
+}
+</script>
+<style lang="css">
+.gnb {
+  color: #437fe3;
+}
+</style>

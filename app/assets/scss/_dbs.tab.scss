@@ -1,0 +1,142 @@
+@import 'variables';
+@import 'mixins';
+.ui-tab {
+  position: relative;
+  width: 100%;
+  .ui-tab-btns {
+    position: relative;
+    //margin: 0 0 30px;
+    box-sizing: border-box;
+    z-index: 1;
+    .pst-rbtn{
+      top: 0;
+      transform: translateY(0);
+    }
+    &:after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    > a.ui-tab-btn {
+      display: table;
+      float: left;
+      position: relative;
+      min-height: 52px;
+      text-align: center;
+      border: 1px solid $gray-color1;
+      border-left: 0 none;
+      background-color: #fff;
+      vertical-align: middle;
+      box-sizing: border-box;
+      z-index: 1;
+      &:first-child{
+        border-left: 1px solid $gray-color1;
+      }
+      i {
+        display: table-cell;
+        font-style: normal;
+        font-size: 17px;
+        line-height: 23px;
+        color: #606060;
+        vertical-align: middle;
+      }
+      &.active {
+        font-size: 17px;
+        font-weight: 400;
+        border: 0;
+        background: $theme-main-color;
+        z-index: 2;
+        i {
+          color: #fff;
+        }
+      }
+    }
+    $total: 12;
+    @for $i from 1 through $total{
+      &.tab-#{$i}{
+        a.ui-tab-btn{
+          width: calc(1200px / #{$i});
+        }
+      }
+    }
+  }
+  .ui-tab-pnls {
+    color: #000;
+    .ui-tab-pnl{
+      display: none;
+      position: relative;
+      width: 100%;
+      text-align: left;
+      &.active{
+        display: block;
+      }
+    }
+  }
+  &.small{
+    .ui-tab-btns{
+      margin-bottom: 0;
+      > a.ui-tab-btn{
+        min-height: auto;
+        border: none;
+        background-color: #fff;
+        i{
+          width: 100px;
+          padding: 6px 0 9px;
+          font-size: 15px;
+          line-height: 20px;
+          color: #a5a5a5;
+        }
+        &.active{
+          background: none;
+          color: $theme-main-color;
+          border-width: 3px 1px 1px;
+          border-style: solid;
+          border-color: $theme-main-color $gray-color1 #fff $gray-color1;
+        }
+      }
+    }
+    .ui-tab-pnls{
+      min-height: 30px;
+      margin-top: -1px;
+      padding: 20px;
+      border: 1px solid $gray-color1;
+    }
+  }
+  &.qna{
+    .ui-tab-btns{
+      margin: 0;
+      > a.ui-tab-btn{
+        min-height: auto;
+        border: none;
+        background-color: #fff;
+        &:before{
+          content: "";
+          display: inline-block;
+          width: 1px;
+          height: 14px;
+          margin: 0 14px;
+          background: $gray-color1;
+          vertical-align: middle;
+        }
+        &:first-child:before{
+          display: none;
+        }
+        i{
+          font-size: 15px;
+          line-height: 20px;
+          color: #a5a5a5;
+        }
+        &.active{
+          background: none;
+          font-weight: bold;
+          i{
+            color: $theme-main-color;
+          }
+        }
+      }
+    }
+    .ui-tab-pnls{
+      margin-top: 10px;
+    }
+  }
+}

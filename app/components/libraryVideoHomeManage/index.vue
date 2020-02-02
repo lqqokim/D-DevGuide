@@ -1,0 +1,188 @@
+<template>
+  <div class="container-panel">
+    <div class="view-top mgb-15">
+      <h1 class="tit-con-text">동영상<span>홈 화면 관리</span></h1>
+    </div>
+    <div v-for="product in $store.state.video.products" :key="product._id">
+      <div class="video-top">
+        <p class="tit-con-sub">{{ product.productName }}</p>
+        <div class="pst-button">
+          <button
+            type="button"
+            class="dbs-icon-button ico-left small horizontal"
+          >
+            이동
+          </button>
+          <button
+            type="button"
+            class="dbs-icon-button ico-left small plus"
+            @click="onClickAddButton(product)"
+          >
+            추가
+          </button>
+        </div>
+      </div>
+      <ul class="thumb-list x-small moving mgt-20 mgb-60">
+        <li
+          v-for="(managedVideo, index) in product.managedVideos"
+          :key="managedVideo._id"
+          :class="{ 'mgl-0': index === 0 }"
+        >
+          <div class="thumb">
+            <button type="button" class="dbs-icon-move horizontal">
+              좌우 이동
+            </button>
+            <img
+              :src="
+                `https://img.youtube.com/vi/${
+                  managedVideo.isSeries
+                    ? managedVideo.series[0].youtubeId
+                    : managedVideo.youtubeId
+                }/maxresdefault.jpg`
+              "
+              alt=""
+            />
+            <em v-if="managedVideo.playTime" class="btn-time">{{
+              managedVideo.playTime
+            }}</em>
+            <div v-if="managedVideo.isSeries" class="play">
+              <span class="count">{{ managedVideo.series.length }}</span>
+              <em class="icon-playlist"></em>
+            </div>
+          </div>
+          <dl class="thumb-desc">
+            <dt>
+              {{
+                !managedVideo.isSeries
+                  ? cutStr(managedVideo.videoTitle)
+                  : cutStr(managedVideo.seriesTitle)
+              }}
+            </dt>
+            <dd>
+              {{ convertDateFormat(managedVideo.uploadDate)
+              }}<span class="administer"
+                ><a
+                  class="font-accent-color"
+                  @click="removeManagedVideos(product, managedVideo)"
+                  >삭제</a
+                ></span
+              >
+            </dd>
+          </dl>
+        </li>
+      </ul>
+    </div>
+    <modal-component
+      :modal-title="videoManageModalTitle"
+      :modal-name="videoManageModalName"
+      :modal-height="videoManageModalHeight"
+      :modal-width="videoManageModalWidth"
+      @emit-confirm="videoManageModalConfirm"
+    >
+      <video-manage-modal
+        slot="modalContent"
+        ref="videoManageModal"
+      ></video-manage-modal>
+    </modal-component>
+  </div>
+</template>
+<script lang="ts">
+import { Vue, Component, namespace } from 'nuxt-property-decorator';
+import { dateFormat } from '~/utils/commonFuncs';
+import ModalComponent from '@/components/common/modal/modalComponent.vue';
+import VideoManageModal from '@/components/libraryVideoHomeManage/VideoManageModal.vue';
+import * as video from '@/store/modules/video.ts';
+import { IAlert } from '@/store/modules/common';
+
+const Video = namespace('video');
+const Common = namespace('common');
+
+@Component({
+  components: {
+    ModalComponent,
+    VideoManageModal,
+  },
+})
+export default class LibraryVideoHomeManage extends Vue {
+  @Video.Action('getVideosByProduct') getVideosByProductAction;
+  @Video.Action('updateManagedVideos') updateManagedVideosAction;
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
+
+  $refs!: {
+    videoManageModal: any;
+  };
+
+  $modal!: any;
+
+  videoManageModalTitle: string = '동영상 선택';
+  videoManageModalName: string = 'videoManageModal';
+  videoManageModalHeight: string = '668px';
+  videoManageModalWidth: string = '826px';
+
+  videoManageModalConfirm(clickConfirmBtn) {
+    if (clickConfirmBtn) {
+      const selectedVideos = this.$refs.videoManageModal.getData();
+
+      this.updateManagedVideosAction({
+        productId: this.$store.state.video.selectedProduct._id,
+        managedVideos: selectedVideos,
+      });
+      this.$modal.hide(this.videoManageModalName);
+    } else {
+      this.$modal.hide(this.videoManageModalName);
+    }
+  }
+
+  async onClickAddButton(product) {
+    await this.getVideosByProductAction({
+      data: product,
+      params: {
+        limit: 8,
+        skip: 0,
+        sort: '-uploadDate',
+      },
+    }).then(() => {});
+
+    this.$modal.show(this.videoManageModalName);
+  }
+
+  convertDateFormat(time): string {
+    return dateFormat(time);
+  }
+
+  cutStr(orgText): void {
+    let count = 0;
+    let returnText = orgText;
+    for (let idx = 0; idx < orgText.length; idx++) {
+      const currentByte = orgText.charCodeAt(idx);
+      currentByte > 128 ? (count += 2) : count++;
+      if (count > 45) {
+        returnText = orgText.substr(0, idx - 1) + '...';
+        break;
+      }
+    }
+
+    return returnText;
+  }
+
+  removeManagedVideos(product, videoData) {
+    this.alertAction({
+      type: 'question',
+      isShow: true,
+      msg: '선택하신 동영상을 홈 화면 관리에서 삭제하시겠습니까?',
+    }).then((result) => {
+      if (result.ok) {
+        const newData = product.managedVideos.filter((video) => {
+          return video._id !== videoData._id;
+        });
+        this.updateManagedVideosAction({
+          productId: product._id,
+          managedVideos: newData,
+        });
+      }
+    });
+  }
+}
+</script>
+
+<style scoped></style>

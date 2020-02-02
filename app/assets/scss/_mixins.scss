@@ -1,0 +1,55 @@
+@import 'variables';
+
+@mixin clearfix() {
+  zoom: 1;
+
+  &:before, &:after {
+    content: "";
+    display: table;
+  }
+
+  &:after {
+    clear: both;
+  }
+}
+
+@mixin ellipsis{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+@mixin keep-all{
+  word-wrap: break-word;
+  word-break: keep-all;
+}
+@mixin font($weight){
+  @if $weight == normal{
+    font-family: 'Noto Sans', sans-serif;
+  }
+  @else if $weight == bold{
+    font-family: 'Noto Sans M', sans-serif;
+    font-weight: 500;
+  }
+  @else if $weight == heavy{
+    font-family: 'Noto Sans B', sans-serif;
+  }
+}
+
+@mixin font-size-18{
+  font-size: 18px;
+  line-height: 24px;
+}
+@mixin font-size-22{
+  font-size: 22px;
+  line-height: 30px;
+  color: $font-color1;
+}
+@mixin font-size-35{
+  font-size: 35px;
+  line-height: 35px;
+}
+
+@mixin vertical-middle{
+  top: 50%;
+  transform: translateY(-50%);
+}
