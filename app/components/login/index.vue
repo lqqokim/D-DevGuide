@@ -69,8 +69,9 @@
                 </div>
                 <fieldset>
                   <div class="login-info">
-                    <i class="icon login"></i>
+                    <i class="icon login" />
                     <input
+                      v-model="loginId"
                       type="text"
                       class="inp-large"
                       placeholder="그룹웨어 아이디"
@@ -78,8 +79,9 @@
                     />
                   </div>
                   <div class="login-info">
-                    <i class="icon password"></i>
+                    <i class="icon password" />
                     <input
+                      v-model="loginPw"
                       type="password"
                       class="inp-large"
                       placeholder="비밀번호"
@@ -255,7 +257,7 @@ export default class LoginComp extends Vue {
   }
 
   async login(): Promise<any> {
-    if (!(await this.loginValidator())) {
+    if (!this.loginValidator()) {
       return;
     }
 

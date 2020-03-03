@@ -168,6 +168,17 @@ export default class ForumRegisterEdit extends Vue {
     }
   }
 
+  mounted() {
+    // setTimeout(() => {
+    //   // remove toolbar image button
+    //   const tuiRefImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
+    //     '.tui-image.tui-toolbar-icons'
+    //   );
+    //
+    //   tuiRefImageBtnEl.parentNode!.removeChild(tuiRefImageBtnEl);
+    // });
+  }
+
   onclickSave(): void {
     if (!this.post.title) {
       this.alertAction({

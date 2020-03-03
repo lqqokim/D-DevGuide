@@ -8,5 +8,5 @@ export interface IProductManage<T> {
   }): void;
   onclickSave(): void;
   onclickCancel(): void;
-  validator(product: T): boolean;
+  validator(product: T, isExistProjectIdFlag?: boolean): boolean;
 }

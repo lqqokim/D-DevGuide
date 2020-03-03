@@ -25,7 +25,9 @@ export const checkDBSUser = (user) => {
     },
   };
 
-  return request(options);
+  return request(options).then((res) => {
+    return JSON.parse(res);
+  });
 };
 
 /**
@@ -59,7 +61,7 @@ export const createToken = (user) => {
  * DBS에 신규 직원을 추가한다.
  * @param user
  */
-export const createUser = async (user) => {
+export const createUser = (user) => {
   const options = {
     url: process.env.BASE_URL + '/html/CreateUser.jsp',
     method: 'POST',
@@ -86,12 +88,16 @@ export const createUser = async (user) => {
     },
   };
 
-  try {
-    const res = await request(options);
-    return res;
-  } catch (e) {
-    console.log(e);
-  }
+  // try {
+  //   const data = await request(options);
+  //   return JSON.parse(data);
+  // } catch (e) {
+  //   console.log(e);
+  // }
+
+  return request(options).then((res) => {
+    return JSON.parse(res);
+  });
 };
 
 export const deleteUser = (user) => {

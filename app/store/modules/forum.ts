@@ -2,6 +2,7 @@ import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
 import * as common from '~/store/modules/common';
 import { ALERT_TYPE } from '~/store/modules/common';
+import { IUser } from '~/store/modules/user';
 
 export interface ForumState {
   forumDefaultListParams: ListParams;
@@ -107,7 +108,7 @@ export interface IPost {
   likeUsers: string[]; // 좋아요한 사용자
   dislikeUsers: string[]; // 싫어요한 사용자
   isComplete: boolean; // 답변 완료 여부
-  isSubCommentEditing?: boolean; // 서브 댓글 입력 에디팅모드 관련
+  isPostSubCommentEditing?: boolean; // 서브 댓글 입력 에디팅모드 관련
 
   subComments: Array<IComment>;
   comments: Array<IComment>;
@@ -116,7 +117,8 @@ export interface IPost {
 
 // Post 의 서브스키마
 export interface IComment {
-  _id: string;
+  _id?: string;
+  postId: string;
   userId: string; // 댓글 등록 사용자 아이디
   userName: string; // 댓글 등록 사용자 이름
   authority: string; // 댓글 등록 사용자 권한
@@ -128,8 +130,20 @@ export interface IComment {
   editDate: number; // 댓글 수정 일자
 
   contents: string; // 댓글 내용
-  comments: Array<this>;
+  comments: Array<ISubComment>;
   isEditing?: boolean;
+  isSubCommentEditing?: boolean; // 댓글의 댓글 입력 에디팅모드 관련
+}
+
+export interface ISubComment {
+  _id?: string;
+  userId: string;
+  userName: string;
+  authority: string;
+  isStaff: boolean;
+  regDate: number;
+  editDate: number;
+  contents: string;
 }
 
 export interface ListParams {
@@ -323,14 +337,30 @@ export const mutations: MutationTree<ForumState> = {
 
     selectedPost.comments[idx].isEditing = payload.type === 'edit';
     state.selectedPost = Object.assign({}, selectedPost);
-    console.log('commentEditMode :: ', state.selectedPost);
+    // console.log('commentEditMode :: ', state.selectedPost);
+  },
+  subCommentEditMode(
+    state,
+    payload: {
+      comment: IComment;
+      type: string;
+    }
+  ): void {
+    const selectedPost: IPost = state.selectedPost;
+    const idx: number = selectedPost.comments.findIndex((comment: IComment) => {
+      return payload.comment._id === comment._id;
+    });
+
+    selectedPost.comments[idx].isSubCommentEditing = payload.type === 'edit';
+    state.selectedPost = Object.assign({}, selectedPost);
+    // console.log('subCommentEditMode :: ', selectedPost.comments[idx]);
   },
   registerProduct(state, payload: IProduct): void {
     state.products.push(payload);
   },
   postSubCommentEditMode(state, payload: string): void {
     const selectedPost: IPost = state.selectedPost;
-    selectedPost.isSubCommentEditing = payload === 'edit';
+    selectedPost.isPostSubCommentEditing = payload === 'edit';
     state.selectedPost = Object.assign({}, selectedPost);
   },
   myForumCount(state, payload): void {
@@ -350,6 +380,18 @@ export const mutations: MutationTree<ForumState> = {
   },
   activityCondition(state, payload): void {
     state.activityCondition = payload;
+  },
+  updateSubComment(state, payload: IComment): void {
+    const selectedPost = state.selectedPost;
+    const idx = selectedPost.comments.findIndex((comment) => {
+      return payload._id === comment._id;
+    });
+
+    // console.log('idx :: ', idx);
+    // console.log(payload);
+
+    selectedPost.comments[idx] = payload;
+    state.selectedPost = Object.assign({}, selectedPost);
   },
 };
 
@@ -374,7 +416,7 @@ export const actions: ActionTree<ForumState, RootState> = {
           userId: rootState.user.user.loginId,
         });
 
-        console.log('activityCondition :: ', data);
+        // console.log('activityCondition :: ', data);
 
         if (data.success && data.data) {
           commit('activityCondition', data.data);
@@ -436,11 +478,13 @@ export const actions: ActionTree<ForumState, RootState> = {
     { commit, dispatch, state, rootState },
     payload: IComment
   ): Promise<any> {
+    const deptPathSplit = rootState.user.user.deptPath.split('|');
     const request = {
       userId: rootState.user.user.loginId,
       userName: rootState.user.user.name,
       authority: rootState.user.user.authority,
-      deptPath: rootState.user.user.deptPath.split('|')[3],
+      // eslint-disable-next-line standard/computed-property-even-spacing
+      deptPath: deptPathSplit[deptPathSplit.length - 2],
       contents: payload,
       comments: [],
       isChoose: false,
@@ -448,11 +492,6 @@ export const actions: ActionTree<ForumState, RootState> = {
         return staff.empId === rootState.user.user.loginId;
       }),
     };
-
-    // request.userId = 'kis4204';
-    // request.userName = '김인수A';
-    // request.deptPath = '플랫폼개발1팀';
-    // request.authority = 'E';
 
     try {
       const { data } = await this.$axios.post(
@@ -499,40 +538,50 @@ export const actions: ActionTree<ForumState, RootState> = {
     }
   },
 
-  removeProduct({ commit, state, dispatch }, payload: IProduct): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { data } = await this.$axios.delete(
-          'api/forum/remove/product/' + payload.productCode
+  // 제품 삭제
+  async removeProduct(
+    { commit, state, dispatch },
+    payload: IProduct
+  ): Promise<any> {
+    try {
+      const { data } = await this.$axios.delete(
+        'api/forum/remove/product/' + payload.productCode
+      );
+
+      if (data.success) {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '제품이 삭제되었습니다.',
+          },
+          { root: true }
         );
-
-        console.log('removeProduct :: ', data);
-
-        await dispatch('forumProducts');
-        resolve(data);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  },
-
-  // 제품 정보 수정
-  updateProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { data } = await this.$axios.post(
-          'api/forum/product/update/' + payload._id,
-          payload
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
         );
-
-        // console.log('updateProduct :: ', data);
-
-        // await dispatch('forumProducts');
-        resolve(data);
-      } catch (e) {
-        reject(e);
       }
-    });
+
+      await dispatch('forumProducts');
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: e,
+        },
+        { root: true }
+      );
+    }
   },
 
   // 제품 목록 수정
@@ -553,48 +602,174 @@ export const actions: ActionTree<ForumState, RootState> = {
           },
           { root: true }
         );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
       }
-    } catch (e) {}
+
+      await dispatch('forumProducts');
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: e,
+        },
+        { root: true }
+      );
+    }
   },
 
-  registerProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { data } = await this.$axios.post('api/forum/product', payload);
+  // 제품 등록
+  async registerProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
+    try {
+      const { data } = await this.$axios.post('api/forum/product', payload);
 
-        await dispatch('forumProducts');
-        resolve(data);
-      } catch (e) {
-        reject(e);
+      console.log('registerProduct: ', data);
+
+      if (data.success && data.data) {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '제품이 등록되었습니다.',
+          },
+          { root: true }
+        );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
       }
-    });
+
+      await dispatch('forumProducts');
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: e,
+        },
+        { root: true }
+      );
+    }
+  },
+
+  // 제품 정보 수정
+  async updateProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
+    try {
+      const { data } = await this.$axios.post(
+        'api/forum/product/update/' + payload._id,
+        payload
+      );
+
+      // console.log('updateProduct :: ', data);
+
+      if (data.success && data.data) {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '제품정보가 수정되었습니다.',
+          },
+          { root: true }
+        );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
+      }
+
+      await dispatch('forumProducts');
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: e,
+        },
+        { root: true }
+      );
+    }
   },
 
   async searchPosts(
-    { commit },
+    { commit, dispatch, state },
     payload: { searchWord: string; productCode?: string; params?: ListParams }
   ): Promise<any> {
     const path = 'api/forum/searchPosts';
     let searchPath: string = path;
+
+    // 특수문자가 포함되어있을 경우 특수문자 앞에 \ 를 붙여주어야 함
+    const regex = /[~!@#$%^&*()_+|<>?:{}]/gi;
+    let matchSearchWord = payload.searchWord.match(regex);
+    let searchWordParam = payload.searchWord;
+
+    if (matchSearchWord !== null && matchSearchWord.length > 0) {
+      matchSearchWord = matchSearchWord.filter((item, idx, array) => {
+        return array.indexOf(item) === idx;
+      });
+      for (let idx = 0; idx < matchSearchWord.length; idx++) {
+        searchWordParam = searchWordParam
+          .split(matchSearchWord[idx])
+          .join('\\' + matchSearchWord[idx]);
+      }
+    }
+
     let params = {
-      searchWord: payload.searchWord,
+      searchWord: searchWordParam,
     };
 
     if (payload.productCode !== undefined) {
       searchPath = path + '/' + payload.productCode;
 
       params = {
-        searchWord: payload.searchWord,
+        searchWord: searchWordParam,
         ...payload.params!.params,
       };
     }
 
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '검색 중입니다.',
+        },
+        { root: true }
+      );
+
       const { data } = await this.$axios.get(searchPath, {
         params,
       });
 
-      console.log('searchPosts :: ', data);
+      // console.log('searchPosts :: ', data);
 
       if (data.success && data.data) {
         // 질문답변 내 검색
@@ -610,8 +785,87 @@ export const actions: ActionTree<ForumState, RootState> = {
           });
         }
       }
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '검색 중입니다.',
+        },
+        { root: true }
+      );
     } catch (e) {
       console.error(e);
+      await dispatch('getPostsByProduct', {
+        data: state.selectedProduct,
+      });
+    }
+  },
+
+  async updateSubComment(
+    { commit, dispatch, state, rootState },
+    payload: { comment: IComment; contents: string }
+  ) {
+    const user: IUser = rootState.user.user;
+    const subComment: ISubComment = {
+      userId: user.loginId,
+      userName: user.name,
+      authority: user.authority,
+      isStaff: state.selectedProduct.staffs.some((staff: IStaff) => {
+        return staff.empId === user.loginId;
+      }),
+      contents: payload.contents,
+      regDate: 0,
+      editDate: 0,
+    };
+
+    try {
+      const { data } = await this.$axios.put(
+        'api/forum/update/subComment/' + payload.comment._id,
+        subComment
+      );
+
+      // console.log('updateSubComment : ', data);
+
+      if (data.success && data.data) {
+        await commit('subCommentEditMode', {
+          comment: payload.comment,
+          type: 'cancel',
+        });
+
+        await commit('updateSubComment', data.data);
+
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '댓글이 추가되었습니다.',
+          },
+          { root: true }
+        );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
+      }
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.CHECK,
+          isShow: true,
+          msg: e,
+        },
+        { root: true }
+      );
     }
   },
 
@@ -628,14 +882,14 @@ export const actions: ActionTree<ForumState, RootState> = {
         payload.comment
       );
 
-      console.log('[updateComment] ', data);
+      // console.log('[updateComment] ', data);
 
       if (data.success && data.data) {
-        // 답변 내용에 수정
+        // 답변 내용에 대한 수정
         if (!payload.chooseType) {
           // toast editor hide
           await commit('commentEditMode', {
-            comment: payload.comment,
+            comment: data.data,
             type: 'cancel',
           });
 
@@ -701,16 +955,13 @@ export const actions: ActionTree<ForumState, RootState> = {
     { commit, dispatch, state, rootState },
     payload: string
   ): Promise<any> {
+    const deptPathSplit = rootState.user.user.deptPath.split('|');
     const request = {
       postId: state.selectedPost._id,
       userId: rootState.user.user.loginId,
       userName: rootState.user.user.name,
       authority: rootState.user.user.authority,
-      deptPath: rootState.user.user.deptPath.split('|')[3],
-      // userId: 'kis4204',
-      // userName: '김인수A',
-      // authority: 'E',
-      // deptPath: '플랫폼개발1팀',
+      deptPath: deptPathSplit[deptPathSplit.length - 2],
       contents: payload,
       comments: [],
       isChoose: false,
@@ -773,7 +1024,7 @@ export const actions: ActionTree<ForumState, RootState> = {
         req
       );
 
-      console.log('[updateLikeCount] ', data);
+      // console.log('[updateLikeCount] ', data);
 
       if (data.success && data.data) {
         // commit('changeLikeCount', req);
@@ -820,8 +1071,6 @@ export const actions: ActionTree<ForumState, RootState> = {
       params: ListParams;
     }
   ): Promise<any> {
-    console.log('payload productCode :: ', payload.productCode);
-
     try {
       const { data } = await this.$axios.get(
         'api/forum/list/' + payload.productCode,
@@ -830,7 +1079,7 @@ export const actions: ActionTree<ForumState, RootState> = {
         }
       );
 
-      console.log('forumHomePosts : ', data);
+      // console.log('forumHomePosts : ', data);
 
       if (data.success && data.data) {
         await commit('forumHomePosts', {
@@ -894,7 +1143,7 @@ export const actions: ActionTree<ForumState, RootState> = {
           payload.params ? payload.params : state.forumDefaultListParams
         );
 
-        console.log('getPostsByProduct : ', data);
+        // console.log('getPostsByProduct : ', data);
 
         if (data.success && data.data) {
           await commit('postsByProduct', data.data.result);
@@ -931,6 +1180,56 @@ export const actions: ActionTree<ForumState, RootState> = {
     }
   },
 
+  async deleteSubComment(
+    { commit, state, dispatch },
+    payload: {
+      commentId: string;
+      subCommentId: string;
+    }
+  ) {
+    try {
+      const { data } = await this.$axios.delete(
+        'api/forum/comment/' + payload.commentId + '/' + payload.subCommentId
+      );
+
+      // console.log('deleteSubComment : ', data);
+
+      if (data.success && data.data) {
+        commit('updateSubComment', data.data);
+
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '댓글이 삭제되었습니다.',
+          },
+          { root: true }
+        );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
+      }
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: e,
+        },
+        { root: true }
+      );
+    }
+  },
+
   async deleteComment(
     { commit, dispatch, state },
     payload: IComment
@@ -940,7 +1239,7 @@ export const actions: ActionTree<ForumState, RootState> = {
         'api/forum/post/' + state.selectedPost._id + '/comment/' + payload._id
       );
 
-      console.log('deleteComment', data);
+      // console.log('deleteComment', data);
 
       if (data.success && data.data) {
         await commit('deleteComment', payload);
@@ -1121,25 +1420,32 @@ export const actions: ActionTree<ForumState, RootState> = {
     payload.data.hasOwnProperty('_id') && delete payload.data._id;
     payload.data.userId = rootState.user.user.loginId;
     payload.data.userName = rootState.user.user.name;
-    payload.data.deptPath = rootState.user.user.deptPath.split('|')[3];
-    payload.data.authority = rootState.user.user.authority;
 
-    // payload.data.userId = 'kis4204';
-    // payload.data.userName = '김인수A';
-    // payload.data.deptPath = '플랫폼개발1팀';
-    // payload.data.authority = 'E';
+    const deptPathSplit = rootState.user.user.deptPath.split('|');
+    payload.data.deptPath = deptPathSplit[deptPathSplit.length - 2];
+
+    payload.data.authority = rootState.user.user.authority;
 
     // const formData = new FormData();
     // formData.append('file', payload.file.files[0]);
     // formData.append('data', JSON.stringify(payload.data));
 
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '질문을 등록중입니다.',
+        },
+        { root: true }
+      );
       const { data } = await this.$axios.post(
         'api/forum/register/post/' + payload.data.boardCode,
         payload.data
       );
-
-      console.log('createPost :: ', data);
+      // console.log('createPost :: ', data);
 
       if (data.success && data.data) {
         await commit('selectedPost', data.data);
@@ -1221,7 +1527,7 @@ const SELECTED_POST = (): IPost => {
     likeUsers: [],
     dislikeUsers: [],
     isComplete: false,
-    isSubCommentEditing: false,
+    isPostSubCommentEditing: false,
 
     subComments: [],
     comments: [],

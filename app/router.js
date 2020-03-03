@@ -1,18 +1,16 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import axios from 'axios';
 import { store as $store } from '@/store';
-// import draggable from 'vuedraggable';
-import Storage from '@/pages/Storage.vue';
 import DialogPage from '@/pages/user/Dialog.vue';
 
-/**
- * 제품 화면
- */
+/********************************************************
+ import 개발자 문서 페이지
+ ********************************************************/
 import ProductListPage from '@/pages/user/ProductList.vue';
 import ProductDetailPage from '@/pages/user/ProductDetail.vue';
 import ProductDocViewPage from '@/pages/user/ProductDocView.vue';
 import ProductEditPage from '@/pages/user/ProductEdit.vue';
-import ProductRegisterPage from '@/pages/user/ProductRegister.vue';
 
 import ProductManagePage from '@/pages/admin/ProductManage.vue';
 import ProductBranchManagePage from '@/pages/admin/ProductBranchManage.vue';
@@ -23,9 +21,9 @@ import ProductSearchPage from '@/pages/user/ProductSearch.vue';
 import ProductBranchChangeHistoryPage from '@/pages/admin/ProductBranchChangeHistory';
 import ProductBranchComparePage from '@/pages/admin/ProductBranchCompare';
 
-/**
- * 질문 답변
- */
+/********************************************************
+ import 질문 답변 페이지
+ ********************************************************/
 import ForumRegisterEditPage from '@/pages/user/ForumRegisterEdit.vue';
 import ForumHomePage from '@/pages/user/ForumHome.vue';
 import ForumListPage from '@/pages/user/ForumList.vue';
@@ -34,20 +32,20 @@ import ForumMyPage from '@/pages/user/ForumMy.vue';
 import ForumProductManagePage from '@/pages/admin/ForumProductManage.vue';
 import ForumSearchPage from '@/pages/user/ForumSearch.vue';
 
-/**
- * 자료실
- */
+/********************************************************
+ import 자료실 페이지 
+ ********************************************************/
 import LibraryHomePage from '@/pages/user/LibraryHome.vue';
 import LibrarySearchPage from '@/pages/user/LibrarySearch.vue';
 
-// 동영상
+// 자료실 > 동영상 페이지
 import LibraryVideoListPage from '@/pages/user/LibraryVideoList.vue';
 import LibraryVideoDetailPage from '@/pages/user/LibraryVideoDetail.vue';
 import LibraryVideoRegisterEditPage from '@/pages/user/LibraryVideoRegisterEdit.vue';
 import LibraryVideoProductManagePage from '@/pages/admin/LibraryVideoProductManage.vue';
 import LibraryVideoHomeManagePage from '@/pages/admin/LibraryVideoHomeManage.vue';
 
-// 문서
+// 지료실 > 문서 페이지
 import LibraryDocListPage from '@/pages/user/LibraryDocList.vue';
 import LibraryDocDetailPage from '@/pages/user/LibraryDocDetail.vue';
 
@@ -55,52 +53,174 @@ import LibraryDocRegisterEditPage from '@/pages/user/LibraryDocRegisterEdit.vue'
 import LibraryDocProductManagePage from '@/pages/admin/LibraryDocProductManage.vue';
 import LibraryDocHomeManagePage from '@/pages/admin/LibraryDocHomeManage.vue';
 
-import LibraryDocEdit from '~/pages/user/LibraryDocEdit';
-
-// 다운로드
+// 자료실 > 다운로드 페이지
 import LibraryDownloadListPage from '@/pages/user/LibraryDownloadList.vue';
 import LibraryDownloadRegisterEditPage from '@/pages/user/LibraryDownloadRegisterEdit.vue';
 import LibraryDownloadProductManagePage from '@/pages/admin/LibraryDownloadProductManage.vue';
 import LibraryDownloadHomeManagePage from '@/pages/admin/LibraryDownloadHomeManage.vue';
 
-/**
- * 프로젝트 메인, 마이페이지, 로그인
- */
+/********************************************************
+ import 프로젝트 메인, 마이페이지, 로그인
+ ********************************************************/
 import ProjectMainPage from '~/pages/user/Main.vue';
 import LoginPage from '~/pages/user/Login.vue';
 import MyInfoPage from '~/pages/user/MyInfo.vue';
 
-/**
- * 전역 페이지
- */
+/********************************************************
+ import 공통 페이지
+ ********************************************************/
 import NotFoundPage from '@/pages/Error/NotFound.vue';
 import BrowserNoticePage from '@/pages/user/BrowserNotice.vue';
-
-/**
- * use utils
- */
-import * as commonFuncs from '@/utils/commonFuncs';
-import ForumList from '~/pages/user/ForumList';
-
-const helpers = {
-  install(Vue, options) {
-    Vue.prototype.$commonFuncs = commonFuncs; // we use $ because it's the Vue convention
-  },
-};
-
-Vue.use(helpers);
+import ClausePage from '@/pages/user/Clause.vue';
 
 Vue.use(Router);
-// Vue.use(draggable);
+/********************************************************
+ Axios Request Interceptors
+ ********************************************************/
 
-/**
- * [ 레이아웃 관련 규칙 ]
- * 1. useLeftMenu 와 lnbType 은 쌍으로 존재해야한다.
- * 2. lnbType: Viewer, Editing, Default
- * 2. pageType: Dev, Library, Forum
- * TODO 개발자 문서 쪽 트리 컴포넌트 사용 (LNB_EDITING 추가)
- * TODO LNB_DEFAULT 공통 컴포넌트 분리 (일단은 LNB_DEV, LNB_LIB, LNB_FORUM 로 진행)
- */
+// const instance = axios.create({
+//   baseURL: process.env.BASE_URL,
+//   timeout: 10000,
+//   params: {}, // do not remove this, its added to add params later in the config
+// });
+//
+// console.log('instance :: ', instance);
+//
+// instance.interceptors.request.use(
+//   (config) => {
+//     config.headers.Authorization = 'asdasd';
+//     alert('test');
+//     console.log(`request ${config}`);
+//     // Do something before request is sent
+//     return config;
+//   },
+//   function(error) {
+//     // Do something with request error
+//     return Promise.reject(error);
+//   }
+// );
+
+/********************************************************
+ Axios Response Interceptors
+ : 에러 코드에 대한 처리
+ ********************************************************/
+// axios.interceptors.response.use(
+//   (response) => {
+//     console.log(`response ${response}`);
+//     return response;
+//   },
+//   function(error) {
+//     console.log('interceptors error :: ', error);
+//     // Do something with response error
+//     if (error.response.status === 401) {
+//       // console.log('unauthorized, logging out ...');
+//       // auth.logout();
+//       // router.replace('/auth/login');
+//     }
+//     return Promise.reject(error.response);
+//   }
+// );
+
+// Add a response interceptor
+// axios.interceptors.response.use(
+//   (response) => {
+//     // console.log(response.data)
+//     // Do something with response data
+//
+//     const token = sessionStorage.getItem('KEY');
+//     console.log('token', token);
+//
+//     return response;
+//   },
+//   function(error) {
+//     // Do something with response error
+//     // error status가 있는것은 code로 처리하고 view에서 생성한 에러 따로 처리하는부분은 !e.response 일때
+//     switch (error.response.status) {
+//       case 401:
+//         $store.dispatch('common/alert', {
+//           type: 'error',
+//           isShow: true,
+//           msg: `인증 오류입니다(${error.response.status}:${error.message})`,
+//         });
+//         break;
+//
+//       case 500:
+//         $store.dispatch('common/alert', {
+//           type: 'error',
+//           isShow: true,
+//           msg: `서버에러 입니다(${error.response.status}:${error.message}) 관리자에게 문의해주세요.`,
+//         });
+//
+//         break;
+//       default:
+//         $store.dispatch('common/alert', {
+//           type: 'error',
+//           isShow: true,
+//           msg: `인증 오류입니다(${error.response.status}:${error.message})`,
+//         });
+//
+//         break;
+//     }
+//
+//     return Promise.reject(error);
+//   }
+// );
+
+// const instance = axios.create({
+//   baseURL: process.env.BASE_URL,
+//   timeout: 10000,
+//   params: {}, // do not remove this, its added to add params later in the config
+// });
+//
+// Vue.prototype.$axios = axios;
+//
+// // Add a request interceptor
+// const DEBUG = process.env.NODE_ENV === 'development';
+//
+// axios.interceptors.request.use(
+//   (config) => {
+//     /** In dev, intercepts request and logs it into console for dev */
+//     if (DEBUG) {
+//       console.info('✉️ ', config);
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     if (DEBUG) {
+//       console.error('✉️ ', error);
+//     }
+//     return Promise.reject(error);
+//   }
+// );
+//
+// axios.interceptors.request.use(
+//   (config) => {
+//     config.headers.genericKey = 'someGenericValue';
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   }
+// );
+
+// const instance = axios.create();
+// instance.interceptors.response.use(
+//   (response) => {
+//     console.log(`response ${response}`);
+//     return response;
+//   },
+//   (error) => {
+//     console.log(`error ${error}`);
+//     return Promise.reject(error);
+//   }
+// );
+
+/********************************************************
+ Layout 관련 정의
+ 1. useLeftMenu 와 lnbType 은 쌍으로 존재해야한다.
+ 2. lnbType: Viewer, Editing, Default
+ 3. pageType: Dev, Library, Forum
+ ********************************************************/
 
 // 페이지(banner) 타입
 const PAGE_DEV = 'Dev';
@@ -110,19 +230,16 @@ const PAGE_FORUM = 'Forum';
 // lnb 타입
 const LNB_VIEWER = 'Viewer';
 const LNB_EDITING = 'Editing';
-// const LNB_DEFAULT = 'Default';
-const LNB_SEARCH = 'Search';
 
 // lnb 타입 추가
 const LNB_DEV = 'Dev';
 const LNB_LIB = 'Library';
 const LNB_FORUM = 'Forum';
 
+/********************************************************
+                  인증관련 라우터 정의
+ ********************************************************/
 const authRoute = [
-  {
-    path: '/',
-    component: ProjectMainPage,
-  },
   {
     path: '/login',
     name: 'login',
@@ -137,6 +254,46 @@ const authRoute = [
   },
 ];
 
+/********************************************************
+                공통화면 관련 라우터 정의  
+ ********************************************************/
+const commonRoute = [
+  {
+    path: '/',
+    component: ProjectMainPage,
+  },
+  {
+    path: '/browser',
+    name: 'browserNotice',
+    component: BrowserNoticePage,
+  },
+  {
+    // 공통_메세지박스  페이지
+    path: '/common/dialog',
+    component: DialogPage,
+  },
+  {
+    // 정책 및 약관
+    path: '/clause',
+    name: 'clause',
+    component: ClausePage,
+  },
+  {
+    // 개인정보처리방침
+    path: '/policy',
+    name: 'policy',
+    component: ClausePage,
+  },
+  {
+    path: '*',
+    name: 'error',
+    component: NotFoundPage,
+  },
+];
+
+/********************************************************
+                개발자 문서 관련 라우터 정의
+ ********************************************************/
 const docsRoute = [
   {
     // 제품 리스트 페이지
@@ -155,15 +312,6 @@ const docsRoute = [
       pageType: PAGE_DEV,
     },
     component: ProductSearchPage,
-  },
-  {
-    // 제품 등록 페이지
-    path: '/docs/register',
-    meta: {
-      pageType: PAGE_DEV,
-      lnbType: LNB_DEV,
-    },
-    component: ProductRegisterPage,
   },
   {
     // 다이얼로그 페이지
@@ -230,6 +378,8 @@ const docsRoute = [
       useLeftMenu: true,
       pageType: PAGE_DEV,
       lnbType: LNB_DEV,
+      authRequired: true,
+      gitlabTokenRequired: true,
     },
     component: ProductNoticeManagePage,
   },
@@ -281,6 +431,8 @@ const docsRoute = [
       useLeftMenu: true,
       pageType: PAGE_DEV,
       lnbType: LNB_VIEWER,
+      authRequired: true,
+      gitlabTokenRequired: true,
     },
     component: ProductDocViewPage,
   },
@@ -292,6 +444,8 @@ const docsRoute = [
       useLeftMenu: true,
       pageType: PAGE_DEV,
       lnbType: LNB_VIEWER,
+      authRequired: true,
+      gitlabTokenRequired: true,
     },
     component: ProductDocViewPage,
   },
@@ -357,35 +511,9 @@ const docsRoute = [
   },
 ];
 
-// const pageCheck = (to, from, next) => {
-//   // // console.log('store :: ', store);
-//   // // const cookies = this.$cookies.get('KEY');
-//   // const session = sessionStorage.get('KEY');
-//   //
-//   // // console.log('cookies :: ', cookies);
-//   // console.log('session :: ', session);
-//
-//   if (!$store.state.user.user.loginId) {
-//     $store
-//       .dispatch('common/alert', {
-//         type: 'warning',
-//         isShow: true,
-//         msg: '로그인이 필요한 페이지입니다.',
-//       })
-//       .then((result) => {
-//         if (result.ok) {
-//           next('/login');
-//         } else {
-//           next(false);
-//         }
-//       });
-//   } else {
-//     next();
-//   }
-//
-//   next();
-// };
-
+/********************************************************
+                  질문답변 관련 라우터 정의
+ ********************************************************/
 const forumRoute = [
   {
     // 질문답변 > 홈
@@ -408,16 +536,6 @@ const forumRoute = [
     },
     component: ForumProductManagePage,
   },
-  // {
-  //   // 질문답변 > 제품 별 질문 / 답변 > 전체
-  //   path: '/qna/all',
-  //   meta: {
-  //     useLeftMenu: true,
-  //     pageType: PAGE_FORUM,
-  //     lnbType: LNB_FORUM,
-  //   },
-  //   component: ForumAllPage,
-  // },
   {
     // 질문답변 > 내 질문 / 답변
     path: '/qna/my',
@@ -488,6 +606,9 @@ const forumRoute = [
   },
 ];
 
+/********************************************************
+ 자료실 관련 라우터 정의
+ ********************************************************/
 const libraryRoute = [
   {
     // 자료실 홈 페이지
@@ -508,82 +629,9 @@ const libraryRoute = [
     },
     component: LibrarySearchPage,
   },
-  /*******************************************
-   자료실 > 문서
-   *******************************************/
-  {
-    // 자료실 > 문서 > 제품 관리 ( 제플린: 자료실_05문서제품관리 )
-    path: '/doc/manage/product',
-    name: 'docProductManage',
-    meta: {
-      useLeftMenu: true,
-      pageType: PAGE_LIB,
-      lnbType: LNB_LIB,
-      authRequired: true,
-    },
-    component: LibraryDocProductManagePage,
-  },
-  {
-    // 자료실 > 문서 > 홈화면 관리 ( 제플린: 자료실_06문서홈화면관리 )
-    path: '/doc/manage/home',
-    name: 'docHomeManage',
-    meta: {
-      useLeftMenu: true,
-      pageType: PAGE_LIB,
-      lnbType: LNB_LIB,
-      authRequired: true,
-    },
-    component: LibraryDocHomeManagePage,
-  },
-  {
-    // 자료실 > 문서 > 리스트 페이지 ( 제플린: 자료실_01문서리스트 )
-    path: '/doc/list/:productCode',
-    name: 'docList',
-    meta: {
-      useLeftMenu: true,
-      pageType: PAGE_LIB,
-      lnbType: LNB_LIB,
-    },
-    component: LibraryDocListPage,
-  },
-  {
-    // 자료실 > 문서 > 상세 페이지 ( 제플린: 자료실_02문서상세 )
-    path: '/doc/detail/:productCode/:_id',
-    name: 'docDetail',
-    meta: {
-      useLeftMenu: true,
-      pageType: PAGE_LIB,
-      lnbType: LNB_LIB,
-    },
-    component: LibraryDocDetailPage,
-  },
-  {
-    // 자료실 > 문서 > 등록 페이지 ( 제플린: 자료실_03문서등록/수정 )
-    path: '/doc/:editType/:productCode',
-    name: 'docRegister',
-    meta: {
-      useLeftMenu: true,
-      pageType: PAGE_LIB,
-      lnbType: LNB_LIB,
-      authRequired: true,
-    },
-    component: LibraryDocRegisterEditPage,
-  },
-  {
-    // 자료실 > 문서 > 수정 페이지 ( 제플린: 자료실_03문서등록/수정 )
-    path: '/doc/:editType/:productCode/:_id',
-    name: 'docEdit',
-    meta: {
-      useLeftMenu: true,
-      pageType: PAGE_LIB,
-      lnbType: LNB_LIB,
-      authRequired: true,
-    },
-    component: LibraryDocRegisterEditPage,
-  },
-  /*******************************************
-   자료실 > 동영상
-   *******************************************/
+  /********************************************************
+   (1) 자료실 > 동영상
+   ********************************************************/
   {
     // 자료실 > 동영상 > 제품 관리 페이지
     path: '/video/manage/product',
@@ -610,7 +658,7 @@ const libraryRoute = [
   },
   {
     // 자료실 > 동영상 > 리스트 페이지
-    path: '/videos/:productCode',
+    path: '/video/:productCode',
     name: 'videoList',
     meta: {
       useLeftMenu: true,
@@ -656,9 +704,82 @@ const libraryRoute = [
     component: LibraryVideoDetailPage,
     // newsletterPopup: false,
   },
-  /*******************************************
-   자료실 > 다운로드
-   *******************************************/
+  /********************************************************
+   (2) 자료실 > 문서
+   ********************************************************/
+  {
+    // 자료실 > 문서 > 제품 관리 ( 제플린: 자료실_05문서제품관리 )
+    path: '/doc/manage/product',
+    name: 'docProductManage',
+    meta: {
+      useLeftMenu: true,
+      pageType: PAGE_LIB,
+      lnbType: LNB_LIB,
+      authRequired: true,
+    },
+    component: LibraryDocProductManagePage,
+  },
+  {
+    // 자료실 > 문서 > 홈화면 관리 ( 제플린: 자료실_06문서홈화면관리 )
+    path: '/doc/manage/home',
+    name: 'docHomeManage',
+    meta: {
+      useLeftMenu: true,
+      pageType: PAGE_LIB,
+      lnbType: LNB_LIB,
+      authRequired: true,
+    },
+    component: LibraryDocHomeManagePage,
+  },
+  {
+    // 자료실 > 문서 > 리스트 페이지 ( 제플린: 자료실_01문서리스트 )
+    path: '/doc/:productCode',
+    name: 'docList',
+    meta: {
+      useLeftMenu: true,
+      pageType: PAGE_LIB,
+      lnbType: LNB_LIB,
+    },
+    component: LibraryDocListPage,
+  },
+  {
+    // 자료실 > 문서 > 상세 페이지 ( 제플린: 자료실_02문서상세 )
+    path: '/doc/detail/:productCode/:_id',
+    name: 'docDetail',
+    meta: {
+      useLeftMenu: true,
+      pageType: PAGE_LIB,
+      lnbType: LNB_LIB,
+    },
+    component: LibraryDocDetailPage,
+  },
+  {
+    // 자료실 > 문서 > 등록 페이지 ( 제플린: 자료실_03문서등록/수정 )
+    path: '/doc/:editType/:productCode',
+    name: 'docRegister',
+    meta: {
+      useLeftMenu: true,
+      pageType: PAGE_LIB,
+      lnbType: LNB_LIB,
+      authRequired: true,
+    },
+    component: LibraryDocRegisterEditPage,
+  },
+  {
+    // 자료실 > 문서 > 수정 페이지 ( 제플린: 자료실_03문서등록/수정 )
+    path: '/doc/:editType/:productCode/:_id',
+    name: 'docEdit',
+    meta: {
+      useLeftMenu: true,
+      pageType: PAGE_LIB,
+      lnbType: LNB_LIB,
+      authRequired: true,
+    },
+    component: LibraryDocRegisterEditPage,
+  },
+  /********************************************************
+   3. 자료실 > 다운로드
+   ********************************************************/
   {
     // 다운로드 > 제품 관리 ( 제플린: 자료실_03다운로드제품관리 )
     path: '/download/manage/product',
@@ -720,29 +841,9 @@ const libraryRoute = [
   },
 ];
 
-const commonRoute = [
-  {
-    path: '/storage',
-    name: 'storage',
-    component: Storage,
-  },
-  {
-    path: '*',
-    name: 'error',
-    component: NotFoundPage,
-  },
-  {
-    path: '/browser',
-    name: 'browserNotice',
-    component: BrowserNoticePage,
-  },
-  {
-    // 공통_메세지박스 페이지
-    path: '/common/dialog',
-    component: DialogPage,
-  },
-];
-
+/********************************************************
+  라우터 관리 객체
+ ********************************************************/
 const router = new Router({
   mode: 'history',
   // base: 'DBS',
@@ -758,23 +859,34 @@ const router = new Router({
   },
 });
 
-let temp = 0;
+/********************************************************
+  인증관련 페이지 Navigation Guard
+ ********************************************************/
+let isSSR = false;
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const user = $store.state.user;
-  console.log('userToken :: ', user.userToken);
-  temp++;
-  console.log('isSetToken :: ', user.isSetToken);
-  // user.isSetToken === true // ssr 때 두번 돌아서
+  const userToken = user.userToken; // store 에 저장된 token
+  let sessionToken = null; // sessionStorage 에 저장된 token
+  // console.log('userToken ', userToken);
 
-  // 인증 요구되는 페이지이지만 로그인 하지 않은 경우
-  if (
-    to.meta.authRequired &&
-    user.userToken === null &&
-    user.isSetToken === true
-  ) {
-    console.log('userToken2 :: ', user.userToken);
-    temp = 0;
+  if (process.client) {
+    console.info('CRS');
+    sessionToken = sessionStorage.getItem('KEY');
+    // console.log('sessionToken ', sessionToken);
+    if (sessionToken && !userToken) {
+      await $store.dispatch('user/encryptToken', sessionToken);
+      // console.log('stateToken ', $store.state.user.userToken);
+    }
+  }
+
+  // ssr 일때 !sessionToken 에 대한 케이스 타지않기위한 flag
+  if (process.server) {
+    isSSR = true;
+  }
+
+  // 인증 요구되는 페이지이지만 사용자 토큰이 존재하지 않는 경우
+  if (!isSSR && !sessionToken && to.meta.authRequired) {
     $store
       .dispatch('common/alert', {
         type: 'warning',
@@ -783,7 +895,6 @@ router.beforeEach((to, from, next) => {
       })
       .then((result) => {
         if (result.ok) {
-          // next('/login');
           // DBS 고객 로그인 화면으로 이동
           location.href = '/html/Login.html';
         } else {
@@ -794,7 +905,11 @@ router.beforeEach((to, from, next) => {
       });
   }
   // 깃랩토큰이 필요한 페이지이지만 깃랩토큰이 존재하지 않는 경우
-  else if (to.meta.gitlabTokenRequired && user.gitlabToken === '') {
+  else if (
+    !isSSR &&
+    to.meta.gitlabTokenRequired &&
+    (user.user.gitlabToken === '' || user.user.gitlabToken === undefined)
+  ) {
     $store
       .dispatch('common/alert', {
         type: 'warning',

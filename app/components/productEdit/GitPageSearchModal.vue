@@ -7,16 +7,20 @@
             <span>프로젝트ID</span>
             {{ $store.state.product.product.productName }}
           </li>
-          <li v-if="docPathFlag">
+          <li v-if="docPathFlag && $route.params.pageType === 'Document'">
             <span>기본경로</span
             >{{ $store.state.product.product.manualDocPath }}
+          </li>
+          <li v-else-if="docPathFlag && $route.params.pageType === 'API'">
+            <span>기본경로</span>{{ $store.state.product.product.APIDocPath }}
           </li>
         </ul>
       </div>
       <div class="box-desc">
         <ul class="bul-round-box">
           <li>
-            <span>브랜치</span> {{ $store.state.product.product.targetBranch }}
+            <span>브랜치</span>
+            {{ currentRef }}
           </li>
         </ul>
       </div>
@@ -27,12 +31,10 @@
         <tree
           v-if="docPathFlag"
           ref="repositoryTree"
-          :data="$store.state.repository.repositoryDocPathData"
           :options="treeOptions"
-          @node:dragging:start="logDragStart"
-          @node:dragging:finish="logDragFinish"
+          @node:selected="clickTree"
         >
-          <div slot-scope="{ node }" @click="clickTree(node)">
+          <div slot-scope="{ node }">
             {{ node.text }}
           </div>
         </tree>
@@ -41,8 +43,6 @@
           ref="repositoryTree"
           :data="$store.state.repository.repositoryData"
           :options="treeOptions"
-          @node:dragging:start="logDragStart"
-          @node:dragging:finish="logDragFinish"
           @node:selected="clickTree"
         >
           <div slot-scope="{ node }">{{ node.text }}</div>
@@ -62,16 +62,33 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="child in selectedNode.children" :key="child.id">
+              <tr
+                v-for="(child, index) in selectedNode.children"
+                :key="child.text"
+              >
                 <td
                   v-if="
                     child.states.type === 'blob' &&
                       child.text.slice(-3) === '.md'
                   "
                   class="txt-left"
-                  @click="selectFile(child.states.path)"
+                  @click="selectFile(child)"
                 >
-                  {{ child.text }}
+                  <div class="radio-button-wrap">
+                    <input
+                      :id="'uiChk' + child.text + index"
+                      type="radio"
+                      :name="'uiChk' + child.text + index"
+                      class="dews-ui-radio"
+                      :checked="checkedFile.text === child.text"
+                    />
+                    <label
+                      :for="'uiChk' + child.text + index"
+                      class="dews-radio"
+                      v-html="cutStr(child.text)"
+                    >
+                    </label>
+                  </div>
                 </td>
                 <td
                   v-if="
@@ -82,15 +99,6 @@
                 >
                   {{ child.states.size }}KB
                 </td>
-                <!-- 글자 수가 클 때 ...으로 표현되는 부분 -->
-                <!--<td class="txt-left">-->
-                <!--<span class="file-name" data-filetype=".md"-->
-                <!--&gt;<em-->
-                <!--&gt;Search PlaceGetstaredSearch PlaceGetstaredSearch-->
-                <!--PlaceGetstaredSearch PlaceGetstared.md</em-->
-                <!--&gt;</span-->
-                <!--&gt;-->
-                <!--</td>-->
               </tr>
             </tbody>
           </table>
@@ -103,7 +111,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, namespace } from 'nuxt-property-decorator';
 import LiquorTree from 'liquor-tree';
-import * as repository from '@/store/modules/repository';
+import { TreeNode } from '@/store/modules/repository';
 
 Vue.use(LiquorTree);
 const Repository = namespace('repository');
@@ -111,10 +119,13 @@ const Repository = namespace('repository');
 @Component
 export default class GitPageSearchModal extends Vue {
   @Prop() readonly docPathFlag!: boolean;
+  @Prop() readonly currentRef!: string;
+  @Repository.Action('getFileSize') getFileSizeAction;
 
   $refs!: {
     repositoryTree: any;
   };
+
   treeOptions = {
     propertyNames: {
       text: 'name',
@@ -122,36 +133,120 @@ export default class GitPageSearchModal extends Vue {
       state: 'data',
       data: 'path',
     },
-    dnd: true,
-    // checkbox: true,
+    fetchData: this.fetchData(),
   };
-  selectedNode: object = {};
-  selectedFilePath: string = '';
 
-  logDragStart(node): void {
-    console.log('Start dragging: ' + node.text);
+  selectedNode: TreeNode = {
+    id: '',
+    states: {
+      selected: false,
+      selectable: false,
+      checked: false,
+      expanded: false,
+      disabled: false,
+      visible: false,
+      editable: false,
+      draggable: false,
+      type: '',
+      path: '',
+      size: 0,
+    },
+    children: [],
+    isBatch: false,
+    isEditing: false,
+    text: '',
+  };
+
+  checkedFile: TreeNode = {
+    id: '',
+    states: {
+      selected: false,
+      selectable: false,
+      checked: false,
+      expanded: false,
+      disabled: false,
+      visible: false,
+      editable: false,
+      draggable: false,
+      type: '',
+      path: '',
+      size: 0,
+    },
+    children: [],
+    isBatch: false,
+    isEditing: false,
+    text: '',
+  };
+
+  repositoryDocPathData = this.$store.state.repository.repositoryDocPathData.slice();
+
+  fetchData() {
+    this.repositoryDocPathData = this.$store.state.repository.repositoryDocPathData.slice();
+
+    this.getFileSizeAction({
+      projectId: this.$store.state.product.product.projectId,
+      ref: this.$store.state.repository.currentRef,
+      repositoryData: this.repositoryDocPathData,
+    }).then(() => {
+      this.$refs.repositoryTree.tree.setModel(this.repositoryDocPathData);
+      this.selectedNode.children = this.$refs.repositoryTree.tree.model.slice();
+      return this.repositoryDocPathData;
+    });
   }
 
-  logDragFinish(targetNode, distinationNode): void {
-    console.log(`Stop dragging: [TARGET]${targetNode.text}`);
-  }
-
-  clickTree(node) {
-    this.selectedFilePath = '';
+  clickTree(node: TreeNode) {
     this.selectedNode = node;
+    this.checkedFile = {
+      id: '',
+      states: {
+        selected: false,
+        selectable: false,
+        checked: false,
+        expanded: false,
+        disabled: false,
+        visible: false,
+        editable: false,
+        draggable: false,
+        type: '',
+        path: '',
+        size: 0,
+      },
+      children: [],
+      isBatch: false,
+      isEditing: false,
+      text: '',
+    };
   }
 
-  selectFile(path) {
-    this.selectedFilePath = path;
-    console.log(this.selectedFilePath);
+  selectFile(node) {
+    this.checkedFile = node;
+  }
+
+  cutStr(orgText) {
+    let count = 0;
+    let returnText = orgText;
+    for (let idx = 0; idx < orgText.length; idx++, count++) {
+      // const currentByte = orgText.charCodeAt(idx);
+      // currentByte > 128 ? (count += 2) : count++;
+      if (count > 30) {
+        // TODO 수정 필요
+        const splitStr = orgText.split('.');
+        returnText =
+          '<span class="file-name" data-filetype=".' +
+          splitStr[splitStr.length - 1] +
+          '"><em>' +
+          returnText +
+          '</em></span>';
+        break;
+      }
+    }
+    return returnText;
   }
 
   getData() {
-    // if (this.selectedFilePath === undefined) {
-    //   alert('파일을 선택해주세요.');
-    //   return;
-    // }
-    return this.selectedFilePath;
+    if (this.checkedFile.states !== undefined) {
+      return this.checkedFile.states.path;
+    }
   }
 }
 </script>

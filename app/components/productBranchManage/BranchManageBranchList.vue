@@ -140,17 +140,16 @@
 <script lang="ts">
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import * as mergeRequest from '@/store/modules/mergeRequest';
-import * as commit from '@/store/modules/commit';
-// import * as branch from '@/store/modules/branch';
+import * as product from '@/store/modules/product';
 import CreateBranchModal from '@/components/productBranchManage/CreateBranchModal.vue';
 import MergeRequestModal from '@/components/productBranchManage/MergeRequestModal.vue';
 import ModalComponent from '@/components/common/modal/modalComponent.vue';
-import { Commit as ICommit, Branch as IBranch } from '@/store/modules/branch';
+import { Branch as IBranch } from '@/store/modules/branch';
 import { IAlert } from '@/store/modules/common';
 
 const MergeRequest = namespace('mergeRequest');
-const Commit = namespace('commit');
 const Branch = namespace('branch');
+const Product = namespace('product');
 const Common = namespace('common');
 
 @Component({
@@ -161,10 +160,11 @@ const Common = namespace('common');
   },
 })
 export default class BranchManageBranchList extends Vue {
+  @MergeRequest.Action('getMergeRequestList') getMergeRequestListAction;
   @MergeRequest.Action('createMergeRequest') createMergeRequestAction;
-  // @MergeRequest.Action('getMergeRequestList') getMergeRequestListAction;
-  // @Commit.Action('getCommitDiff') getCommitDiffAction;
+  @Branch.Action('getBranchList') getBranchListAction;
   @Branch.Action('createBranch') createBranchAction;
+  @Product.Action('selectProduct') selectProductAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   $modal!: any;
@@ -204,7 +204,34 @@ export default class BranchManageBranchList extends Vue {
 
   isAuthoredStaff: boolean = false;
 
-  created() {
+  async created() {
+    if (!this.$store.state.user.user.gitlabToken) {
+      return;
+    }
+
+    await this.selectProductAction({
+      productCode: this.$route.params.productCode,
+    });
+    await this.getBranchListAction({
+      productCode: this.$route.params.productCode,
+      gitlabToken: this.$store.state.user.user.gitlabToken,
+    });
+
+    await this.getMergeRequestListAction({
+      productCode: this.$route.params.productCode,
+      gitlabToken: this.$store.state.user.user.gitlabToken,
+    });
+
+    this.$store.state.branch.branchList.forEach((branch) => {
+      this.$store.state.mergeRequest.mergeRequestList.forEach(
+        (mergeRequest) => {
+          if (mergeRequest.source_branch === branch.name) {
+            branch.can_push = false;
+          }
+        }
+      );
+    });
+
     if (
       this.$store.state.user.user.authority !== 'M' &&
       this.$store.state.product.product.staffs.length > 0

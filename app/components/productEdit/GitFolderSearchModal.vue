@@ -3,19 +3,19 @@
     <div class="gray-info-box">
       <div class="box-desc">
         <ul class="bul-round-box">
-          <li>
-            <span>프로젝트 ID</span
-            >{{ $store.state.product.product.productName }}
-          </li>
-          <li v-if="docPathFlag">
+          <li><span>프로젝트 ID</span>{{ projectId }}</li>
+          <li v-if="docPathFlag && $route.params.pageType === 'Document'">
             <span>기본경로</span
             >{{ $store.state.product.product.manualDocPath }}
+          </li>
+          <li v-else-if="docPathFlag && $route.params.pageType === 'API'">
+            <span>기본경로</span>{{ $store.state.product.product.APIDocPath }}
           </li>
         </ul>
       </div>
       <div class="box-desc">
         <ul class="bul-round-box">
-          <li><span>브랜치</span>{{ $store.state.repository.currentRef }}</li>
+          <li><span>브랜치</span>{{ currentRef }}</li>
         </ul>
       </div>
     </div>
@@ -24,8 +24,6 @@
         ref="repositoryTree"
         :data="$store.state.repository.repositoryDocPathData"
         :options="treeOptions"
-        @node:dragging:start="logDragStart"
-        @node:dragging:finish="logDragFinish"
       >
         <div slot-scope="{ node }">{{ node.text }}</div>
       </tree>
@@ -35,8 +33,6 @@
         ref="repositoryTree"
         :data="$store.state.repository.repositoryData"
         :options="treeOptions"
-        @node:dragging:start="logDragStart"
-        @node:dragging:finish="logDragFinish"
       >
         <div slot-scope="{ node }">{{ node.text }}</div>
       </tree>
@@ -53,6 +49,9 @@ Vue.use(LiquorTree);
 @Component
 export default class GitFolderSearchModal extends Vue {
   @Prop() readonly docPathFlag!: boolean;
+  @Prop() readonly projectId!: number;
+  @Prop() readonly currentRef!: string;
+
   $refs!: {
     repositoryTree: any;
   };
@@ -63,23 +62,9 @@ export default class GitFolderSearchModal extends Vue {
       state: 'data',
       data: 'path',
     },
-    dnd: true,
-    // checkbox: true,
   };
 
-  logDragStart(node): void {
-    console.log('Start dragging: ' + node.text);
-  }
-
-  logDragFinish(targetNode, distinationNode): void {
-    console.log(`Stop dragging: [TARGET]${targetNode.text}`);
-  }
-
   getData() {
-    // if (this.$refs.repositoryTree.selected()[0] === undefined) {
-    //   alert('폴더를 선택해주세요.');
-    //   return;
-    // }
     return this.$refs.repositoryTree.selected()[0];
   }
 }

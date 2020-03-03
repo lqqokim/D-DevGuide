@@ -7,9 +7,13 @@
             <span>프로젝트 ID</span>
             {{ $store.state.product.product.productName }}
           </li>
-          <li>
+          <li v-if="$route.params.pageType === 'Document'">
             <span>기본경로</span>
             {{ $store.state.product.product.manualDocPath }}
+          </li>
+          <li v-else>
+            <span>기본경로</span>
+            {{ $store.state.product.product.APIDocPath }}
           </li>
         </ul>
       </div>
@@ -155,9 +159,7 @@ export default class CreatePageModal extends Vue {
   gitPageSearchModalName: string = 'gitPageSearchModal';
 
   onClickRadioBtn(e) {
-    // this.newPage = true;
     this.usePage = e.target.value;
-    console.log(this.usePage);
     if (this.usePage === 'newPage') {
       this.$refs.existingPagePath.value = '';
     } else {
@@ -165,9 +167,6 @@ export default class CreatePageModal extends Vue {
       this.$refs.newPageName.value = '';
     }
     this.duplicatedFileName = false;
-    console.log(this.$refs.existingPagePath.value);
-    console.log(this.$refs.newPagePath.value);
-    console.log(this.$refs.newPageName.value);
   }
 
   // 신규페이지 생성에서 폴더 버튼 누르면 나오는 modal
@@ -191,14 +190,12 @@ export default class CreatePageModal extends Vue {
   }
 
   mounted() {
-    console.log(this.$refs);
     if (!this.newPage) {
       this.$refs.docTitle.value = this.docName;
       this.$refs.existingPagePath.value = this.docPath;
     }
   }
 
-  // 20-1 page
   gitFolderSearchModalConfirm(clickConfirmBtn) {
     if (clickConfirmBtn) {
       const folderPath = this.$refs.gitFolderSearchModal.getData();
@@ -207,17 +204,10 @@ export default class CreatePageModal extends Vue {
     this.$modal.hide(this.gitFolderSearchModalName);
   }
 
-  // 22, 23 page
-  gitPageSearchModalConfirm(param) {
-    console.log('gitPageSearchModalConfirm');
-    console.log(param);
-  }
-
   inputFileName(e) {
     this.$store.state.repository.fileNameList.some((fileName) => {
       return (this.duplicatedFileName = fileName === e.target.value);
     });
-    console.log(this.$refs.newPagePath.value);
   }
 
   setFolderPath(folderPath) {

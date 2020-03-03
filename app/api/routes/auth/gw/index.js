@@ -1,4 +1,8 @@
-import { checkGroupwareUser, searchUser } from './../../../controllers/auth/gw';
+import {
+  checkGroupwareUser,
+  searchUser,
+  searchUserList,
+} from './../../../controllers/auth/gw';
 
 const { Router } = require('express');
 const router = Router();
@@ -31,6 +35,36 @@ router.post('/searchUser', (req, res) => {
         // 존재 하지 않음
       }
     });
+  }
+});
+
+// 이름으로 그룹웨어 사용자 다이얼로그 데이터 조회
+router.post('/searchUserByName', (req, res) => {
+  const { user } = req.body;
+
+  if (user) {
+    searchUserList(user)
+      .then((userList) => {
+        res.status(200).send({ success: true, data: userList });
+      })
+      .catch((err) => {
+        res.status(500).send({ success: false, msg: err.message });
+      });
+  }
+});
+
+// 아이디로 그룹웨어 사용자 다이얼로그 데이터 조회
+router.post('/searchUserByID', (req, res) => {
+  const { user } = req.body;
+
+  if (user) {
+    searchUser(user)
+      .then((userResult) => {
+        res.status(200).send({ success: true, data: userResult });
+      })
+      .catch((err) => {
+        res.status(500).send({ success: false, msg: err.message });
+      });
   }
 });
 

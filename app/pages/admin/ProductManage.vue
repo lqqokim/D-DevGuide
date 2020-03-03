@@ -386,8 +386,8 @@
   <!--</div>-->
   <!--</div>-->
   <!--</div>-->
-  <product-manage></product-manage>
   <!--</div>-->
+  <product-manage></product-manage>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
@@ -398,12 +398,9 @@ import ProductManage from '~/components/productManage/index.vue';
   components: {
     ProductManage,
   },
-  async fetch({ store, params }): Promise<any> {
+  fetch({ store }): any {
     try {
-      await store.dispatch('product/getProductList');
-      await store.dispatch('product/getProjectIdList', {
-        gitlabToken: store.state.user.user.gitlabToken,
-      });
+      // await store.dispatch('product/getProductList');
     } catch (err) {
       console.error(err);
     }

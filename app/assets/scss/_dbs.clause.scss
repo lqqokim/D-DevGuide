@@ -1,0 +1,59 @@
+@import 'variables';
+@import 'mixins';
+
+.dbs-container {
+  @include clearfix;
+  .dbs-clause-menu {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 40px 0;
+    list-style: none;
+    li {
+      font-size: 16px;
+      color: #a5a5a5;
+      float: left;
+      margin-right: 10px;
+      cursor: pointer;
+      &.policy:before {
+        content: '';
+        left: 0;
+        top: 10px;
+        width: 1px;
+        height: 14px;
+        border-left: 1px solid #dbdbdb;
+        margin-right: 10px;
+      }
+      &.active {
+        color: #437fe3;
+      }
+    }
+  }
+  .dbs-clause-division {
+    background-color: #dbdbdb;
+    width: 1200px;
+    height: 1px;
+  }
+}
+.dbs-visual-wrap {
+  @include clearfix;
+  .dbs-clause-wrap {
+    width: 1160px;
+    font-size: 15px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.53;
+    letter-spacing: normal;
+    text-align: left;
+    color: #565656;
+    .clause-contents {
+      margin-left: 20px;
+      margin-right: 20px;
+      width: 100%;
+      display: none;
+      &.active {
+        display: block;
+      }
+    }
+  }
+}

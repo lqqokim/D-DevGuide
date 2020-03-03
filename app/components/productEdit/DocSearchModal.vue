@@ -21,7 +21,6 @@
         :data="docSearchTreeData"
         :options="treeOptions"
         @tree:mounted="treeMounted"
-        @node:selected="onNodeSelected"
       >
         <div slot-scope="{ node }">
           <p v-if="node.states.path === undefined">{{ node.text }}</p>
@@ -50,8 +49,6 @@ export default class DocSearchModal extends Vue {
       state: 'option',
       data: 'path',
     },
-    // dnd: true,
-    // checkbox: true,
   };
   docSearchTreeData: object = {};
   selectedNode: object = {};
@@ -69,13 +66,8 @@ export default class DocSearchModal extends Vue {
     }
   }
 
-  onNodeSelected(node) {
-    console.log(node);
-    console.log(this.$refs.repositoryTree.selected()[0]);
-  }
-
   treeMounted() {
-    if (this.$refs.repositoryTree.selected() !== undefined) {
+    if (this.$refs.repositoryTree.selected()[0] !== undefined) {
       this.$refs.repositoryTree.selected()[0].unselect();
     }
   }

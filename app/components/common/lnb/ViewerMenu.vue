@@ -37,7 +37,6 @@
       >
         {{ $route.params.versionName }}
       </button>
-      <!-- buttonClick 시 아무동작도 일어나지 않도록 수정 필요 -->
       <button
         v-else
         type="button"
@@ -46,8 +45,11 @@
       >
         {{ $route.params.branchName }}
       </button>
-      <!-- 셀렉트박스  선택시 ui-select-wrap에 on 추가하면 display block 됨 -->
-      <div class="ui-select-wrap" :class="{ on: displayVersionList }">
+      <div
+        class="ui-select-wrap"
+        :class="{ on: displayVersionList }"
+        @mouseleave="mouseLeaveToOtherArea"
+      >
         <div class="ui-select-options">
           <nuxt-link
             :to="{
@@ -65,27 +67,24 @@
           </nuxt-link>
           <nuxt-link
             v-for="version in $store.state.version.versionList"
-            :key="version.tag_name"
+            :key="version.tagName"
             :to="{
               name: 'versionDocViewInit',
               params: {
                 productCode: $store.state.product.product.productCode,
                 pageType: 'Document',
-                versionName: version.tag_name,
+                versionName: version.tagName,
               },
             }"
             tag="button"
             class="ui-select-opt"
             @click.native="displayVersionList = false"
           >
-            <b class="ui-select-txt">{{ version.tag_name }}</b>
+            <b class="ui-select-txt">{{ version.tagName }}</b>
           </nuxt-link>
         </div>
       </div>
     </div>
-    <!--<p v-if="$store.state.repository.refType === 'branch'">-->
-    <!--{{ $store.state.repository.currentRef }}-->
-    <!--</p>-->
     <div class="ui-accordion-left-pnl">
       <ul class="ui-navi">
         <nuxt-link
@@ -197,10 +196,9 @@
         <product-repository-file-tree
           v-for="(item, index) in viewerMenuTreeData"
           :key="index"
-          :data="item"
+          :tree-data="item"
           :depth="1"
-        >
-        </product-repository-file-tree>
+        ></product-repository-file-tree>
       </ul>
     </div>
   </div>
@@ -209,7 +207,7 @@
 <script lang="ts">
 import { Vue, Component, namespace, Watch } from 'nuxt-property-decorator';
 import ProductRepositoryFileTree from '@/components/productDocView/ProductRepositoryFileTree.vue';
-import * as repository from '@/store/modules/repository';
+import EventBus from '@/store/modules/repository.ts';
 
 const Repository = namespace('repository');
 
@@ -224,10 +222,36 @@ export default class ViewerMenu extends Vue {
 
   created() {
     this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
+
+    EventBus.$on('toggle', (folderData) => {
+      if (folderData.type === 'page') {
+        for (const key in this.viewerMenuTreeData) {
+          this.removeSelectedOption(this.viewerMenuTreeData[key]);
+        }
+      }
+      if (folderData.children) {
+        folderData.option.expanded = !folderData.option.expanded;
+      }
+      folderData.option.selected = folderData.type === 'page';
+    });
+  }
+
+  removeSelectedOption(treeData): void {
+    if (treeData.option.selected && treeData.type === 'page') {
+      treeData.option.selected = false;
+    }
+    if (treeData.children) {
+      treeData.children.forEach((data) => {
+        this.removeSelectedOption(data);
+      });
+    }
   }
 
   @Watch('$route.params.pageType')
   onChangePageType(value, oldValue) {
+    if (value === undefined) {
+      return;
+    }
     if (
       this.$route.params.branchName === undefined &&
       this.$route.params.versionName === undefined
@@ -270,8 +294,9 @@ export default class ViewerMenu extends Vue {
   @Watch('$route.name')
   onChangeVersion(value, oldValue) {
     if (
-      value === 'detail' &&
-      (oldValue === 'versionDocViewInit' || oldValue === 'versionDocView')
+      (value === 'detail' &&
+        (oldValue === 'versionDocViewInit' || oldValue === 'versionDocView')) ||
+      (value === 'detail' && (oldValue === 'detail' || oldValue === 'docView'))
     ) {
       this.getIndexMdFileAction({
         productCode: this.$store.state.product.product.productCode,
@@ -282,18 +307,68 @@ export default class ViewerMenu extends Vue {
         this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
       });
     } else if (
-      value === 'versionDocViewInit' &&
-      (oldValue === 'detail' || oldValue === 'docView')
+      (value === 'versionDocViewInit' &&
+        (oldValue === 'detail' || oldValue === 'docView')) ||
+      (value === 'versionDocViewInit' &&
+        (oldValue === 'versionDocViewInit' || oldValue === 'versionDocView'))
     ) {
       this.getIndexMdFileAction({
         productCode: this.$route.params.productCode,
         pageType: 'Document',
-        ref: this.$route.params.versionName,
+        ref: 'DOC_' + this.$route.params.versionName,
         refType: 'version',
       }).then((res) => {
         this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
       });
     }
+    this.displayVersionList = false;
+  }
+
+  // 뒤로가기, 앞으로가기 했을 때 좌측 메뉴 트리 포커스 문제 때문에 추가한 코드
+  @Watch('$route.params.pageTitle')
+  onChangePageTitle(value, oldValue) {
+    setTimeout(() => {
+      if (
+        document.querySelectorAll('li.nav-item.page.selected').length === 0 ||
+        document.querySelectorAll('li.nav-item.page.selected').length > 1
+      ) {
+        let selectedPage;
+        for (let idx = 0; idx < this.viewerMenuTreeData.length; idx++) {
+          selectedPage = this.findSelectedPage(
+            this.viewerMenuTreeData[idx],
+            this.$route.params.pageTitle,
+            this.$route.params.pageId + '.md'
+          );
+          if (selectedPage !== undefined) {
+            EventBus.$emit('toggle', selectedPage);
+            break;
+          }
+        }
+      }
+    });
+  }
+
+  findSelectedPage(parent, pageTitle, filePath): any {
+    if (pageTitle === parent.title && filePath === parent.option.path) {
+      parent.option.selected = true;
+      return parent;
+    } else if (parent.children && parent.children.length > 0) {
+      for (let childIdx = 0; childIdx < parent.children.length; childIdx++) {
+        const findResult = this.findSelectedPage(
+          parent.children[childIdx],
+          pageTitle,
+          filePath
+        );
+        if (findResult !== undefined) {
+          return findResult;
+        }
+      }
+    } else {
+      return undefined;
+    }
+  }
+
+  mouseLeaveToOtherArea() {
     this.displayVersionList = false;
   }
 }

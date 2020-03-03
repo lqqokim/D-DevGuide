@@ -22,6 +22,7 @@
         <div
           class="project-detail"
           :class="{ selected: clickedCommitShortId === commit.short_id }"
+          style="cursor: pointer;"
         >
           <div class="project-wrap">
             <div class="project-title">
@@ -30,7 +31,6 @@
               </p>
               <div class="user-info">
                 <span>{{ commit.committer_email }}</span>
-                <!--<span>{{ commit.committer_name }}</span>-->
                 <span>{{ commit.committed_date }}</span>
                 <!-- commit list 가 너무 많아서 일단 committed_date 로 출력 list 해결되면 >> {{commit.changed_time}} 이거로 바꾸기 -->
               </div>
@@ -41,7 +41,7 @@
               </p>
             </div>
           </div>
-          <div class="project-controls">
+          <div class="project-controls" style="cursor: pointer;">
             <span class="ui-accordion-arrow"></span>
           </div>
         </div>
@@ -81,13 +81,30 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
+import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { Diff2Html } from 'diff2html';
+import * as commit from '@/store/modules/commit';
 import 'diff2html/dist/diff2html.min.css';
+
+const Commit = namespace('commit');
 
 @Component
 export default class ProductBranchChangeHistory extends Vue {
+  @Commit.Action('getCommitList') getCommitListAction;
+
   clickedCommitShortId: string = '';
+
+  created() {
+    if (!this.$store.state.user.user.gitlabToken) {
+      return;
+    }
+
+    this.getCommitListAction({
+      productCode: this.$route.params.productCode,
+      branchName: this.$route.params.branchName,
+      gitlabToken: this.$store.state.user.user.gitlabToken,
+    });
+  }
 
   onClickCommit(shortId) {
     if (this.clickedCommitShortId === shortId) {

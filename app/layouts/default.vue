@@ -35,7 +35,9 @@
               <component :is="lnbLoader"></component>
             </keep-alive>
 
-            <component :is="lnbLoader" v-else></component>
+            <keep-alive v-else>
+              <component :is="lnbLoader"></component>
+            </keep-alive>
             <nuxt />
           </div>
         </div>
@@ -71,7 +73,7 @@ export default class extends Vue {
     LNB_FORUM = 'Forum';
   */
   get bannerLoader() {
-    console.log('bannerLoader :: ', this.$route.meta.pageType);
+    // console.log('bannerLoader :: ', this.$route.meta.pageType);
     const pageType = this.$route.meta.pageType;
     return () => import(`@/components/common/banner/${pageType}Banner.vue`);
   }

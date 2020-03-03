@@ -4,43 +4,45 @@
     <p class="tit-con-left"><strong>자료실</strong></p>
     <div class="ui-accordion-left-pnl">
       <ul>
-        <li class="nav-item depth-1 folder selected">
-          <a class="nav-text">동영상</a>
-          <ul class="nav-container depth-2" style="display: block;">
-            <li class="nav-item depth-2 page">
-              <!--             TODO 전체 숨김-->
-              <!--              <a class="nav-text">전체</a>-->
-            </li>
-
+        <li class="nav-item depth-1" :class="{ folder: isVideoFolder }">
+          <a class="nav-text" @click="isVideoFolder = !isVideoFolder">동영상</a>
+          <ul
+            v-show="isVideoFolder"
+            class="nav-container depth-2"
+            style="display: block;"
+          >
             <!--동영상 제품 목록 S-->
             <li
               v-for="product in $store.state.video.products"
               :key="product._id"
               class="nav-item depth-2 page"
               :class="{
-                selected: selectedProductId === product._id,
+                selected:
+                  selectedProductCode === product.productCode &&
+                  path === '/video/' + product.productCode,
               }"
             >
               <a
                 class="nav-text"
-                @click="
-                  onclickMenuProduct(product, {
-                    type: 'video',
-                    product,
-                  })
-                "
+                @click="onclickMenuProduct(product, 'video')"
                 >{{ product.productName }}</a
               >
             </li>
             <!--동영상 제품 목록 E-->
 
             <template v-if="isAdmin()">
-              <li class="nav-item depth-2 page">
+              <li
+                class="nav-item depth-2 page"
+                :class="{ selected: path === '/video/manage/product' }"
+              >
                 <nuxt-link :to="{ name: 'videoProductManage' }" class="nav-text"
                   >제품 관리</nuxt-link
                 >
               </li>
-              <li class="nav-item depth-2 page">
+              <li
+                class="nav-item depth-2 page"
+                :class="{ selected: path === '/video/manage/home' }"
+              >
                 <nuxt-link :to="{ name: 'videoHomeManage' }" class="nav-text"
                   >홈 화면 관리</nuxt-link
                 >
@@ -48,43 +50,43 @@
             </template>
           </ul>
         </li>
-        <li class="nav-item depth-1 folder">
-          <a class="nav-text">문서</a>
-          <ul class="nav-container depth-2" style="display: block;">
-            <li class="nav-item depth-2 page">
-              <!--             TODO 전체 숨김-->
-              <!--              <a class="nav-text">전체</a>-->
-            </li>
-
+        <li class="nav-item depth-1 " :class="{ folder: isDocFolder }">
+          <a class="nav-text" @click="isDocFolder = !isDocFolder">문서</a>
+          <ul
+            v-show="isDocFolder"
+            class="nav-container depth-2"
+            style="display: block;"
+          >
             <!--문서 제품 목록 S-->
             <li
               v-for="product in $store.state.document.products"
               :key="product._id"
               class="nav-item depth-2 page"
               :class="{
-                selected: selectedProductId === product._id,
+                selected:
+                  selectedProductCode === product.productCode &&
+                  path === '/doc/' + product.productCode,
               }"
             >
-              <a
-                class="nav-text"
-                @click="
-                  onclickMenuProduct(product, {
-                    page: 'doc',
-                    product,
-                  })
-                "
-                >{{ product.productName }}</a
-              >
+              <a class="nav-text" @click="onclickMenuProduct(product, 'doc')">{{
+                product.productName
+              }}</a>
             </li>
             <!--문서 제품 목록 E-->
 
             <template v-if="isAdmin()">
-              <li class="nav-item depth-2 page">
+              <li
+                class="nav-item depth-2 page"
+                :class="{ selected: path === '/doc/manage/product' }"
+              >
                 <nuxt-link :to="{ name: 'docProductManage' }" class="nav-text"
                   >제품 관리</nuxt-link
                 >
               </li>
-              <li class="nav-item depth-2 page">
+              <li
+                class="nav-item depth-2 page"
+                :class="{ selected: path === '/doc/manage/home' }"
+              >
                 <nuxt-link :to="{ name: 'docHomeManage' }" class="nav-text"
                   >홈 화면 관리</nuxt-link
                 >
@@ -92,45 +94,49 @@
             </template>
           </ul>
         </li>
-        <li class="nav-item depth-1 folder">
-          <a class="nav-text">다운로드</a>
-          <ul class="nav-container depth-2" style="display: block;">
-            <li class="nav-item depth-2 page">
-              <!--             TODO 전체 숨김-->
-              <!--              <a class="nav-text">전체</a>-->
-            </li>
-
+        <li class="nav-item depth-1" :class="{ folder: isDownloadFolder }">
+          <a class="nav-text" @click="isDownloadFolder = !isDownloadFolder"
+            >다운로드</a
+          >
+          <ul
+            v-show="isDownloadFolder"
+            class="nav-container depth-2"
+            style="display: block;"
+          >
             <!--다운로드 제품 목록 S-->
             <li
               v-for="product in $store.state.download.products"
               :key="product._id"
               class="nav-item depth-2 page"
               :class="{
-                selected: selectedProductId === product._id,
+                selected:
+                  selectedProductCode === product.productCode &&
+                  path === '/download/' + product.productCode,
               }"
             >
               <a
                 class="nav-text"
-                @click="
-                  onclickMenuProduct(product, {
-                    type: 'download',
-                    product,
-                  })
-                "
+                @click="onclickMenuProduct(product, 'download')"
                 >{{ product.productName }}</a
               >
             </li>
             <!--다운로드 제품 목록 E-->
 
             <template v-if="isAdmin()">
-              <li class="nav-item depth-2 page">
+              <li
+                class="nav-item depth-2 page"
+                :class="{ selected: path === '/download/manage/product' }"
+              >
                 <nuxt-link
                   :to="{ name: 'downloadProductManage' }"
                   class="nav-text"
                   >제품 관리</nuxt-link
                 >
               </li>
-              <li class="nav-item depth-2 page">
+              <li
+                class="nav-item depth-2 page"
+                :class="{ selected: path === '/download/manage/home' }"
+              >
                 <nuxt-link :to="{ name: 'downloadHomeManage' }" class="nav-text"
                   >홈 화면 관리</nuxt-link
                 >
@@ -159,24 +165,28 @@ export default class extends Vue {
   @Doc.Action('docProducts') docProductsAction!: () => void;
   @File.Action('fileProducts') fileProductsAction!: () => void;
 
-  selectedProductId = '';
-
-  isProductFolder: boolean = true;
-  isProductSelected: boolean = true;
-  navContainerDisplay: string = 'block';
   selectedProductCode!: string;
 
-  @Watch('$route.params.productCode')
+  isVideoFolder: boolean = true;
+  isDocFolder: boolean = true;
+  isDownloadFolder: boolean = true;
+
+  path: string = '';
+
+  @Watch('$route.params.productCode', { deep: true, immediate: true })
   onChangeMenu(value, oldValue) {
     this.selectedProductCode = value;
-    // console.log('onChangeMenu :: ', this.selectedProductCode);
+    this.path = this.$route.path;
   }
 
   isAdmin(): boolean {
-    return this.$store.state.user.user.loginId === 'admin';
+    return this.$store.state.user.user.authority === 'S';
   }
 
   async created() {
+    this.path = this.$route.path;
+    this.selectedProductCode = this.$route.params.productCode;
+
     if (!this.$store.state.video.products.length) {
       await this.videoProductsAction();
     }
@@ -188,31 +198,16 @@ export default class extends Vue {
     if (!this.$store.state.document.products.length) {
       await this.docProductsAction();
     }
-
-    // this.selectedProductId = this.$route.params.productCode;
-    console.log('this.route', this.$route);
   }
 
-  onclickMenuProduct(
-    product,
-    params: {
-      type: string;
-      product: any;
-    }
-  ): void {
-    this.selectedProductId = product._id;
-    let routerName: string;
-
-    if (params.type === 'video') {
-      routerName = 'videoList';
-    } else if (params.type === 'doc') {
-      routerName = 'docList';
-    } else {
-      routerName = 'downloadList';
+  onclickMenuProduct(product, categoryName): void {
+    // 동일한 메뉴 카테고리 내 선택한 목록 다시 선택했을 경우
+    if (this.$route.path === `/${categoryName}/${product.productCode}`) {
+      return;
     }
 
     this.$router.push({
-      name: routerName,
+      name: `${categoryName}List`,
       params: {
         productCode: product.productCode,
         product,

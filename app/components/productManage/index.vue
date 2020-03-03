@@ -9,6 +9,7 @@
         <button
           type="button"
           class="btn-sub-large"
+          :disabled="isClickAdd"
           @click="onclickRemoveProduct"
         >
           삭제
@@ -20,6 +21,7 @@
         :products="products"
         :is-initial="isInitialCardList"
         @selected-manage-product="changeSelectedManageProduct"
+        @change-products="changeProducts"
       ></product-card-list>
       <div class="right-proc-content">
         <!-- 제품정보 컴포넌트 -->
@@ -56,14 +58,12 @@
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { IProductManage } from '@/components/common/productManage/interface';
 import * as product from '@/store/modules/product';
-import * as branch from '@/store/modules/branch';
 import ProductCardList from '@/components/libraryHome/manage/ProductCardList.vue';
 import ProductInfo from '@/components/productManage/ProductInfo.vue';
 import ProductStaffList from '@/components/productManage/ProductStaffList.vue';
 import { IAlert } from '@/store/modules/common';
 
 const Product = namespace('product');
-const Branch = namespace('branch');
 const Common = namespace('common');
 
 @Component({
@@ -78,7 +78,13 @@ export default class ProductManage extends Vue
   @Product.Action('registerProduct') registerProductAction;
   @Product.Action('updateProduct') updateProductAction;
   @Product.Action('removeProduct') removeProductAction;
+  @Product.Action('checkProjectInfo') checkProjectInfoAction;
+  @Product.Action('getProductList') getProductListAction;
   @Product.Mutation('setProductList') productListMutation;
+  @Product.Action('selectProduct') selectProductAction;
+  @Product.Action('updateProductsIndex') updateProductsIndexAction!: (
+    products: product.Product[]
+  ) => Promise<any>;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   $refs!: {
@@ -86,14 +92,13 @@ export default class ProductManage extends Vue
     productStaffComp: any;
   };
 
-  // products: product.Product[] = [];
   initialProducts: product.Product[] = [];
   selectedProductStaffs: Array<product.Staff> = [];
   selectedProduct: product.Product = {
     _id: '',
     productName: '',
     productCode: '',
-    projectId: 0,
+    projectId: '',
     description: '',
     targetBranch: '',
     manualDocPath: '',
@@ -104,10 +109,8 @@ export default class ProductManage extends Vue
 
   selectedProductIdx: number = 0;
   isInitialCardList: boolean = true;
+  isClickAdd: boolean = false;
 
-  onClickModalConfirm(params) {
-    console.log(params);
-  }
   get products(): product.Product[] {
     if (this.$store.state.product.productList[0] !== undefined) {
       this.selectedProductStaffs = this.$store.state.product.productList[0].staffs;
@@ -115,12 +118,15 @@ export default class ProductManage extends Vue
     return this.$store.state.product.productList;
   }
 
-  created() {
+  async created() {
+    await this.getProductListAction();
+    // await this.selectProductAction({
+    //   productCode: this.$route.params.productCode,
+    // });
+
     const products: product.Product[] = this.$store.state.product.productList;
 
-    console.log(products);
     // set products
-    // this.products = this.$store.state.product.productList;
     this.initialProducts = products.slice();
 
     // set selectedProduct
@@ -133,8 +139,9 @@ export default class ProductManage extends Vue
   }
 
   onclickAddProduct(): void {
+    this.isClickAdd = true; // 추가 버튼 눌렀을 시 삭제버튼 disabled
     const editingProductIdx = this.products.findIndex((product) => {
-      return product.projectId === 0;
+      return product._id === undefined;
     });
 
     // 비어있는 제품이 있는경우
@@ -152,7 +159,7 @@ export default class ProductManage extends Vue
       productCode: '',
       description: '',
       apiUse: false,
-      projectId: 0,
+      projectId: '',
       targetBranch: 'master',
       manualDocPath: '',
       APIDocPath: '',
@@ -163,7 +170,7 @@ export default class ProductManage extends Vue
       productCode: '',
       description: '',
       apiUse: false,
-      projectId: 0,
+      projectId: '',
       targetBranch: 'master',
       manualDocPath: '',
       APIDocPath: '',
@@ -174,6 +181,10 @@ export default class ProductManage extends Vue
     this.selectedProductIdx = this.products.length - 1;
     this.selectedProduct = this.products[this.selectedProductIdx];
     this.selectedProductStaffs = [];
+  }
+
+  changeProducts(products) {
+    this.updateProductsIndexAction(products);
   }
 
   async changeSelectedManageProduct(value: {
@@ -192,104 +203,82 @@ export default class ProductManage extends Vue
 
     this.selectedProductIdx = value.index;
 
-    // init prev product input value
-    const prevProduct: product.Product = this.initialProducts[value.prevIndex];
-    this.products[value.prevIndex].productName = prevProduct.productName;
-    this.products[value.prevIndex].productCode = prevProduct.productCode;
-    this.products[value.prevIndex].description = prevProduct.description;
+    // 200210 제품 없을 때 오류나는 문제 때문에 추가한 코드
+    if (this.products.length > 0) {
+      // init prev product input value
+      const prevIdx = value.prevIndex;
+      const prevProduct: product.Product = this.initialProducts[prevIdx];
+      this.products[prevIdx].productName = prevProduct.productName;
+      this.products[prevIdx].productCode = prevProduct.productCode;
+      this.products[prevIdx].description = prevProduct.description;
 
-    // select current product, staffs
-    this.selectedProduct = this.products[value.index];
-    this.selectedProductStaffs = this.products[value.index].staffs;
+      // select current product, staffs
+      this.selectedProduct = this.products[value.index];
+      this.selectedProductStaffs = this.products[value.index].staffs;
+    }
   }
 
-  onSaveStaffs(staffs: Array<product.Staff>): void {
-    // this.registerStaffsAction(staffs);
-    alert('staff 수정 완료');
-  }
+  onclickSave() {
+    if (this.isClickAdd) {
+      this.isClickAdd = false;
+    }
 
-  onRemoveStaff(staffs: Array<product.Staff>): void {
-    // this.selectedManageProductStaffsMutation(staffs);
-  }
-
-  async onclickSave() {
     const product = this.$refs.productInfoComp.getProduct();
-    product.staffs = this.$refs.productStaffComp.getStaffs();
-    const productIdx: number = this.products.findIndex(
-      (item: product.Product) => {
-        return item.productCode === product.productCode;
-      }
-    );
+    product[0].staffs = this.$refs.productStaffComp.getStaffs();
+    // const productIdx: number = this.products.findIndex(
+    //   (item: product.Product) => {
+    //     return item.productCode === product[0].productCode;
+    //   }
+    // );
 
-    if (!this.validator(product)) {
+    if (!this.validator(product[0], product[1])) {
       return;
     }
 
-    // TODO 수정 필요
-    if (product._id) {
-      console.log(product._id);
-      await this.alertAction({
-        type: 'question',
-        isShow: true,
-        msg: '제품을 수정하시겠습니까?',
-      }).then(async (result) => {
-        if (result.ok) {
-          await this.updateProductAction(product);
-          //     .then((res) => {
-          //       if (res.success && res.data) {
-          //         this.alertAction({
-          //           type: 'check',
-          //           isShow: true,
-          //           msg: '제품 정보가 수정되었습니다.',
-          //         }).then(() => {});
-          //         this.initialProducts[productIdx] = res.data;
-          //       }
-          //     })
-          //     .catch((err) => {
-          //       console.error(err);
-          //       this.alertAction({
-          //         type: 'check',
-          //         isShow: true,
-          //         msg: '제품정보가 수정 되지않았습니다.',
-          //       }).then(() => {});
-          //     });
-        }
-      });
+    if (product[0]._id) {
+      this.updateProductAction(product[0])
+        .then((res) => {
+          if (res.success && res.data) {
+            this.alertAction({
+              type: 'check',
+              isShow: true,
+              msg: '제품정보가 수정되었습니다.',
+            });
+          }
+        })
+        .catch((err) => {
+          if (err.response.status === 500) {
+            this.alertAction({
+              type: 'error',
+              isShow: true,
+              msg: err.response.data.msg,
+            }).then(() => {});
+          }
+        });
     } else {
-      await this.alertAction({
-        type: 'question',
-        isShow: true,
-        msg: '제품을 추가하시겠습니까?',
-      }).then(async (result) => {
-        console.log(result);
-        if (result.ok) {
-          await this.registerProductAction(product);
-        }
-      });
-      // this.registerProductAction(product)
-      //   .then((res) => {
-      //     if (res.success && res.data) {
-      //       alert('제품이 등록 되었습니다.');
-      //       // this.initialProducts[productIdx] = res.data;
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     console.error(err);
-      //     alert('제품이 등록되지 않았습니다.');
-      //   });
+      this.registerProductAction(product[0])
+        .then((res) => {
+          if (res.success && res.data) {
+            this.alertAction({
+              type: 'check',
+              isShow: true,
+              msg: '제품이 등록되었습니다.',
+            });
+          }
+        })
+        .catch((err) => {
+          if (err.response.status === 500) {
+            this.alertAction({
+              type: 'error',
+              isShow: true,
+              msg: err.response.data.msg,
+            }).then(() => {});
+          }
+        });
     }
-
-    // init initialProducts, selectedProduct
-    this.initialProducts = this.$store.state.product.productList.slice();
-    this.selectedProduct = this.products[0];
   }
 
   onclickRemoveProduct(): void {
-    // const productIdx: number = this.products.findIndex(
-    //   (item: product.Product) => {
-    //     return item._id === this.selectedProduct._id;
-    //   }
-    // );
     this.alertAction({
       type: 'question',
       isShow: true,
@@ -298,73 +287,31 @@ export default class ProductManage extends Vue
       if (result.ok) {
         await this.removeProductAction(this.selectedProduct);
         this.selectedProduct = this.products[0];
-        // .then((res) => {
-        //       if (res.success && res.data) {
-        //         alert('제품이 삭제 되었습니다.');
-        //         // this.products.splice(productIdx, 1);
-        //       }
-        //     })
-        //     .catch((err) => {
-        //       console.error(err);
-        //       alert('제품이 삭제 되지않았습니다.');
-        //     });
       }
     });
   }
 
   onclickCancel(): void {
+    if (this.isClickAdd) {
+      this.isClickAdd = false;
+    }
+
     if (!this.selectedProduct._id) {
       this.isInitialCardList = true;
       this.products.splice(this.selectedProductIdx, 1);
       this.selectedProduct = this.products[0];
-
-      // if (!this.products[this.products.length - 1]._id) {
-      //   this.selectedProduct = this.products[this.products.length - 1];
-      // } else {
-      //   this.selectedProduct = this.products[0];
-      // }
-    } else {
-      console.log(this.$store.state.product.productList);
     }
-    // if (!this.selectedProduct._id) {
-    //   this.products.splice(this.products.length - 1, 1);
-    //
-    //   if (!this.products[this.products.length - 1]._id) {
-    //     this.selectedProduct = this.products[this.products.length - 1];
-    //   } else {
-    //     this.selectedProduct = this.products[0];
-    //   }
-    // }
   }
 
-  validator(product: product.Product): boolean {
+  validator(product: product.Product, isExistProjectIdFlag: boolean): boolean {
     let result: boolean = true;
 
-    if (product.projectId !== 0) {
-      const isExistProjectId = this.$store.state.product.projectIdList.findIndex(
-        (projectId) => {
-          return projectId === Number(product.projectId);
-        }
-      );
-      // const isDuplicatedProjectId = this.$store.state.product.productList.findIndex(
-      //   (project) => {
-      //     return project.projectId === Number(product.projectId);
-      //   }
-      // );
-      if (isExistProjectId === -1) {
-        this.alertAction({
-          type: 'warning',
-          isShow: true,
-          msg: 'Gitlab 에 존재하는 프로젝트 ID를 입력하세요.',
-        }).then(() => {
-          result = false;
-        });
-      }
-      // if (isDuplicatedProjectId !== -1) {
-      //   alert('동일한 프로젝트ID 를 가진 제품이 있습니다.');
-      //   result = false;
-      // }
-    }
+    // if (product.projectId !== '') {
+    //   const data = this.checkProjectInfoAction({
+    //     gitlabToken: this.$store.state.user.user.gitlabToken,
+    //   });
+    //   console.log(data);
+    // }
 
     if (!product.productName) {
       this.alertAction({
@@ -387,11 +334,18 @@ export default class ProductManage extends Vue
         msg: '제품 설명을 입력해주세요.',
       }).then(() => {});
       result = false;
-    } else if (product.projectId === 0) {
+    } else if (product.projectId === '') {
       this.alertAction({
         type: 'warning',
         isShow: true,
         msg: '프로젝트 ID를 입력해주세요.',
+      }).then(() => {});
+      result = false;
+    } else if (!isExistProjectIdFlag) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '유효한 프로젝트 ID 를 입력해주세요.',
       }).then(() => {});
       result = false;
     } else if (!product.targetBranch) {
@@ -401,18 +355,11 @@ export default class ProductManage extends Vue
         msg: '기준 브랜치를 입력해주세요.',
       }).then(() => {});
       result = false;
-    } else if (!product.manualDocPath) {
+    } else if (product.apiUse && product.manualDocPath === product.APIDocPath) {
       this.alertAction({
         type: 'warning',
         isShow: true,
-        msg: '문서 기본 경로를 입력해주세요.',
-      }).then(() => {});
-      result = false;
-    } else if (product.apiUse && !product.APIDocPath) {
-      this.alertAction({
-        type: 'warning',
-        isShow: true,
-        msg: 'API 기본 경로를 입력해주세요.',
+        msg: '문서 기본 경로와 API 기본 경로를 다르게 설정해주세요.',
       }).then(() => {});
       result = false;
     }

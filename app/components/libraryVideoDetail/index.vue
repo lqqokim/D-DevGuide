@@ -60,12 +60,11 @@
               :to="{
                 name: 'videoEdit',
                 params: {
-                  productCode: $route.params.productCode,
+                  productCode: $store.state.video.selectedProduct.productCode,
                   editType: 'edit',
                   type: video.isSeries ? 'series' : 'single',
                   // TODO 확인필요 191216 video._id
-                  _id:
-                    video.isSeries && video.groupId ? video.groupId : video._id,
+                  _id: video.isSeries ? video.groupId : video._id,
                   video: $store.state.video.selectedVideo, // for pure selectedVideo
                 },
               }"
@@ -83,19 +82,14 @@
               <ul class="thumb-list small">
                 <li v-for="video in videosInSeries" :key="video._id">
                   <div class="thumb" @click="onclickVideoInSeries(video)">
-                    <img
-                      :src="
-                        `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`
-                      "
-                      alt=""
-                    />
+                    <img :src="imagePath(video)" alt="" />
                     <em v-if="video.playTime" class="btn-time">{{
                       video.playTime
                     }}</em>
                   </div>
                   <dl class="thumb-desc">
                     <!-- TODO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
-                    <dt>
+                    <dt class="title-dim">
                       <i v-if="isNew(video.uploadDate)" class="icon-new">N</i
                       >{{ video.videoTitle }}
                     </dt>
@@ -148,7 +142,7 @@
                 :src="
                   `https://img.youtube.com/vi/${
                     video.isSeries ? video.series[0].youtubeId : video.youtubeId
-                  }/maxresdefault.jpg`
+                  }/${$store.state.video.ytbThumbnailQuality}.jpg`
                 "
                 alt=""
               />
@@ -157,14 +151,14 @@
               }}</em>
               <div v-if="video.isSeries" class="play">
                 <span class="count">{{ video.series.length }}</span>
-                <em class="icon-playlist"></em>
+                <em class="icon-playlist" />
               </div>
             </div>
           </nuxt-link>
 
           <dl class="thumb-desc">
             <!-- TODO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
-            <dt>
+            <dt class="title-dim">
               <i v-if="isNew(video.uploadDate)" class="icon-new">N</i
               >{{ video.isSeries ? video.seriesTitle : video.videoTitle }}
             </dt>
@@ -228,6 +222,10 @@ export default class LibraryVideoDetail extends Vue {
     this.updateVideoCountAction(this.video._id);
   }
 
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${video.youtubeId}/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
+
   get user(): IUser {
     return this.$store.state.user.user;
   }
@@ -261,7 +259,7 @@ export default class LibraryVideoDetail extends Vue {
   }
 
   get localVideoAllByProduct(): IVideo[] {
-    const a = this.videoAllByProduct
+    return this.videoAllByProduct
       .filter((video) => {
         if (this.video.isSeries && this.video.groupId) {
           return video._id !== this.video.groupId;
@@ -270,7 +268,6 @@ export default class LibraryVideoDetail extends Vue {
         }
       })
       .slice(this.count, 4 + this.count);
-    return a;
   }
 
   get video(): IVideo {
@@ -290,7 +287,6 @@ export default class LibraryVideoDetail extends Vue {
       selectedVideo = selectedVideo.series[this.selectedVideoIdx];
     }
 
-    console.log('[video]', selectedVideo);
     return selectedVideo;
   }
 

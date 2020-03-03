@@ -4,13 +4,9 @@
       <template v-if="video.youtubeId">
         <li class="main-video">
           <div class="thumb">
-            <img
-              ref="image"
-              :src="
-                `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`
-              "
-              alt=""
-            />
+            <img ref="image" :src="imagePath" alt="" />
+            <!--            TODO playtime-->
+            <!--            <em class="btn-time">{{ video.playTime }}</em>-->
           </div>
           <dl class="thumb-desc">
             <dt class="ellipsis">
@@ -31,7 +27,7 @@
         <li
           class="main-video"
           style="border: 1px solid #dbdbdb; width: 231px; height: 131px;"
-        ></li>
+        />
       </template>
     </ul>
   </div>
@@ -43,15 +39,20 @@ import { IVideo } from '@/store/modules/video';
 @Component
 export default class VideoSingleEditor extends Vue {
   @Prop() readonly video!: IVideo;
-  @Watch('video', { immediate: true, deep: true })
-  onVideoChange(val, oldVal) {
-    // console.log('onVideoChange', val);
-  }
+  // @Watch('video', { immediate: true, deep: true })
+  // onVideoChange(val, oldVal) {
+  //   console.log('onVideoChange', val);
+  // }
+
   description!: string;
 
   $refs!: {
     image: any;
   };
+
+  get imagePath() {
+    return `https://img.youtube.com/vi/${this.video.youtubeId}/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
 
   @Emit('remove-video')
   removeVideo() {

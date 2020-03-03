@@ -9,10 +9,8 @@ import Main from '~/components/main/index.vue';
   components: {
     Main,
   },
-  async fetch({ store, params }): Promise<any> {
-    await store.dispatch('product/getProductList').then(() => {
-      console.log(store.state.product.productList);
-    });
+  async fetch({ store }): Promise<any> {
+    await store.dispatch('product/getProductList');
   },
 })
 export default class extends Vue {}

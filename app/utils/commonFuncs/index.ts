@@ -102,10 +102,12 @@ export const convertCommentDateFormat = (date): string => {
 };
 
 export const expandAll = (parent): void => {
-  parent.option.expanded = true;
-  if (parent.children) {
-    parent.children.forEach((child) => {
-      expandAll(child);
-    });
+  if (parent.option !== undefined) {
+    parent.option.expanded = true;
+    if (parent.children) {
+      parent.children.forEach((child) => {
+        expandAll(child);
+      });
+    }
   }
 };

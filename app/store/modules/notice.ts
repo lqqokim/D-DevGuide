@@ -1,5 +1,6 @@
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
+import { ALERT_TYPE } from '~/store/modules/common';
 
 interface NoticeState {
   noticeList: Notice[];
@@ -23,6 +24,7 @@ export interface Notice {
   pageTitle: string; // 연결될 파일의 페이지명
   writeTime: string; // 작성 시간
   writer: string; // 작성자
+  index: number; // 공지사항 순서 관리를 위한 index 값
 }
 
 export const state = (): NoticeState => ({
@@ -47,80 +49,117 @@ export const actions: ActionTree<NoticeState, RootState> = {
     }
   ): Promise<any> {
     try {
-      const noticeList: Response = await this.$axios.get(
-        'api/docs/notice/getNoticeList',
-        {
-          params: { productCode: payload.productCode },
-        }
-      );
-      commit('setNoticeList', noticeList.data);
+      const { data } = await this.$axios.get('api/docs/notice/getNoticeList', {
+        params: { productCode: payload.productCode },
+      });
+
+      if (data.success && data.data) {
+        commit('setNoticeList', data.data);
+      }
     } catch (err) {
       console.error(err);
     }
   },
   async noticeRegister(
     { commit, state, dispatch },
-    payload: {
-      productCode: string;
-      category: string;
-      noticeTitle: string;
-      noticeDescription: string;
-      filePath: string;
-      pageTitle: string;
-      writeTime: string;
-      writer: string;
-    }
+    payload: Notice
   ): Promise<any> {
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '공지사항을 등록중입니다.',
+        },
+        { root: true }
+      );
+
       payload.writeTime = payload.writeTime.replace('T', ' ').split('.')[0];
-      await this.$axios.post('api/docs/notice/noticeRegister', {
-        productCode: payload.productCode,
-        category: payload.category,
-        noticeTitle: payload.noticeTitle,
-        noticeDescription: payload.noticeDescription,
-        filePath: payload.filePath,
-        pageTitle: payload.pageTitle,
-        writeTime: payload.writeTime,
-        writer: payload.writer,
-      });
+      await this.$axios.post('api/docs/notice/noticeRegister', payload);
 
       await dispatch('getNoticeList', {
         productCode: payload.productCode,
       });
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '공지사항을 등록중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }
   },
-  async noticeDelete(
-    { commit, state, dispatch },
-    payload: {
-      productCode: string;
-      category: string;
-      noticeTitle: string;
-      noticeDescription: string;
-      filePath: string;
-      pageTitle: string;
-      writeTime: string;
-      writer: string;
-    }
+
+  // 공지사항 목록 순서 수정
+  async updateNoticeIndex(
+    { commit, dispatch },
+    payload: Notice[]
   ): Promise<any> {
     try {
-      await this.$axios.get('api/docs/notice/noticeDelete', {
-        params: {
-          productCode: payload.productCode,
-          category: payload.category,
-          noticeTitle: payload.noticeTitle,
-          noticeDescription: payload.noticeDescription,
-          filePath: payload.filePath,
-          pageTitle: payload.pageTitle,
-          writeTime: payload.writeTime,
-          writer: payload.writer,
+      const { data } = await this.$axios.put(
+        'api/docs/notice/updateNoticeIndex',
+        payload
+      );
+
+      if (data.success && data.data) {
+        commit('setNoticeList', data.data);
+      }
+    } catch (e) {}
+  },
+
+  async noticeDelete(
+    { commit, state, dispatch },
+    payload: Notice
+  ): Promise<any> {
+    try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '공지사항을 삭제중입니다.',
         },
+        { root: true }
+      );
+
+      const { data } = await this.$axios.get('api/docs/notice/noticeDelete', {
+        params: payload,
       });
 
-      await dispatch('getNoticeList', {
-        productCode: payload.productCode,
-      });
+      if (data.success && data.data) {
+        await dispatch('getNoticeList', {
+          productCode: payload.productCode,
+        });
+
+        const { data } = await this.$axios.put(
+          'api/docs/notice/updateNoticeIndex',
+          state.noticeList
+        );
+
+        if (data.success && data.data) {
+          commit('setNoticeList', data.data);
+        }
+      }
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '공지사항을 삭제중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }

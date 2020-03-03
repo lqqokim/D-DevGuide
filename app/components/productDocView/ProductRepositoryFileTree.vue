@@ -4,19 +4,23 @@
     class="nav-item"
     :class="[
       {
-        page: data.type === 'page',
-        folder: data.type === 'folder',
-        selected: data.option.selected,
+        page: treeData.type === 'page',
+        folder: treeData.type === 'folder',
+        selected: treeData.option.selected,
       },
       'depth-' + depth,
     ]"
   >
-    <a v-if="data.type === 'folder'" class="nav-text" @click="toggle(data)">
-      {{ data.title }}
+    <a
+      v-if="treeData.type === 'folder'"
+      class="nav-text"
+      @click="toggle(treeData)"
+    >
+      {{ treeData.title }}
     </a>
     <nuxt-link
       v-else-if="
-        data.type === 'page' &&
+        treeData.type === 'page' &&
           $store.state.repository.refType === 'targetBranch'
       "
       :to="{
@@ -24,66 +28,67 @@
         params: {
           productCode: $store.state.product.product.productCode,
           pageType: $route.params.pageType,
-          pageTitle: data.title,
-          pageId: data.option.path,
+          pageTitle: treeData.title,
+          pageId: treeData.option.path,
         },
       }"
       tag="a"
       class="nav-text"
-      @click.native="toggle(data)"
-      >{{ data.title }}</nuxt-link
+      @click.native="toggle(treeData)"
+      >{{ treeData.title }}</nuxt-link
     >
     <nuxt-link
       v-else-if="
-        data.type === 'page' && $store.state.repository.refType === 'branch'
+        treeData.type === 'page' && $store.state.repository.refType === 'branch'
       "
       :to="{
         name: 'branchDocView',
         params: {
           productCode: $store.state.product.product.productCode,
           pageType: $route.params.pageType,
-          pageTitle: data.title,
+          pageTitle: treeData.title,
           branchName: $store.state.repository.currentRef,
-          pageId: data.option.path,
+          pageId: treeData.option.path,
         },
       }"
       tag="a"
       class="nav-text"
-      @click.native="toggle(data)"
-      >{{ data.title }}</nuxt-link
+      @click.native="toggle(treeData)"
+      >{{ treeData.title }}</nuxt-link
     >
     <nuxt-link
       v-else-if="
-        data.type === 'page' && $store.state.repository.refType === 'version'
+        treeData.type === 'page' &&
+          $store.state.repository.refType === 'version'
       "
       :to="{
         name: 'versionDocView',
         params: {
           productCode: $store.state.product.product.productCode,
           pageType: $route.params.pageType,
-          pageTitle: data.title,
-          versionName: $store.state.repository.currentRef,
-          pageId: data.option.path,
+          pageTitle: treeData.title,
+          versionName: $route.params.versionName,
+          pageId: treeData.option.path,
         },
       }"
       tag="a"
       class="nav-text"
-      @click.native="toggle(data)"
-      >{{ data.title }}</nuxt-link
+      @click.native="toggle(treeData)"
+      >{{ treeData.title }}</nuxt-link
     >
     <ul
-      v-show="data.option.expanded"
-      v-if="data.children"
+      v-show="treeData.option.expanded && treeData.children"
       class="nav-container"
       :class="'depth-' + (depth + 1)"
       style="display: block;"
     >
       <product-repository-file-tree
-        v-for="data in data.children"
-        :key="data.option.path"
-        :data="data"
+        v-for="childData in treeData.children"
+        :key="childData.title + childData.option.path"
+        :tree-data="childData"
         :depth="depth + 1"
       >
+        {{ childData.option.path }}
       </product-repository-file-tree>
     </ul>
   </li>
@@ -91,7 +96,7 @@
 
 <script lang="ts">
 import { Vue, Component, namespace, Prop } from 'nuxt-property-decorator';
-import * as repository from '@/store/modules/repository';
+import EventBus from '@/store/modules/repository';
 
 const Repository = namespace('repository');
 
@@ -103,49 +108,22 @@ export default class ProductRepositoryFileTree extends Vue {
   $refs!: {
     liTree: HTMLElement;
   };
+  modalTitle: string = 'test';
+  modalHeight: string = '600px';
 
   @Repository.Action('getRepositoryFile') getRepositoryFileAction;
 
-  @Prop() private data!: object;
+  @Prop() private treeData!: object;
   @Prop() private foldName!: string;
   @Prop() private depth!: number;
 
-  toggle(folderData): void {
-    if (folderData.type === 'page') {
-      for (const key in this.$store.state.repository.treeData) {
-        this.removeSelectedOption(this.$store.state.repository.treeData[key]);
-      }
-    }
-    // this.$store.state.repository.treeData.forEach((data) => {
-    //   removeSelectedOption(data);
-    // });
-    if (folderData.children) {
-      folderData.option.expanded = !folderData.option.expanded;
-    }
-    folderData.option.selected = folderData.type === 'page';
-  }
+  createPageModalConfirm() {}
 
-  removeSelectedOption(treeData): void {
-    // console.log(treeData.length);
-    // if (treeData.length !== undefined) {
-    //   treeData.forEach((data) => {
-    //     this.removeSelectedOption(data);
-    //   });
-    // }
-    if (treeData.option.selected && treeData.type === 'page') {
-      treeData.option.selected = false;
-    }
-    if (treeData.children) {
-      treeData.children.forEach((data) => {
-        this.removeSelectedOption(data);
-      });
-      // this.removeSelectedOption(treeData.children);
-    }
-    // treeData.forEach((data) => {
-    //
-    // });
+  toggle(folderData): void {
+    EventBus.$emit('toggle', folderData);
   }
 }
+Vue.component('ProductRepositoryFileTree', ProductRepositoryFileTree);
 </script>
 
 <style scoped></style>

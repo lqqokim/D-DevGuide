@@ -169,31 +169,19 @@ import ProductBranchChangeHistory from '~/components/productBranchChangeHistory/
   components: {
     ProductBranchChangeHistory,
   },
-  async fetch({ store, params }): Promise<any> {
+  fetch({ store, params }): any {
     try {
-      await store.dispatch('product/getProductList');
-
-      await store.dispatch('product/selectProduct', {
-        productCode: params.productCode,
-      });
-
-      await store.dispatch('commit/getCommitList', {
-        productCode: params.productCode,
-        branchName: params.branchName,
-        gitlabToken: store.state.user.user.gitlabToken,
-      });
+      // await store.dispatch('product/getProductList');
       //
-      // if (
-      //   store.state.product.productList !== undefined &&
-      //   store.state.product.productList.length > 0
-      // ) {
-      //   await store.dispatch('product/selectProduct', {
-      //     productCode: store.state.product.productList[0].productCode,
-      //   });
-      //   await store.dispatch('notice/getNoticeList', {
-      //     productCode: store.state.product.productList[0].productCode,
-      //   });
-      // }
+      // await store.dispatch('product/selectProduct', {
+      //   productCode: params.productCode,
+      // });
+      //
+      // await store.dispatch('commit/getCommitList', {
+      //   productCode: params.productCode,
+      //   branchName: params.branchName,
+      //   gitlabToken: store.state.user.user.gitlabToken,
+      // });
     } catch (e) {
       console.error(e);
     }

@@ -15,6 +15,9 @@
       padding-left: 30px;
       .compare-content{
         margin-top: 10px;
+        .d2h-wrapper{
+          width: 100%;
+        }
       }
     }
     .project-detail{
@@ -62,7 +65,7 @@
             background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJidG5fYXJyb3dfcmlnaHRfbm9ybWFsXzE2cHgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICAgIDxkZWZzPgogICAgICAgIDxzdHlsZT4KICAgICAgICAgICAgLmNscy0xe2ZpbGw6cmdiYSgyNDAsMCwwLDApfS5jbHMtMntmaWxsOiM3Njc2NzZ9CiAgICAgICAgPC9zdHlsZT4KICAgIDwvZGVmcz4KICAgIDxwYXRoIGlkPSJhcmVhIiBkPSJNMCAwaDE2djE2SDB6IiBjbGFzcz0iY2xzLTEiLz4KICAgIDxwYXRoIGlkPSLtjKjsiqRfMjc3MCIgZD0iTS41IDBoOC40MTRhLjUuNSAwIDAgMSAwIDFILjVhLjUuNSAwIDAgMSAwLTF6IiBjbGFzcz0iY2xzLTIiIGRhdGEtbmFtZT0i7Yyo7IqkIDI3NzAiIHRyYW5zZm9ybT0icm90YXRlKDQ1IDEuNjQ2IDcuMzg5KSIvPgogICAgPHBhdGggaWQ9Iu2MqOyKpF8yNzcxIiBkPSJNLjUgMGg4LjQxNGEuNS41IDAgMSAxIDAgMUguNWEuNS41IDAgMCAxIDAtMXoiIGNsYXNzPSJjbHMtMiIgZGF0YS1uYW1lPSLtjKjsiqQgMjc3MSIgdHJhbnNmb3JtPSJyb3RhdGUoLTQ1IDE5LjExNiAuODQ3KSIvPgo8L3N2Zz4K) no-repeat center;
           }
         }
-        &.folder{
+        &.folder, &.page{
           &.selected{
             > .nav-text{
               @include font(bold);
@@ -87,8 +90,8 @@
                     display: none;
                   }
                 }
-                &.page.selected{
-                  a{
+                &.selected{
+                  > a{
                     color: $theme-main-color;
                   }
                 }
@@ -100,15 +103,22 @@
                     color: #898989;
                   }
                   .selected{
-                    a{
+                    > a{
                       color: $theme-main-color;
                     }
                   }
                   .nav-container.depth-4{
                     margin-left: 8px;
                     .selected{
-                      a{
+                      > a{
                         color: $theme-main-color;
+                      }
+                    }.nav-container.depth-5{
+                      margin-left: 8px;
+                      .selected{
+                        > a{
+                          color: $theme-main-color;
+                        }
                       }
                     }
                   }
@@ -122,7 +132,7 @@
             transform: rotate(-90deg);
           }
           &.page{
-            .nav-text{
+            > .nav-text{
               color: $theme-main-color;
               &:after{
                 transform: rotate(0);

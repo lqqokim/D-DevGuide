@@ -62,11 +62,11 @@ router.post('/list/my', (req, res) => {
   const { params, type, userId } = req.body;
   const { sort, skip, limit, filterType } = params.params;
 
-  console.log('[Posts 조회 요청]');
-  console.log('sort :: ', sort, typeof sort);
-  console.log('skip :: ', skip);
-  console.log('limit :: ', limit);
-  console.log('filterType :: ', filterType);
+  // console.log('[Posts 조회 요청]');
+  // console.log('sort :: ', sort, typeof sort);
+  // console.log('skip :: ', skip);
+  // console.log('limit :: ', limit);
+  // console.log('filterType :: ', filterType);
 
   let total = 0;
   let filter;
@@ -120,7 +120,10 @@ router.post('/list/my', (req, res) => {
           });
         })
         .catch((err) => {
-          res.status(500).send({ success: false, msg: err.message });
+          res.status(500).send({
+            success: false,
+            msg: err.message,
+          });
         });
     });
   } else {
@@ -196,15 +199,24 @@ router.post('/list/my', (req, res) => {
                 });
               })
               .catch((err) => {
-                res.status(500).send({ success: false, msg: err.message });
+                res.status(500).send({
+                  success: false,
+                  msg: err.message,
+                });
               });
           })
           .catch((err) => {
-            res.status(500).send({ success: false, msg: err.message });
+            res.status(500).send({
+              success: false,
+              msg: err.message,
+            });
           });
       })
       .catch((err) => {
-        res.status(500).send({ success: false, msg: err.message });
+        res.status(500).send({
+          success: false,
+          msg: err.message,
+        });
       });
   }
 });
@@ -574,13 +586,13 @@ router.get('/list/:productCode', (req, res) => {
   const { productCode } = req.params;
   const { sort, skip, limit, isNotExistComments, filterType } = req.query;
 
-  console.log('[Posts 조회 요청]');
-  console.log('productCode :: ', productCode);
-  console.log('sort :: ', sort);
-  console.log('skip :: ', skip);
-  console.log('limit :: ', limit);
-  console.log('isNotExistComments :: ', isNotExistComments);
-  console.log('filterType :: ', filterType);
+  // console.log('[Posts 조회 요청]');
+  // console.log('productCode :: ', productCode);
+  // console.log('sort :: ', sort);
+  // console.log('skip :: ', skip);
+  // console.log('limit :: ', limit);
+  // console.log('isNotExistComments :: ', isNotExistComments);
+  // console.log('filterType :: ', filterType);
 
   if (!(sort && skip && limit && isNotExistComments && filterType)) {
     return res.send({
@@ -620,11 +632,17 @@ router.get('/list/:productCode', (req, res) => {
         .then((posts) => {
           res.status(200).send({
             success: true,
-            data: { total, result: posts },
+            data: {
+              total,
+              result: posts,
+            },
           });
         })
         .catch((err) => {
-          res.status(500).send({ success: false, msg: err.message });
+          res.status(500).send({
+            success: false,
+            msg: err.message,
+          });
         });
     });
   } else {
@@ -656,11 +674,17 @@ router.get('/list/:productCode', (req, res) => {
         .then((posts) => {
           res.status(200).send({
             success: true,
-            data: { total, result: posts },
+            data: {
+              total,
+              result: posts,
+            },
           });
         })
         .catch((err) => {
-          res.status(500).send({ success: false, msg: err.message });
+          res.status(500).send({
+            success: false,
+            msg: err.message,
+          });
         });
     });
   }
@@ -906,6 +930,62 @@ router.put('/update/comment/:_id', (req, res) => {
     },
     {
       $set: req.body,
+    },
+    {
+      new: true,
+    }
+  )
+    .then((comment) => {
+      res.status(200).send({ success: true, data: comment });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 질문 댓글의 댓글 수정
+ */
+router.put('/update/subComment/:_id', (req, res) => {
+  const date = Date.now();
+  const subComment = req.body;
+  subComment.regDate = date;
+  subComment.editDate = date;
+
+  ForumCommentModel.findOneAndUpdate(
+    {
+      _id: req.params._id,
+    },
+    {
+      $push: {
+        comments: subComment,
+      },
+    },
+    {
+      new: true,
+    }
+  )
+    .then((comment) => {
+      res.status(200).send({ success: true, data: comment });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 질문 서브 댓글 삭제
+ */
+router.delete('/comment/:commentId/:subCommentId', (req, res) => {
+  const { commentId, subCommentId } = req.params;
+  ForumCommentModel.findOneAndUpdate(
+    { _id: commentId },
+    {
+      $pull: {
+        comments: {
+          _id: subCommentId,
+        },
+      },
     },
     {
       new: true,

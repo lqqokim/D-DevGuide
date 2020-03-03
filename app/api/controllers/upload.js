@@ -1,5 +1,6 @@
 import { DocModel, TempDocModel } from './../models/document';
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 
 /**
@@ -14,6 +15,10 @@ const upload = multer({
     filename(req, file, cb) {
       const originalname = file.originalname.split('.')[0];
       const fileExtension = file.originalname.split('.')[1];
+
+      console.log('upload req==========', req);
+      console.log('upload file==========', file);
+
       // cb(null, new Date().valueOf() + path.extname(file.originalname));
       cb(null, docModel._id.toString() + path.extname(file.originalname));
     },
@@ -55,6 +60,21 @@ const gitUpload = multer({
     },
   }),
 });
+
+const removeFile = (files, callback) => {
+  let i = files.length;
+  files.forEach((filepath) => {
+    fs.unlink(filepath, function(err) {
+      i--;
+      if (err) {
+        callback(err);
+        return false;
+      } else if (i <= 0) {
+        callback(null);
+      }
+    });
+  });
+};
 
 module.exports = {
   docModel,

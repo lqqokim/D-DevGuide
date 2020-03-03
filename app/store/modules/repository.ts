@@ -3,6 +3,8 @@ import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
 
 import Vue from 'vue';
+import { Tree } from 'istanbul-lib-report';
+import { ALERT_TYPE } from '~/store/modules/common';
 const EventBus = new Vue();
 export default EventBus;
 
@@ -34,6 +36,49 @@ export interface Repository {
   path: string;
   option: Object;
   children: Array<Repository>;
+}
+
+export interface TreeModel {
+  id: string;
+  name: string;
+  type: string;
+  path: string;
+  mode: string;
+  data: TreeDataObject;
+  children: Array<TreeModel>;
+}
+
+interface TreeDataObject {
+  type: string;
+  path: string;
+}
+
+export interface TreeNode {
+  id: string;
+  states: TreeStates;
+  children: Array<TreeNode>;
+  // parent: TreeNode;
+  isBatch: boolean;
+  isEditing: boolean;
+  text: string;
+}
+
+export interface TreeStates {
+  selected: boolean;
+  selectable: boolean;
+  checked: boolean;
+  expanded: boolean;
+  disabled: boolean;
+  visible: boolean;
+  // indeterminate: boolean;
+  // matched: boolean;
+  editable: boolean;
+  // dragging: boolean;
+  draggable: boolean;
+  // dropable: boolean;
+  type: string;
+  path: string;
+  size: number;
 }
 
 interface Response {
@@ -132,12 +177,16 @@ export const mutations: MutationTree<RepositoryState> = {
   },
   setInitialization(state, payload: any) {
     state.treeData = [];
+    state.tocArray = [];
+    state.editStatus = 'init';
+    state.viewerText = '';
+    state.pageTitle = '';
+    state.filePath = '';
+    state.editingFilePath = '';
     state.editingViewerText = '';
     state.editingMenuTree = [];
-    state.editingPageTitle = '';
-    state.editingFilePath = '';
     state.editingMenuTreeToJson = [];
-    state.editStatus = 'none';
+    state.editingPageTitle = '';
   },
 };
 
@@ -151,6 +200,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       refType: string;
       filePath: string;
       pageTitle: string;
+      search: boolean;
     }
   ): Promise<any> {
     try {
@@ -231,9 +281,14 @@ export const actions: ActionTree<RepositoryState, RootState> = {
           }
           obj = parentObj !== undefined ? parentObj : obj;
         }
-        if (mdIdx === mdDatas.length - 1) treeData.push(obj);
+        if (mdIdx === mdDatas.length - 1 && mdDatas[0] !== '')
+          treeData.push(obj);
       });
-      if (payload.filePath === undefined) {
+      if (
+        payload.filePath === undefined &&
+        treeData[0] !== undefined &&
+        treeData[0].type !== undefined
+      ) {
         const firstPage: any = findFirstPage(treeData[0]);
         await dispatch('getRepositoryFile', {
           productCode: payload.productCode,
@@ -241,21 +296,18 @@ export const actions: ActionTree<RepositoryState, RootState> = {
           ref: payload.ref,
           refType: payload.refType,
           pageTitle: firstPage.title,
+          search: payload.search,
         });
       }
-      commit('setTreeData', treeData);
+      if (treeData.length === 0) {
+        commit('setInitialization');
+      } else {
+        commit('setTreeData', treeData);
+      }
     } catch (err) {
-      console.error(err.response.status);
+      console.error(err);
     }
   },
-
-  // async createFile({ commit, state, dispatch }): Promise<any> {
-  //   try {
-  //     await this.$axios.post('api/docs/repository/createFile');
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // },
 
   async getRepository(
     { commit, state, dispatch },
@@ -264,21 +316,31 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       filePath: string;
       ref: string;
       useDocPath: boolean;
+      projectId: string;
+      pageType: string;
     }
   ): Promise<any> {
     try {
-      const productData: Response = await this.$axios.get(
-        'api/docs/product/getProjectId',
-        {
-          params: {
-            productCode: payload.productCode,
-          },
-        }
-      );
+      let repositoryPath = '';
+      let selectedProjectId = payload.projectId;
+      if (payload.projectId === undefined) {
+        const productData: Response = await this.$axios.get(
+          'api/docs/product/getProjectId',
+          {
+            params: {
+              productCode: payload.productCode,
+            },
+          }
+        );
 
-      let repositoryPath = payload.useDocPath
-        ? productData.data.manualDocPath
-        : '';
+        if (payload.useDocPath && payload.pageType === 'Document') {
+          repositoryPath = productData.data.manualDocPath;
+        } else if (payload.useDocPath && payload.pageType === 'API') {
+          repositoryPath = productData.data.APIDocPath;
+        }
+
+        selectedProjectId = productData.data.projectId;
+      }
 
       // path 에서 앞에 '/' 가 있으면 404 에러가 뜸
       if (repositoryPath !== '' && repositoryPath.indexOf('/') === 0) {
@@ -289,7 +351,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         'api/docs/repository/getRepositoryTree',
         {
           params: {
-            projectId: productData.data.projectId,
+            projectId: selectedProjectId,
             ref: payload.ref,
             path: repositoryPath,
           },
@@ -343,22 +405,40 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       payload.useDocPath
         ? commit('setRepositoryDocPathData', jsonMenuTree)
         : commit('setRepositoryData', jsonMenuTree);
-      // commit('setTreeData', jsonMenuTree);
     } catch (err) {
+      if (err.response.status === 404) {
+        payload.useDocPath
+          ? commit('setRepositoryDocPathData', [])
+          : commit('setRepositoryData', []);
+      }
       console.error(err);
     }
   },
   async getRepositoryFile(
-    { commit, state },
+    { commit, state, dispatch },
     payload: {
       productCode: string;
       filePath: string;
       ref: string;
       refType: string;
       pageTitle: string;
+      search: boolean;
     }
   ): Promise<any> {
     try {
+      if (!payload.search) {
+        // Loading Alert
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: true,
+            msg: '문서 정보를 불러오는 중입니다.',
+          },
+          { root: true }
+        );
+      }
+
       const productData: Response = await this.$axios.get(
         'api/docs/product/getProjectId',
         {
@@ -395,15 +475,27 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       commit('setFilePath', payload.filePath);
       commit('setCurrentRef', [payload.ref, payload.refType]);
 
-      // TODO tocArray 를 store 에 담아서 뿌려주기!
       const tocArray = makeTOC(state.viewerText);
       commit('setTocArray', tocArray);
+
+      if (!payload.search) {
+        // Loading Alert Close
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: false,
+            msg: '문서 정보를 불러오는 중입니다.',
+          },
+          { root: true }
+        );
+      }
     } catch (err) {
       console.error(err);
     }
   },
   async getFileContent(
-    { commit, state },
+    { commit, state, dispatch },
     payload: {
       productCode: string;
       filePath: string;
@@ -411,6 +503,17 @@ export const actions: ActionTree<RepositoryState, RootState> = {
     }
   ): Promise<any> {
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '문서 정보를 불러오는 중입니다.',
+        },
+        { root: true }
+      );
+
       const productData: Response = await this.$axios.get(
         'api/docs/product/getProjectId',
         {
@@ -432,6 +535,17 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       );
 
       commit('setEditingViewerText', fileData.data);
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '문서 정보를 불러오는 중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }
@@ -439,14 +553,14 @@ export const actions: ActionTree<RepositoryState, RootState> = {
   async getFileNameList(
     { commit, state },
     payload: {
-      projectId: number;
+      projectId: string;
       branchName: string;
       path: string;
     }
   ): Promise<any> {
     try {
       const fileNameListData: Response = await this.$axios.get(
-        'api/docs/repository/getFileNameList',
+        'api/docs/repository/getRepositoryTree',
         {
           params: {
             projectId: payload.projectId,
@@ -473,12 +587,24 @@ export const actions: ActionTree<RepositoryState, RootState> = {
   async getFileSize(
     { commit, state, dispatch },
     payload: {
-      projectId: number;
+      projectId: string;
       ref: string;
       repositoryData: Array<any>;
+      nodeData: TreeNode;
     }
   ): Promise<any> {
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '파일 정보를 불러오는 중입니다.',
+        },
+        { root: true }
+      );
+
       const blobArr: Array<any> = [];
       setFileSize(payload.repositoryData, blobArr);
       const promiseArr: Array<any> = [];
@@ -501,63 +627,69 @@ export const actions: ActionTree<RepositoryState, RootState> = {
           blobData.data.size = Math.round(res[index].data.size / 1024);
         });
       });
-    } catch (e) {
-      console.error(e);
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '파일 정보를 불러오는 중입니다.',
+        },
+        { root: true }
+      );
+    } catch (err) {
+      console.error(err);
     }
   },
-  getFileSizeTest(
+  getBlobFileSize(
     { commit, state, dispatch },
     payload: {
-      projectId: number;
+      projectId: string;
       ref: string;
-      children: Array<any>;
+      filePath: string;
     }
   ): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
-        const blobArr: Array<any> = [];
-        // setFileSize(payload.repositoryData, blobArr);
-        payload.children.forEach(async (child) => {
-          if (child.states.type === 'blob') {
-            const fileData: Response = await this.$axios.get(
-              'api/docs/repository/getFileSize',
-              {
-                params: {
-                  projectId: payload.projectId,
-                  ref: payload.ref,
-                  filePath: child.states.path,
-                },
-              }
-            );
+        // Loading Alert
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: true,
+            msg: '파일 정보를 불러오는 중입니다.',
+          },
+          { root: true }
+        );
 
-            child.states.size = Math.round(fileData.data.size / 1024);
+        const path = payload.filePath.split(' ').join('_');
+
+        const { data } = await this.$axios.get(
+          'api/docs/repository/getFileSize',
+          {
+            params: {
+              projectId: payload.projectId,
+              ref: payload.ref,
+              filePath: path,
+            },
           }
-        });
+        );
 
-        // const promiseArr: Array<any> = [];
-        //
-        // if (blobArr.length > 0) {
-        //   blobArr.forEach(async (blobData) => {
-        //     promiseArr.push(
-        //       this.$axios.get('api/docs/repository/getFileSize', {
-        //         params: {
-        //           projectId: payload.projectId,
-        //           ref: payload.ref,
-        //           filePath: blobData.states.path,
-        //         },
-        //       })
-        //     );
-        //   });
-        // }
-        // await Promise.all(promiseArr).then((res) => {
-        //   blobArr.forEach((blobData, index) => {
-        //     blobData.states.size = Math.round(res[index].data.size / 1024);
-        //   });
-        // });
-        resolve(payload.children);
-      } catch (e) {
-        reject(e);
-        // console.error(e);
+        // Loading Alert Close
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: false,
+            msg: '파일 정보를 불러오는 중입니다.',
+          },
+          { root: true }
+        );
+
+        resolve(data);
+      } catch (err) {
+        reject(err);
       }
     });
   },
@@ -573,6 +705,17 @@ export const actions: ActionTree<RepositoryState, RootState> = {
   ): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
+        // Loading Alert
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: true,
+            msg: '파일 업로드 중입니다.',
+          },
+          { root: true }
+        );
+
         const fileData = new FormData();
         fileData.append('file', payload.file);
         fileData.append('branchName', payload.branchName);
@@ -592,10 +735,20 @@ export const actions: ActionTree<RepositoryState, RootState> = {
             },
           }
         );
+
+        // Loading Alert Close
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: false,
+            msg: '파일 업로드 중입니다.',
+          },
+          { root: true }
+        );
         resolve(data);
       } catch (e) {
         reject(e);
-        // console.error(e);
       }
     });
   },
@@ -608,6 +761,10 @@ export const actions: ActionTree<RepositoryState, RootState> = {
   ): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
+        if (!payload.gitlabToken) {
+          return;
+        }
+
         const { data } = await this.$axios.get(
           'api/docs/product/getProjectInfo',
           {
@@ -620,7 +777,41 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         resolve(data);
       } catch (e) {
         reject(e);
-        // console.error(e);
+      }
+    });
+  },
+  convertImagePath(
+    { commit, state, dispatch },
+    payload: {
+      productCode: string;
+      filePath: string;
+      ref: string;
+    }
+  ): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const productData: Response = await this.$axios.get(
+          'api/docs/product/getProjectId',
+          {
+            params: {
+              productCode: payload.productCode,
+            },
+          }
+        );
+        const rawData: Response = await this.$axios.get(
+          'api/docs/repository/getFileSize',
+          {
+            params: {
+              projectId: productData.data.projectId,
+              filePath: payload.filePath,
+              ref: payload.ref,
+            },
+          }
+        );
+
+        resolve(rawData.data);
+      } catch (e) {
+        reject(e);
       }
     });
   },
@@ -661,6 +852,7 @@ function nodeSearch(treeNodes, searchID): any {
 
 function makeTOC(content) {
   const tocArray: Array<any> = [];
+  const removeMd = require('remove-markdown');
   content.split('\n').forEach((lineData) => {
     // if (lineData.split('###### ').length > 1) {
     //   tocArray.push({ type: 'h6', content: lineData.split('###### ')[1] });
@@ -672,12 +864,15 @@ function makeTOC(content) {
     //   tocArray.push({ type: 'h3', content: lineData.split('### ')[1] });
     // } else
     if (lineData.split('## ').length > 1 && lineData.split('## ')[0] === '') {
-      tocArray.push({ type: 'h2', content: lineData.split('## ')[1] });
+      tocArray.push({
+        type: 'h2',
+        content: removeMd(lineData.split('## ')[1]),
+      });
     } else if (
       lineData.split('# ').length > 1 &&
       lineData.split('# ')[0] === ''
     ) {
-      tocArray.push({ type: 'h1', content: lineData.split('# ')[1] });
+      tocArray.push({ type: 'h1', content: removeMd(lineData.split('# ')[1]) });
     }
   });
   return tocArray;
@@ -730,6 +925,10 @@ function findFirstPage(parent): any {
 }
 
 function findSelectedPage(parent, pageTitle, filePath): any {
+  if (parent.option.selected) {
+    parent.option.selected = false;
+  }
+
   if (pageTitle === parent.title && filePath === parent.option.path) {
     parent.option.selected = true;
     return parent;

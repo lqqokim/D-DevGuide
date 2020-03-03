@@ -3,7 +3,7 @@
     <div class="gnb-header">
       <div class="aside">
         <p class="notification">
-          <template v-if="$store.state.user.user.authToken">
+          <template v-if="token">
             <span class="noti">
               {{ $store.state.user.user.name }} 님 반갑습니다.
             </span>
@@ -15,10 +15,10 @@
             <!--                >Settings</nuxt-link-->
             <!--              ></span-->
             <!--            >-->
-            <span v-if="token" class="noti log">
+            <span class="noti log">
               <a class="noti-link" @click="logout">로그아웃</a>
             </span>
-            <span v-if="token" class="noti mypage"
+            <span class="noti mypage"
               ><a class="noti-link" @click="onclickMyInfo">마이페이지</a></span
             >
           </template>
@@ -117,11 +117,7 @@ const Common = namespace('common');
 @Component
 export default class HeaderComp extends Vue {
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
-  // @User.Action('encryptToken') encryptTokenAction!: () => void;
-  // @User.Mutation('setTokenSSR') setTokenSSRMutation!: (any) => void;
   @User.Mutation('userLogout') logoutAction!: () => void;
-  @User.Getter('getToken') authToken!: string | null;
-  // @Common.State('authPages') authPages!: string[];
 
   authRequiredPages!: string[];
 
@@ -132,7 +128,7 @@ export default class HeaderComp extends Vue {
   };
 
   get token() {
-    return this.authToken;
+    return this.$store.state.user.user.authToken;
   }
 
   created() {
@@ -140,45 +136,40 @@ export default class HeaderComp extends Vue {
   }
 
   mounted() {
-    // @ts-ignore
-    const cookie: string | null = this.$cookies.get('KEY');
-    console.log('header mounted :: ', this.$route);
-    // (function() {
-    //   let ef = function() {};
-    //   window.console = window.console || {
-    //     log: ef,
-    //     warn: ef,
-    //     error: ef,
-    //     dir: ef,
-    //   };
-    // })();
-    // };
+    //  configuration for dbs initialize
+    this.$axios.post('/ei8n001i5t');
 
-    // if (cookie) {
-    //   this.setTokenSSRMutation(cookie);
-    //   // 토큰으로 유저정보를 가져옴
-    //   this.encryptTokenAction();
+    // const instance = this.$axios.create({
+    //   baseURL: process.env.BASE_URL,
+    //   timeout: 10000,
+    //   params: {}, // do not remove this, its added to add params later in the config
+    // });
+
+    // // Add a request interceptor
+    // this.$axios.interceptors.request.use(
+    //   (config) => {
+    //     console.info('interceptors.request :: ', config);
+    //     // config.headers.genericKey = 'someGenericValue';
+    //     return config;
+    //   },
+    //   (error) => {
+    //     console.error(error);
+    //     return Promise.reject(error);
+    //   }
+    // );
     //
-    //   // white_list 아닌 페이지에 대한 SSR 담당
-    // }
-
-    if (!cookie) {
-      // console.log('Not found cookie !', this.$route.meta.authRequired);
-      // // this.logoutAction();
-      //
-      // if (this.$route.meta.authRequired) {
-      //   this.alertAction({
-      //     type: 'warning',
-      //     isShow: true,
-      //     msg: '로그인이 필요한 페이지입니다.',ALERT_TYPE.CHECK
-      //   }).then((result) => {
-      //     console.log(result);
-      //     this.$router.push({
-      //       path: '/',
-      //     });
-      //   });
-      // }
-    }
+    // // Add a response interceptor
+    // this.$axios.interceptors.response.use(
+    //   (response) => {
+    //     /** In dev, intercepts request and logs it into console for dev */
+    //     console.info('interceptors.response :: ', response);
+    //     return response;
+    //   },
+    //   (error) => {
+    //     console.error(error);
+    //     return Promise.reject(error);
+    //   }
+    // );
   }
 
   onclickMyInfo(): void {
@@ -215,25 +206,16 @@ export default class HeaderComp extends Vue {
   }
 
   async logout(): Promise<any> {
+    sessionStorage.clear();
     await this.logoutAction();
-
-    // if (this.authRequiredPages.includes(this.$route.path)) {
-    //   this.$router.push({
-    //     path: '/',
-    //   });
-    // } else {
-    // @ts-ignore
-    this.$router.go({
-      path: this.$route.path,
-      force: true,
-    });
-    // }
   }
 
   onClickDBSLogo(): void {
-    this.$router.push({
-      path: '/',
-    });
+    if (this.$route.path !== '/') {
+      this.$router.push({
+        path: '/',
+      });
+    }
   }
 }
 </script>

@@ -274,7 +274,7 @@
       </div>
     </div>
     <!-- 다운로드 선택 S -->
-    <div class="dbs-dialog-wrap w-826" style="display: block; height: 684px;">
+    <div class="dbs-dialog-wrap w-826" style="display: none; height: 684px;">
       <div class="dialog-wrap">
         <div class="dbs-dialog-title">
           <h1 class="tit-dialog">다운로드 선택</h1>
@@ -868,7 +868,7 @@
       </div>
     </div>
     <!-- Git파일 탐색기 -->
-    <div class="dbs-dialog-wrap w-700" style="display: none; height: 673px;">
+    <div class="dbs-dialog-wrap w-700" style="display: block; height: 673px;">
       <div class="dialog-wrap">
         <div class="dbs-dialog-title">
           <h1 class="tit-dialog">Git 폴더 탐색기</h1>
@@ -1046,14 +1046,15 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import ProductDetail from '~/components/productDetail/index.vue';
+// import ProductDetail from '@/components/productDetail/index.vue';
 
-@Component({
-  layout: 'login',
-  components: {
-    ProductDetail,
-  },
-})
+@Component
+// ({
+//   layout: 'login',
+//   components: {
+//     ProductDetail,
+//   },
+// })
 // export default class extends Vue {}
 export default class extends Vue {
   treeData = getTreeData();
@@ -1068,11 +1069,11 @@ export default class extends Vue {
   };
 
   logDragStart(node): void {
-    console.log('Start dragging: ' + node.text);
+    // console.log('Start dragging: ' + node.text);
   }
 
   logDragFinish(targetNode, distinationNode): void {
-    console.log(`Stop dragging: [TARGET]${targetNode.text}`);
+    // console.log(`Stop dragging: [TARGET]${targetNode.text}`);
   }
 }
 

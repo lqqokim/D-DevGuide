@@ -163,7 +163,6 @@
         </nuxt-link>
 
         <dl class="thumb-desc">
-          <!-- TODO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
           <nuxt-link
             :to="{
               name: 'docDetail',
@@ -173,6 +172,7 @@
                 doc: doc,
               },
             }"
+            class="title-dim"
             tag="dt"
           >
             <i v-if="isNew(doc.uploadDate)" class="icon-new">N</i
@@ -236,7 +236,7 @@ const Common = namespace('common');
 
 @Component
 export default class LibraryDocList extends Vue {
-  @Doc.Action('removeDoc') removeDocAction!: (_id: string) => Promise<any>;
+  @Doc.Action('removeDoc') removeDocAction!: (doc: IDocument) => Promise<any>;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @Doc.Action('getDocsByProduct') docsByProductAction!: (payload: {
     data: IDocument;
@@ -306,7 +306,7 @@ export default class LibraryDocList extends Vue {
       msg: '문서를 삭제하시겠습니까?',
     }).then(async (result) => {
       if (result.ok) {
-        await this.removeDocAction(doc._id);
+        await this.removeDocAction(doc);
         this.initData();
       }
     });
@@ -315,7 +315,10 @@ export default class LibraryDocList extends Vue {
   initData() {
     this.docsByProduct = this.$store.state.document.docsByProduct;
     this.countMore = 1;
-    this.isViewMore = true;
+
+    //  total 초기화
+    this.total = this.$store.state.document.totalSize;
+    this.isViewMore = this.total > this.LIMIT;
   }
 
   async onclickMoreView(): Promise<any> {

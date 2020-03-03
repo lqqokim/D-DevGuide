@@ -1,9 +1,9 @@
 /* eslint-disable */
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
+import { ALERT_TYPE } from '~/store/modules/common';
 
 interface BranchState {
-  // branch: Branch;
   branchList: Array<Branch>;
   commitList: Array<Commit>;
   branchNameList: Array<string>;
@@ -53,11 +53,6 @@ export interface Commit {
 }
 
 export const state = (): BranchState => ({
-  // branch: {
-  //   can_push: true,
-  //   commit: {},
-  //   name: '',
-  // },
   branchList: [],
   commitList: [],
   branchNameList: [],
@@ -89,25 +84,29 @@ export const mutations: MutationTree<BranchState> = {
   setMergeRequestDiffData(state, payload: Array<BranchDiffData>) {
     state.branchDiffData = payload;
   },
-  // removeBranch(state, payload: string) {
-  //   state.branchList = state.branchList.filter((branch) => {
-  //     return branch.name !== payload;
-  //   });
-  //   state.branchNameList = state.branchNameList.filter((branchName) => {
-  //     return branchName !== payload;
-  //   });
-  //   console.log(state.branchList);
-  //   console.log(state.branchNameList);
-  // },
 };
 
 export const actions: ActionTree<BranchState, RootState> = {
   async getBranchList(
-    { commit },
-    payload: { productCode: string; projectId: number; gitlabToken: string }
+    { commit, dispatch },
+    payload: { productCode: string; projectId: string; gitlabToken: string }
   ): Promise<any> {
     try {
-      console.log('gitlabToken: ', payload.gitlabToken);
+      if (!payload.gitlabToken) {
+        return;
+      }
+
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '브랜치 목록을 불러오는 중입니다.',
+        },
+        { root: true }
+      );
+
       const productData: Response = await this.$axios.get(
         'api/docs/product/getProjectId',
         {
@@ -160,14 +159,24 @@ export const actions: ActionTree<BranchState, RootState> = {
       });
       commit('setBranchList', docBranch);
       commit('setBranchNameList', docBranchName);
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '브랜치 목록을 불러오는 중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
-      alert('존재하지 않는 프로젝트입니다.');
     }
   },
   async getBranchNameList(
     { commit, state },
-    payload: { projectId: number; gitlabToken: string }
+    payload: { projectId: string; gitlabToken: string }
   ): Promise<any> {
     try {
       const branchList: Response = await this.$axios.get(
@@ -180,11 +189,8 @@ export const actions: ActionTree<BranchState, RootState> = {
         }
       );
       const docBranchName: Array<string> = [];
-      docBranchName.push('master');
       branchList.data.forEach((branch) => {
-        if (branch.name.indexOf('DOC_') === 0) {
-          docBranchName.push(branch.name);
-        }
+        docBranchName.push(branch.name);
       });
       commit('setBranchNameList', docBranchName);
     } catch (err) {
@@ -192,21 +198,43 @@ export const actions: ActionTree<BranchState, RootState> = {
     }
   },
   async getBranchChangesData(
-    { commit, state },
+    { commit, state, dispatch },
     payload: {
-      projectId: number;
+      productCode: string;
       branchName: string;
-      targetBranch: string;
       gitlabToken: string;
     }
   ): Promise<any> {
     try {
+      if (!payload.gitlabToken) {
+        return;
+      }
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '비교 내용을 불러오는 중입니다.',
+        },
+        { root: true }
+      );
+
+      const productData: Response = await this.$axios.get(
+        'api/docs/product/getProjectId',
+        {
+          params: {
+            productCode: payload.productCode,
+          },
+        }
+      );
+
       const branchChangesData: Response = await this.$axios.get(
         'api/docs/repository/getBranchChangesData',
         {
           params: {
-            projectId: payload.projectId,
-            from: payload.targetBranch,
+            projectId: productData.data.projectId,
+            from: productData.data.targetBranch,
             to: payload.branchName,
             gitlabToken: payload.gitlabToken,
           },
@@ -214,46 +242,42 @@ export const actions: ActionTree<BranchState, RootState> = {
       );
 
       commit('setMergeRequestDiffData', branchChangesData.data.diffs);
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '비교 내용을 불러오는 중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }
   },
-  // async removeBranch(
-  //   { commit, state, dispatch },
-  //   payload: {
-  //     projectId: number;
-  //     productCode: string;
-  //     branchName: string;
-  //   }
-  // ): Promise<any> {
-  //   try {
-  //     const { data } = await this.$axios.get('api/docs/branch/removeBranch', {
-  //       params: {
-  //         projectId: payload.projectId,
-  //         branchName: payload.branchName,
-  //       },
-  //     });
-  //
-  //     if (data.success) {
-  //       commit('removeBranch', payload.branchName);
-  //     }
-  //     // dispatch('getBranchList', {
-  //     //   productCode: payload.productCode,
-  //     // });
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // },
   async createBranch(
     { commit, state, dispatch },
     payload: {
-      projectId: number;
+      projectId: string;
       branchName: string;
       ref: string;
       gitlabToken: string;
     }
   ): Promise<any> {
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '브랜치를 생성중입니다.',
+        },
+        { root: true }
+      );
+
       const { data } = await this.$axios.post(
         'api/docs/branch/createBranch',
         payload
@@ -262,6 +286,17 @@ export const actions: ActionTree<BranchState, RootState> = {
       if (data.success && data.data) {
         commit('createBranch', data.data);
       }
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '브랜치를 생성중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }

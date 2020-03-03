@@ -130,6 +130,7 @@
                 },
               }"
               tag="dt"
+              class="title-dim"
             >
               <i v-if="isNew(doc.updateDate)" class="icon-new">N</i
               >{{ doc.docTitle }}
@@ -179,7 +180,7 @@
       <p v-if="count">
         <a role="button" class="arrow prev" @click="count--"></a>
       </p>
-      <p v-if="count !== docsAllByProduct.length - 4">
+      <p v-if="count !== docsAllByProduct.length - 5">
         <a role="button" class="arrow next" @click="count++"></a>
       </p>
     </div>
@@ -193,19 +194,14 @@ import { dateFormat } from '~/utils/commonFuncs';
 import { IDocument, IStaff } from '@/store/modules/document';
 import { IUser } from '@/store/modules/user';
 import { IAlert } from '~/store/modules/common';
-import DocEditor from '~/components/libraryDocEdit/DocEditor.vue';
 
 const Doc = namespace('document');
 const Common = namespace('common');
 
-@Component({
-  components: {
-    DocEditor,
-  },
-})
+@Component
 export default class LibraryDocDetail extends Vue {
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
-  @Doc.Action('removeDoc') removeDocAction!: (_id: string) => Promise<any>;
+  @Doc.Action('removeDoc') removeDocAction!: (doc: IDocument) => Promise<any>;
 
   $refs!: {
     downloadBtn: any;
@@ -216,13 +212,15 @@ export default class LibraryDocDetail extends Vue {
   count: number = 0;
 
   get doc(): IDocument {
-    console.log('selectedDoc', this.$store.state.document.selectedDoc);
-
     return this.$store.state.document.selectedDoc;
   }
 
   get localDocsAllByProduct(): IDocument[] {
-    return this.docsAllByProduct.slice(this.count, 4 + this.count);
+    return this.docsAllByProduct
+      .filter((doc) => {
+        return doc._id !== this.doc._id;
+      })
+      .slice(this.count, 4 + this.count);
   }
 
   get previewPath(): string {
@@ -294,7 +292,7 @@ export default class LibraryDocDetail extends Vue {
       msg: '문서를 삭제하시겠습니까?',
     }).then(async (result) => {
       if (result.ok) {
-        await this.removeDocAction(this.doc._id);
+        await this.removeDocAction(this.doc);
         this.redirectDocList();
       }
     });

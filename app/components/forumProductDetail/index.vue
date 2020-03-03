@@ -89,7 +89,7 @@
             </div>
           </div>
           <a
-            v-if="!post.isSubCommentEditing"
+            v-if="!post.isPostSubCommentEditing"
             role="button"
             class="comment-tool plus"
             @click="onclickAddPostSubComment('edit')"
@@ -118,35 +118,9 @@
               </span>
             </div>
           </template>
-          <!--          <div class="comment-box mgt-20">-->
-          <!--            <p class="user-info mgb-5">-->
-          <!--              <span>2시간전</span><span>김고객(customer01)</span-->
-          <!--              ><span>조회 14</span>-->
-          <!--            </p>-->
-          <!--            <div class="comment qna-desc">-->
-          <!--              <div class="comment-desc">-->
-          <!--                코드 피커에서 코드와 텍스트를 변경하여 바인딩을 하고 싶습니다.-->
-          <!--                다른작성자의 코멘트입니다. 댓글이 긴 경우 두줄로 줄바꿈 합니다.-->
-          <!--                삭제버튼 위치는 고정입니다. 코드 피커에서 코드와 텍스트를-->
-          <!--                변경하여 바인딩을 하고 싶습니다. 다른작성자의 코멘트입니다.-->
-          <!--                댓글이 긴 경우 두줄로 줄바꿈합니다.-->
-          <!--              </div>-->
-          <!--              <a role="button" class="comment-delete">삭제</a>-->
-          <!--            </div>-->
-          <!--          </div>-->
         </div>
       </div>
       <div class="topic-button-wrap mgb-30">
-        <!--        <span v-if="isStaff()" class="fr">-->
-        <!--          <button-->
-        <!--            v-if="!post.isComplete"-->
-        <!--            type="button"-->
-        <!--            class="dbs-icon-button ico-left small confirm-line"-->
-        <!--            @click="onclickComplete"-->
-        <!--          >-->
-        <!--            완료처리-->
-        <!--          </button>-->
-        <!--        </span>-->
         <span v-if="isWriter()" class="fr">
           <button
             v-if="!post.isComplete"
@@ -172,58 +146,14 @@
         </span>
       </div>
     </div>
+
+    <!--  답변 작성 영영 start  -->
     <div v-if="post.comments.length" class="view-top mgb-20">
       <h1 class="tit-con-small">
         답변 <span class="font-accent-color"> {{ post.comments.length }}</span>
       </h1>
     </div>
-    <!--    <div class="topic-row">-->
-    <!--      <div class="topic-wrap">-->
-    <!--        <div class="topic-avatar">-->
-    <!--          <div class="avatar-circle qna-circle answer">A</div>-->
-    <!--          <div class="avatar-circle result-circle progress">완료</div>-->
-    <!--        </div>-->
-    <!--        <div class="topic-body">-->
-    <!--          <dl>-->
-    <!--            <dd class="user-info mgt-10 mgb-10">-->
-    <!--              <i class="badge-staff">STAFF</i><span>UI기술지원팀(dewsui01)</span-->
-    <!--              ><span>2019.11.15 15:12</span>-->
-    <!--            </dd>-->
-    <!--            <dd class="qna-desc mgb-15">-->
-    <!--              안녕하세요 DEWS UI 기술지원팀입니다. 주신 코드를 기반으로 제가-->
-    <!--              테스트 해보았을때 숫자 셀에 정상적으로 천단위 콤마가 찍혀서-->
-    <!--              보입니다. 아래 코드를 참고하세요. 문제가 해결되지 않으면 아래-->
-    <!--              코드를 기반으로 html로 간단한 샘플을 보내주시기 바랍니다.-->
-    <!--              감사합니다.-->
-    <!--            </dd>-->
-    <!--          </dl>-->
-    <!--          <pre>코드 블럭 영역입니다.</pre>-->
-    <!--          <div class="comment-box mgt-20">-->
-    <!--            <p class="user-info mgb-5">-->
-    <!--              <span>2시간전</span><span>김고객(customer01)</span-->
-    <!--              ><span>조회 14</span>-->
-    <!--            </p>-->
-    <!--            <div class="comment qna-desc">-->
-    <!--              <div class="comment-desc">-->
-    <!--                코드 피커에서 코드와 텍스트를 변경하여 바인딩을 하고 싶습니다.-->
-    <!--                다른작성자의 코멘트입니다.-->
-    <!--              </div>-->
-    <!--              <a role="button" class="comment-delete">삭제</a>-->
-    <!--            </div>-->
-    <!--          </div>-->
-    <!--          <a role="button" class="comment-tool plus">-->
-    <!--            댓글추가-->
-    <!--          </a>-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--      <div class="topic-button-wrap mgb-30">-->
-    <!--        <span class="fr">-->
-    <!--          <button type="button" class="dbs-icon-button ico-left small dislike">-->
-    <!--            채택취소-->
-    <!--          </button>-->
-    <!--        </span>-->
-    <!--      </div>-->
-    <!--    </div>-->
+
     <div v-for="comment in post.comments" :key="comment._id" class="topic-row">
       <div class="topic-wrap">
         <div class="topic-avatar">
@@ -236,24 +166,18 @@
           </div>
         </div>
         <div class="topic-body">
-          <dl>
+          <dl class="main-comment">
             <dd class="user-info mgt-10 mgb-10">
               <i v-if="isStaff(comment.userId)" class="badge-staff">STAFF</i
               ><span>{{ comment.userName }} ({{ comment.userId }}) </span>
               <!--              <span>2019.11.15 15:12</span>-->
               <span>{{ convertDateFormat(comment.regDate) }}</span>
             </dd>
+            <!--            <dd v-if="!comment.isEditing" class="qna-desc mgb-15">-->
             <TuiEditorViewer
               v-if="!comment.isEditing"
               :value="comment.contents"
             />
-            <!--            <dd-->
-            <!--              v-if="!comment.isEditing"-->
-            <!--              class="qna-desc mgb-15"-->
-            <!--              v-html="mdToHtml(comment.contents)"-->
-            <!--            >-->
-            <!--              &lt;!&ndash;            <dd class="qna-desc mgb-15" id="content">&ndash;&gt;-->
-            <!--              &lt;!&ndash;              {{ mdToHtml(comment._id, comment.contents) }}&ndash;&gt;-->
             <!--            </dd>-->
             <template v-else>
               <TuiEditor
@@ -263,47 +187,57 @@
               />
             </template>
           </dl>
-          <!--          <div class="comment-box mgt-20">-->
-          <!--            <p class="user-info mgb-5">-->
-          <!--              &lt;!&ndash;              <span>2시간전</span>&ndash;&gt;-->
-          <!--              <span>김고객(customer01)</span><span>2020.01.02 18:55</span>-->
-          <!--            </p>-->
-          <!--            <div class="comment qna-desc">-->
-          <!--              <div class="comment-desc">-->
-          <!--                아.. 오른쪽에 위치한 라벨 영역을 말씀하시는거군요.. 여기에는-->
-          <!--                넘버포맷을 지정할 수 없습니다.-->
-          <!--              </div>-->
-          <!--              <a role="button" class="comment-delete">삭제</a>-->
-          <!--            </div>-->
-          <!--          </div>-->
-          <!--          TODO-->
-          <!--          <a-->
-          <!--            role="button"-->
-          <!--            class="comment-tool plus"-->
-          <!--            @click="onclickAddSubComment(comment)"-->
-          <!--          >-->
-          <!--            댓글추가-->
-          <!--          </a>-->
-          <!--          <template>-->
-          <!--            <p class="comment-tool">댓글 작성</p>-->
-          <!--            <TuiEditor />-->
-          <!--            <div class="topic-button-wrap mgb-20">-->
-          <!--              <span class="fr">-->
-          <!--                <button-->
-          <!--                  type="button"-->
-          <!--                  class="dbs-icon-button ico-left small confirm"-->
-          <!--                >-->
-          <!--                  확인-->
-          <!--                </button>-->
-          <!--                <button-->
-          <!--                  type="button"-->
-          <!--                  class="dbs-icon-button ico-left small cancel"-->
-          <!--                >-->
-          <!--                  취소-->
-          <!--                </button>-->
-          <!--              </span>-->
-          <!--            </div>-->
-          <!--          </template>-->
+          <div
+            v-for="subComment in comment.comments"
+            :key="subComment._id"
+            class="comment-box"
+          >
+            <p class="user-info mgb-5">
+              <span>{{ subComment.userName }}({{ subComment.userId }})</span
+              ><span>{{ convertDateFormat(subComment.regDate) }}</span>
+            </p>
+            <div class="comment qna-desc">
+              <!--              <div class="comment-desc">-->
+              <TuiEditorViewer :value="subComment.contents" />
+              <!--              </div>-->
+              <a
+                role="button"
+                class="comment-delete"
+                @click="onclickRemoveSubComment(comment._id, subComment._id)"
+                >삭제</a
+              >
+            </div>
+          </div>
+          <a
+            v-if="!comment.isSubCommentEditing"
+            role="button"
+            class="comment-tool plus"
+            @click="onclickAddSubComment(comment, 'edit')"
+          >
+            댓글추가
+          </a>
+          <template v-else>
+            <p class="comment-tool">댓글 작성</p>
+            <TuiEditor ref="subCommentEditorRef" mode="wysiwyg" />
+            <div class="topic-button-wrap mgb-20">
+              <span class="fr">
+                <button
+                  type="button"
+                  class="dbs-icon-button ico-left small confirm"
+                  @click="onclickSaveEditSubComment(comment)"
+                >
+                  확인
+                </button>
+                <button
+                  type="button"
+                  class="dbs-icon-button ico-left small cancel"
+                  @click="onclickAddSubComment(comment, 'cancel')"
+                >
+                  취소
+                </button>
+              </span>
+            </div>
+          </template>
         </div>
       </div>
       <div class="topic-button-wrap mgb-30">
@@ -362,6 +296,7 @@
         </div>
       </div>
     </div>
+
     <div class="tit-con-small mgb-10">답변작성</div>
     <TuiEditor ref="tui" mode="wysiwyg" />
     <!--    TODO 답변 파일첨부 구현-->
@@ -449,20 +384,44 @@ export default class ForumProductDetail extends Vue {
   @Forum.Action('removePostSubDocument') removePostSubDocumentAction!: (
     subComment: IComment
   ) => Promise<any>;
-  @Forum.Mutation('commentEditMode') editMode!: ({
+  @Forum.Mutation('commentEditMode') commentEditMode!: ({
     comment: IComment,
     type: string,
   }) => void;
   @Forum.Mutation('postSubCommentEditMode') postSubCommentEdit!: (
     type: string
   ) => void;
+  @Forum.Mutation('subCommentEditMode') subCommentEdit!: ({
+    comment: IComment,
+    type: string,
+  }) => void;
+  @Forum.Action('updateSubComment') updateSubCommentAction!: ({
+    comment: IComment,
+    contents: string,
+  }) => void;
+  @Forum.Action('deleteSubComment') deleteSubCommentAction!: (payload: {
+    commentId: string;
+    subCommentId: string;
+  }) => void;
 
   $refs!: {
     tui: any;
     commentRef: any;
     commentEditorRef: any;
     postSubCommentRef: any;
+    subCommentEditorRef: any;
   };
+
+  mounted() {
+    // setTimeout(() => {
+    //   // remove toolbar image button
+    //   const commentRefImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
+    //     '.tui-image.tui-toolbar-icons'
+    //   );
+    //
+    //   commentRefImageBtnEl.parentNode!.removeChild(commentRefImageBtnEl);
+    // });
+  }
 
   user!: IUser;
 
@@ -472,23 +431,6 @@ export default class ForumProductDetail extends Vue {
 
   created() {
     this.user = this.$store.state.user.user;
-
-    // this.user = {
-    //   loginId: 'kis4204',
-    //   loginPw: '',
-    //
-    //   positionName: '',
-    //   deptName: '',
-    //   photoUrl: '',
-    //   name: '김인수A',
-    //   deptPath: '플랫폼개발1팀',
-    //   compName: '',
-    //
-    //   authToken: 'E',
-    //   gitlabToken: '',
-    //   authority: '',
-    //   _id: '',
-    // };
     this.updateViewCountAction();
   }
 
@@ -507,7 +449,7 @@ export default class ForumProductDetail extends Vue {
   }
 
   // 질문 비추천 버튼 클릭
-  async onclickLikeMinus(): Promise<any> {
+  onclickLikeMinus() {
     if (!this.user.loginId) {
       this.alertAction({
         type: 'warning',
@@ -534,11 +476,11 @@ export default class ForumProductDetail extends Vue {
       return;
     }
 
-    await this.updateLikeCountAction('minus');
+    this.updateLikeCountAction('minus');
   }
 
   // 질문 추천 버튼 클릭
-  async onclickLikePlus(): Promise<any> {
+  onclickLikePlus() {
     if (!this.user.loginId) {
       this.alertAction({
         type: 'warning',
@@ -546,7 +488,6 @@ export default class ForumProductDetail extends Vue {
         msg: '로그인 이후에 이용하실 수 있습니다.',
       }).then((result) => {
         if (result.ok) {
-          // next('/login');
           // DBS 고객 로그인 화면으로 이동
           location.href = '/html/Login.html';
         }
@@ -565,7 +506,7 @@ export default class ForumProductDetail extends Vue {
       return;
     }
 
-    await this.updateLikeCountAction('plus');
+    this.updateLikeCountAction('plus');
   }
 
   // 질문 완료 버튼 클릭
@@ -591,7 +532,6 @@ export default class ForumProductDetail extends Vue {
         msg: '로그인 이후에 이용하실 수 있습니다.',
       }).then((result) => {
         if (result.ok) {
-          // next('/login');
           // DBS 고객 로그인 화면으로 이동
           location.href = '/html/Login.html';
         }
@@ -601,6 +541,55 @@ export default class ForumProductDetail extends Vue {
     }
 
     this.postSubCommentEdit(type);
+
+    // setTimeout(() => {
+    //   // remove tui toolbar image button
+    //   if (type === 'edit') {
+    //     const postSubCommentEditorImageBtnEl: HTMLButtonElement = this.$refs.postSubCommentRef.$el.querySelector(
+    //       '.tui-image.tui-toolbar-icons'
+    //     );
+    //
+    //     postSubCommentEditorImageBtnEl.parentNode!.removeChild(
+    //       postSubCommentEditorImageBtnEl
+    //     );
+    //   }
+    // });
+  }
+
+  // 댓글의 댓글 추가 버튼 클릭
+  onclickAddSubComment(comment: IComment, type: string): void {
+    if (!this.user.loginId) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '로그인 이후에 이용하실 수 있습니다.',
+      }).then((result) => {
+        if (result.ok) {
+          // DBS 고객 로그인 화면으로 이동
+          location.href = '/html/Login.html';
+        }
+      });
+
+      return;
+    }
+
+    this.subCommentEdit({
+      comment,
+      type,
+    });
+
+    // setTimeout(() => {
+    //   if (type === 'edit') {
+    //     // remove tui toolbar image button
+    //     const subCommentEditorRefEditorImageBtnEl: HTMLButtonElement = this.$refs.subCommentEditorRef[0].$el.querySelector(
+    //       '.tui-image.tui-toolbar-icons'
+    //     );
+    //
+    //     subCommentEditorRefEditorImageBtnEl.parentNode!.removeChild(
+    //       subCommentEditorRefEditorImageBtnEl
+    //     );
+    //   }
+    // });
   }
 
   // 잘문의 서브 댓글 삭제 버튼 클릭
@@ -612,6 +601,21 @@ export default class ForumProductDetail extends Vue {
     }).then((result) => {
       if (result.ok) {
         this.removePostSubDocumentAction(subComment);
+      }
+    });
+  }
+
+  onclickRemoveSubComment(commentId: string, subCommentId: string): void {
+    this.alertAction({
+      type: 'question',
+      isShow: true,
+      msg: '댓글을 삭제하시겠습니까?',
+    }).then((result) => {
+      if (result.ok) {
+        this.deleteSubCommentAction({
+          commentId,
+          subCommentId,
+        });
       }
     });
   }
@@ -673,9 +677,21 @@ export default class ForumProductDetail extends Vue {
   // 답변 수정 저장 버튼 클릭
   onclickSaveEditComment(comment: IComment): void {
     comment.contents = this.$refs.commentEditorRef[0].invoke('getValue');
+
     this.updateCommentAction({
       comment,
       chooseType: false,
+    });
+  }
+
+  onclickSaveEditSubComment(comment: IComment): void {
+    const subCommentContents = this.$refs.subCommentEditorRef[0].invoke(
+      'getValue'
+    );
+
+    this.updateSubCommentAction({
+      comment,
+      contents: subCommentContents,
     });
   }
 
@@ -689,7 +705,7 @@ export default class ForumProductDetail extends Vue {
   }
 
   // 답변 저장 버튼 클릭
-  onclickSaveComments(): void {
+  async onclickSaveComments(): Promise<any> {
     if (!this.user.loginId) {
       this.alertAction({
         type: 'warning',
@@ -709,18 +725,44 @@ export default class ForumProductDetail extends Vue {
     // const ts = new TurndownService();
     // const contents: string = ts.turndown(this.$refs.tui.invoke('getHtml')); // html to md
     const contents: string = this.$refs.tui.invoke('getValue'); // get tui-editor md
-    this.createCommentAction(contents);
-  }
 
-  // 댓글의 댓글 추가 버튼 클릭
-  onclickAddSubComment(type: string): void {}
+    // console.log('onclickSaveComments :: ', contents);
+
+    if (!contents) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '답변내용을 작성해주세요.',
+      });
+
+      return;
+    }
+
+    await this.createCommentAction(contents);
+
+    // 답변작성 editor 초기화
+    this.$refs.tui.editor.setValue('');
+  }
 
   // 댓글 수정 버튼 클릭
   onclickEditComment(comment: IComment, type: string): void {
-    this.editMode({
+    this.commentEditMode({
       comment,
       type,
     });
+
+    // setTimeout(() => {
+    //   if (type === 'edit') {
+    //     // remove tui toolbar image button
+    //     const commentEditorRefEditorImageBtnEl: HTMLButtonElement = this.$refs.commentEditorRef[0].$el.querySelector(
+    //       '.tui-image.tui-toolbar-icons'
+    //     );
+    //
+    //     commentEditorRefEditorImageBtnEl.parentNode!.removeChild(
+    //       commentEditorRefEditorImageBtnEl
+    //     );
+    //   }
+    // });
   }
 
   // 댓글 삭제 버튼 클릭
@@ -773,4 +815,9 @@ export default class ForumProductDetail extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style lang="css" scoped>
+.topic-body dl.main-comment {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dbdbdb;
+}
+</style>

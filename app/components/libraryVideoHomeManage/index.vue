@@ -3,16 +3,19 @@
     <div class="view-top mgb-15">
       <h1 class="tit-con-text">동영상<span>홈 화면 관리</span></h1>
     </div>
-    <div v-for="product in $store.state.video.products" :key="product._id">
+    <div
+      v-for="(product, productIdx) in $store.state.video.products"
+      :key="product._id"
+    >
       <div class="video-top">
         <p class="tit-con-sub">{{ product.productName }}</p>
         <div class="pst-button">
-          <button
-            type="button"
-            class="dbs-icon-button ico-left small horizontal"
-          >
-            이동
-          </button>
+          <!--<button-->
+          <!--type="button"-->
+          <!--class="dbs-icon-button ico-left small horizontal"-->
+          <!--&gt;-->
+          <!--이동-->
+          <!--</button>-->
           <button
             type="button"
             class="dbs-icon-button ico-left small plus"
@@ -23,53 +26,57 @@
         </div>
       </div>
       <ul class="thumb-list x-small moving mgt-20 mgb-60">
-        <li
-          v-for="(managedVideo, index) in product.managedVideos"
-          :key="managedVideo._id"
-          :class="{ 'mgl-0': index === 0 }"
+        <draggable
+          v-model="localManagedVideos[productIdx]"
+          group="productCode"
+          handle=".dbs-icon-move"
+          animation="300"
+          style="display: flex;"
+          @change="draggableChange(product._id, productIdx)"
         >
-          <div class="thumb">
-            <button type="button" class="dbs-icon-move horizontal">
-              좌우 이동
-            </button>
-            <img
-              :src="
-                `https://img.youtube.com/vi/${
-                  managedVideo.isSeries
-                    ? managedVideo.series[0].youtubeId
-                    : managedVideo.youtubeId
-                }/maxresdefault.jpg`
-              "
-              alt=""
-            />
-            <em v-if="managedVideo.playTime" class="btn-time">{{
-              managedVideo.playTime
-            }}</em>
-            <div v-if="managedVideo.isSeries" class="play">
-              <span class="count">{{ managedVideo.series.length }}</span>
-              <em class="icon-playlist"></em>
-            </div>
-          </div>
-          <dl class="thumb-desc">
-            <dt>
-              {{
-                !managedVideo.isSeries
-                  ? cutStr(managedVideo.videoTitle)
-                  : cutStr(managedVideo.seriesTitle)
-              }}
-            </dt>
-            <dd>
-              {{ convertDateFormat(managedVideo.uploadDate)
-              }}<span class="administer"
-                ><a
-                  class="font-accent-color"
-                  @click="removeManagedVideos(product, managedVideo)"
-                  >삭제</a
-                ></span
+          <li
+            v-for="(managedVideo, index) in localManagedVideos[productIdx]"
+            :key="managedVideo._id"
+            :class="{ 'mgl-0': index === 0 }"
+          >
+            <div class="thumb" style="cursor: auto;">
+              <button
+                type="button"
+                class="dbs-icon-move horizontal"
+                style="cursor: move;"
               >
-            </dd>
-          </dl>
-        </li>
+                좌우 이동
+              </button>
+              <img :src="imagePath(managedVideo)" alt="" />
+              <em v-if="managedVideo.playTime" class="btn-time">{{
+                managedVideo.playTime
+              }}</em>
+              <div v-if="managedVideo.isSeries" class="play">
+                <span class="count">{{ managedVideo.series.length }}</span>
+                <em class="icon-playlist" />
+              </div>
+            </div>
+            <dl class="thumb-desc">
+              <dt class="title-dim">
+                {{
+                  !managedVideo.isSeries
+                    ? managedVideo.videoTitle
+                    : managedVideo.seriesTitle
+                }}
+              </dt>
+              <dd>
+                {{ convertDateFormat(managedVideo.uploadDate)
+                }}<span class="administer"
+                  ><a
+                    class="font-accent-color"
+                    @click="removeManagedVideos(product, managedVideo)"
+                    >삭제</a
+                  ></span
+                >
+              </dd>
+            </dl>
+          </li>
+        </draggable>
       </ul>
     </div>
     <modal-component
@@ -87,6 +94,7 @@
   </div>
 </template>
 <script lang="ts">
+import draggable from 'vuedraggable';
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { dateFormat } from '~/utils/commonFuncs';
 import ModalComponent from '@/components/common/modal/modalComponent.vue';
@@ -99,11 +107,13 @@ const Common = namespace('common');
 
 @Component({
   components: {
+    draggable,
     ModalComponent,
     VideoManageModal,
   },
 })
 export default class LibraryVideoHomeManage extends Vue {
+  localManagedVideos: any[] = [];
   @Video.Action('getVideosByProduct') getVideosByProductAction;
   @Video.Action('updateManagedVideos') updateManagedVideosAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
@@ -119,6 +129,18 @@ export default class LibraryVideoHomeManage extends Vue {
   videoManageModalHeight: string = '668px';
   videoManageModalWidth: string = '826px';
 
+  created() {
+    this.$store.state.video.products.forEach((product) => {
+      this.localManagedVideos.push(product.managedVideos);
+    });
+  }
+
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${
+      video.isSeries ? video.series[0].youtubeId : video.youtubeId
+    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
+
   videoManageModalConfirm(clickConfirmBtn) {
     if (clickConfirmBtn) {
       const selectedVideos = this.$refs.videoManageModal.getData();
@@ -126,6 +148,11 @@ export default class LibraryVideoHomeManage extends Vue {
       this.updateManagedVideosAction({
         productId: this.$store.state.video.selectedProduct._id,
         managedVideos: selectedVideos,
+      }).then(() => {
+        this.localManagedVideos = [];
+        this.$store.state.video.products.forEach((product) => {
+          this.localManagedVideos.push(product.managedVideos);
+        });
       });
       this.$modal.hide(this.videoManageModalName);
     } else {
@@ -150,21 +177,6 @@ export default class LibraryVideoHomeManage extends Vue {
     return dateFormat(time);
   }
 
-  cutStr(orgText): void {
-    let count = 0;
-    let returnText = orgText;
-    for (let idx = 0; idx < orgText.length; idx++) {
-      const currentByte = orgText.charCodeAt(idx);
-      currentByte > 128 ? (count += 2) : count++;
-      if (count > 45) {
-        returnText = orgText.substr(0, idx - 1) + '...';
-        break;
-      }
-    }
-
-    return returnText;
-  }
-
   removeManagedVideos(product, videoData) {
     this.alertAction({
       type: 'question',
@@ -178,8 +190,20 @@ export default class LibraryVideoHomeManage extends Vue {
         this.updateManagedVideosAction({
           productId: product._id,
           managedVideos: newData,
+        }).then(() => {
+          this.localManagedVideos = [];
+          this.$store.state.video.products.forEach((product) => {
+            this.localManagedVideos.push(product.managedVideos);
+          });
         });
       }
+    });
+  }
+
+  draggableChange(id, productIdx) {
+    this.updateManagedVideosAction({
+      productId: id,
+      managedVideos: this.localManagedVideos[productIdx],
     });
   }
 }

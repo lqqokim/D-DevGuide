@@ -43,18 +43,19 @@ export const mutations: MutationTree<SearchState> = {
   setSearchData(state, payload: Array<Search>) {
     state.searchDataArray = payload;
   },
-  setSearchResult(state, payload: Result) {
-    let sameProductFlag = false;
-    if (state.searchResult.length > 0) {
-      state.searchResult.forEach((data) => {
-        if (data.productName === payload.productName) {
-          data.resultData = data.resultData.concat(payload.resultData);
-          sameProductFlag = true;
-        }
-      });
-    }
-    !sameProductFlag ? state.searchResult.push(payload) : '';
-  },
+  // setSearchResult(state, payload: Result) {
+  //   let sameProductFlag = false;
+  //   if (state.searchResult.length > 0) {
+  //     state.searchResult.forEach((data) => {
+  //       if (data.productName === payload.productName) {
+  //         data.resultData = data.resultData.concat(payload.resultData);
+  //         sameProductFlag = true;
+  //       }
+  //     });
+  //   }
+  //   console.error('여기를?');
+  //   !sameProductFlag ? state.searchResult.push(payload) : '';
+  // },
   searchDevDocTitle(
     state,
     payload: {
@@ -70,6 +71,9 @@ export const mutations: MutationTree<SearchState> = {
     payload.searchDataArray.forEach((searchData) => {
       const matchedPathArray: Array<any> = [];
       const initPath = payload.pageType + '/';
+      if (payload.treeData[0] === undefined) {
+        return;
+      }
       payload.treeData.forEach((data) => {
         findPath(data, searchData.filename, initPath, matchedPathArray);
       });
@@ -114,11 +118,11 @@ export const mutations: MutationTree<SearchState> = {
       }
     });
   },
-  setEmptySearchResult(state, payload: Array<any>) {
-    state.searchResult = payload;
+  setEmptySearchResult(state) {
+    state.searchResult = [];
   },
-  setEmptySearchData(state, payload: Array<any>) {
-    state.searchDataArray = payload;
+  setEmptySearchData(state) {
+    state.searchDataArray = [];
   },
 };
 
@@ -149,7 +153,7 @@ function findPath(
 export const actions: ActionTree<SearchState, RootState> = {
   async devDocSearch(
     { commit, state, dispatch },
-    payload: { content: string; projectId: number }
+    payload: { content: string; projectId: string }
   ): Promise<any> {
     try {
       const searchData: Response = await this.$axios.get(
@@ -193,7 +197,7 @@ export const actions: ActionTree<SearchState, RootState> = {
           return filteredData.data.includes(payload.content);
         });
 
-        commit('setSearchData', filteredDatas);
+        await commit('setSearchData', filteredDatas);
       }
     } catch (err) {
       console.error(err);
@@ -210,6 +214,9 @@ export const actions: ActionTree<SearchState, RootState> = {
     }
   ): Promise<any> {
     try {
+      if (payload.treeData[0] === undefined) {
+        return;
+      }
       const productData: Response = await this.$axios.get(
         'api/docs/product/getProjectId',
         {

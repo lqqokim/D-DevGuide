@@ -1,5 +1,6 @@
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
+import { ALERT_TYPE } from '~/store/modules/common';
 
 interface ProductState {
   product: Product;
@@ -26,11 +27,12 @@ export interface Staff {
 
 export interface Product {
   _id?: string;
+  index?: number;
   productName: string; // 제품명
   productCode: string; // 제품코드
   description: string; // 제품설명
   apiUse: boolean; // api 섹션 사용 여부
-  projectId: number; // gitlab 에 등록되어있는 프로젝트의 ID
+  projectId: string; // gitlab 에 등록되어있는 프로젝트의 ID
   targetBranch: string; // 병합요청 대상 브랜치명
   manualDocPath: string; // 제품 사용법 문서 경로
   APIDocPath: string; // 제품 API 문서 경로
@@ -43,11 +45,12 @@ export const state = (): ProductState => ({
     productCode: '',
     description: '',
     apiUse: false,
-    projectId: 0,
+    projectId: '',
     targetBranch: '',
     manualDocPath: '',
     APIDocPath: '',
     staffs: [],
+    _id: '',
   },
   productList: [],
   projectIdList: [],
@@ -77,47 +80,185 @@ export const mutations: MutationTree<ProductState> = {
 };
 
 export const actions: ActionTree<ProductState, RootState> = {
-  async registerProduct(
-    { commit, state, dispatch },
-    payload: Product
+  registerProduct({ commit, state, dispatch }, payload: Product): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Loading Alert
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: true,
+            msg: '제품을 등록중입니다.',
+          },
+          { root: true }
+        );
+
+        let manualDocPath = payload.manualDocPath;
+        if (manualDocPath.charAt(0) === '/') {
+          payload.manualDocPath = manualDocPath.substring(
+            1,
+            manualDocPath.length
+          );
+        }
+        manualDocPath = payload.manualDocPath;
+        if (manualDocPath.charAt(manualDocPath.length - 1) === '/') {
+          payload.manualDocPath = manualDocPath.substring(
+            0,
+            manualDocPath.length - 1
+          );
+        }
+
+        let apiDocPath = payload.APIDocPath;
+        if (apiDocPath.charAt(0) === '/') {
+          payload.APIDocPath = apiDocPath.substring(1, apiDocPath.length);
+        }
+        apiDocPath = payload.APIDocPath;
+        if (apiDocPath.charAt(apiDocPath.length - 1) === '/') {
+          payload.APIDocPath = apiDocPath.substring(0, apiDocPath.length - 1);
+        }
+
+        const { data } = await this.$axios.post(
+          'api/docs/product/productRegister',
+          payload
+        );
+
+        // 문서 기본 경로에 index.md 파일 생성
+        await this.$axios.post('api/docs/repository/createFile', {
+          projectId: payload.projectId,
+          filePath:
+            payload.manualDocPath === ''
+              ? 'index.md'
+              : payload.manualDocPath + '/index.md',
+          ref: payload.targetBranch,
+          commitMessage: 'create index markdown file',
+        });
+
+        // API 기본 경로에 index.md 파일 생성
+        if (payload.apiUse && payload.manualDocPath !== payload.APIDocPath) {
+          await this.$axios.post('api/docs/repository/createFile', {
+            projectId: payload.projectId,
+            filePath:
+              payload.APIDocPath === ''
+                ? 'index.md'
+                : payload.APIDocPath + '/index.md',
+            ref: payload.targetBranch,
+            commitMessage: 'create index markdown file',
+          });
+        }
+
+        await dispatch('getProductList');
+
+        // Loading Alert Close
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: false,
+            msg: '제품을 등록중입니다.',
+          },
+          { root: true }
+        );
+        resolve(data);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  },
+  updateProduct({ commit, dispatch }, payload: Product): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Loading Alert
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: true,
+            msg: '제품을 수정중입니다.',
+          },
+          { root: true }
+        );
+
+        let manualDocPath = payload.manualDocPath;
+        if (manualDocPath.charAt(0) === '/') {
+          payload.manualDocPath = manualDocPath.substring(
+            1,
+            manualDocPath.length
+          );
+        }
+        manualDocPath = payload.manualDocPath;
+
+        if (manualDocPath.charAt(manualDocPath.length - 1) === '/') {
+          payload.manualDocPath = manualDocPath.substring(
+            0,
+            manualDocPath.length - 1
+          );
+        }
+        let apiDocPath = payload.APIDocPath;
+        if (apiDocPath.charAt(0) === '/') {
+          payload.APIDocPath = apiDocPath.substring(1, apiDocPath.length);
+        }
+        apiDocPath = payload.APIDocPath;
+        if (apiDocPath.charAt(apiDocPath.length - 1) === '/') {
+          payload.APIDocPath = apiDocPath.substring(0, apiDocPath.length - 1);
+        }
+
+        const { data } = await this.$axios.post(
+          'api/docs/product/productUpdate/' + payload._id,
+          payload
+        );
+
+        // 문서 기본 경로에 index.md 파일 생성
+        await this.$axios.post('api/docs/repository/createFile', {
+          projectId: payload.projectId,
+          filePath:
+            payload.manualDocPath === ''
+              ? 'index.md'
+              : payload.manualDocPath + '/index.md',
+          ref: payload.targetBranch,
+          commitMessage: 'create index markdown file',
+        });
+
+        // API 기본 경로에 index.md 파일 생성
+        if (payload.apiUse && payload.manualDocPath !== payload.APIDocPath) {
+          await this.$axios.post('api/docs/repository/createFile', {
+            projectId: payload.projectId,
+            filePath:
+              payload.APIDocPath === ''
+                ? 'index.md'
+                : payload.APIDocPath + '/index.md',
+            ref: payload.targetBranch,
+            commitMessage: 'create index markdown file',
+          });
+        }
+
+        await dispatch('getProductList');
+
+        // Loading Alert Close
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: false,
+            msg: '제품을 수정중입니다.',
+          },
+          { root: true }
+        );
+        resolve(data);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  },
+
+  // 제품 목록 수정
+  async updateProductsIndex(
+    { commit, dispatch },
+    payload: Product[]
   ): Promise<any> {
     try {
-      const { data } = await this.$axios.post(
-        'api/docs/product/productRegister',
-        payload
-      );
-
-      console.log(data.data);
-      console.log(state.productList);
-      if (data.success && data.data) {
-        await dispatch(
-          'common/alert',
-          {
-            type: 'check',
-            isShow: true,
-            msg: '제품이 등록되었습니다.',
-          },
-          { root: true }
-        );
-      } else {
-        await dispatch(
-          'common/alert',
-          {
-            type: 'warning',
-            isShow: true,
-            msg: '제품이 등록되지 않았습니다.',
-          },
-          { root: true }
-        );
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  },
-  async updateProduct({ commit, dispatch }, payload: Product): Promise<any> {
-    try {
-      const { data } = await this.$axios.post(
-        'api/docs/product/productUpdate/' + payload._id,
+      const { data } = await this.$axios.put(
+        'api/docs/product/updateProductsIndex',
         payload
       );
 
@@ -125,42 +266,58 @@ export const actions: ActionTree<ProductState, RootState> = {
         await dispatch(
           'common/alert',
           {
-            type: 'check',
+            type: ALERT_TYPE.CHECK,
             isShow: true,
-            msg: '제품이 수정되었습니다.',
-          },
-          { root: true }
-        );
-      } else {
-        await dispatch(
-          'common/alert',
-          {
-            type: 'warning',
-            isShow: true,
-            msg: '제품이 수정되지 않았습니다.',
+            msg: '제품 순서가 변경되었습니다.',
           },
           { root: true }
         );
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (e) {}
   },
 
   removeProduct({ commit, state, dispatch }, payload: Product): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log(payload._id);
+        // Loading Alert
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.LOADING,
+            isShow: true,
+            msg: '제품을 삭제중입니다.',
+          },
+          { root: true }
+        );
+
         const { data } = await this.$axios.delete(
           'api/docs/product/productRemove/' + payload._id
         );
 
         await dispatch('getProductList');
+
+        if (data.success) {
+          await dispatch(
+            'common/alert',
+            {
+              type: ALERT_TYPE.CHECK,
+              isShow: true,
+              msg: '제품이 삭제되었습니다.',
+            },
+            { root: true }
+          );
+        } else {
+          await dispatch(
+            'common/alert',
+            {
+              type: ALERT_TYPE.WARN,
+              isShow: true,
+              msg: data.msg,
+            },
+            { root: true }
+          );
+        }
         resolve(data);
-        // if (data.success && data.data) {
-        //   // commit('products', data.data as Product);
-        //   commit('selectedManageProduct', data.data[0]);
-        // }
       } catch (e) {
         reject(e);
       }
@@ -198,30 +355,59 @@ export const actions: ActionTree<ProductState, RootState> = {
 
   async getProductList({ commit }): Promise<any> {
     try {
-      const productList: Response = await this.$axios.get(
-        'api/docs/product/productList'
-      );
-      commit('setProductList', productList.data);
+      const { data } = await this.$axios.get('api/docs/product/productList');
+
+      if (data.success && data.data) {
+        await commit('setProductList', data.data);
+      }
     } catch (err) {
       console.error(err);
     }
   },
-  async getProjectIdList(
+  // async getProjectIdList(
+  //   { commit },
+  //   payload: { gitlabToken: string }
+  // ): Promise<any> {
+  //   try {
+  //     const { data } = await this.$axios.get(
+  //       'api/docs/product/getProjectIdList',
+  //       { params: { gitlabToken: payload.gitlabToken } }
+  //     );
+  //     const projectIdList: Array<number> = [];
+  //
+  //     data.data.forEach((project) => {
+  //       projectIdList.push(project.id);
+  //     });
+  //     commit('setProjectIdList', projectIdList);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // },
+  checkProjectInfo(
     { commit },
-    payload: { gitlabToken: string }
+    payload: { gitlabToken: string; projectId: string }
   ): Promise<any> {
-    try {
-      const projectList: Response = await this.$axios.get(
-        'api/docs/product/getProjectIdList',
-        { params: { gitlabToken: payload.gitlabToken } }
-      );
-      const projectIdList: Array<number> = [];
-      projectList.data.forEach((project) => {
-        projectIdList.push(project.id);
-      });
-      commit('setProjectIdList', projectIdList);
-    } catch (err) {
-      console.error(err);
-    }
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!payload.gitlabToken) {
+          return;
+        }
+
+        const { data } = await this.$axios.get(
+          'api/docs/product/getProjectInfo',
+          {
+            params: {
+              gitlabToken: payload.gitlabToken,
+              projectId: payload.projectId,
+            },
+          }
+        );
+
+        resolve(data);
+      } catch (err) {
+        console.error(err);
+        reject(err);
+      }
+    });
   },
 };

@@ -88,59 +88,30 @@ import ProductBranchCompare from '~/components/productBranchCompare/index.vue';
   components: {
     ProductBranchCompare,
   },
-  async fetch({ store, params }): Promise<any> {
+  fetch({ store, params }): any {
     try {
-      await store.dispatch('product/getProductList');
-      await store.dispatch('branch/getBranchList', {
-        productCode: params.productCode,
-        gitlabToken: store.state.user.user.gitlabToken,
-      });
-      await store.dispatch('product/selectProduct', {
-        productCode: params.productCode,
-      });
-
-      if (params.mergeRequestIId !== undefined) {
-        await store.dispatch('mergeRequest/getChangesData', {
-          productCode: params.productCode,
-          mergeRequestIId: params.mergeRequestIId,
-          gitlabToken: store.state.user.user.gitlabToken,
-        });
-      } else {
-        await store.dispatch('branch/getBranchChangesData', {
-          projectId: store.state.product.product.projectId,
-          branchName: params.branchName,
-          targetBranch: store.state.product.product.targetBranch,
-          gitlabToken: store.state.user.user.gitlabToken,
-        });
-      }
-
-      // await store.dispatch('mergeRequest/getMergeRequestList', {
+      // await store.dispatch('product/getProductList');
+      // await store.dispatch('branch/getBranchList', {
       //   productCode: params.productCode,
       //   gitlabToken: store.state.user.user.gitlabToken,
       // });
-
-      // await store.dispatch('mergeRequest/getMergeRequestList', {
+      // await store.dispatch('product/selectProduct', {
       //   productCode: params.productCode,
       // });
-      // await store.dispatch('commit/getCommitList', {
-      //   productCode: params.productCode,
-      //   branchName: 'DOC_branch01',
-      // });
-      // store.state.branch.branchList.forEach((branch) => {
-      // if (branch.name === params.branchName) {
+      // if (params.mergeRequestIId !== undefined) {
+      //   await store.dispatch('mergeRequest/getChangesData', {
+      //     productCode: params.productCode,
+      //     mergeRequestIId: params.mergeRequestIId,
+      //     gitlabToken: store.state.user.user.gitlabToken,
+      //   });
+      // } else {
+      //   await store.dispatch('branch/getBranchChangesData', {
+      //     projectId: store.state.product.product.projectId,
+      //     branchName: params.branchName,
+      //     targetBranch: store.state.product.product.targetBranch,
+      //     gitlabToken: store.state.user.user.gitlabToken,
+      //   });
       // }
-      // let iid!: string;
-      // store.state.mergeRequest.mergeRequestList.forEach((mergeRequest) => {
-      //   if (mergeRequest.source_branch === params.branchName) {
-      //     iid = mergeRequest.iid;
-      //   }
-      // });
-      // await store.dispatch('mergeRequest/getChangesData', {
-      //   productCode: params.productCode,
-      //   mergeRequestIId: iid,
-      //   gitlabToken: store.state.user.user.gitlabToken,
-      // });
-      // });
     } catch (e) {
       console.error(e);
     }

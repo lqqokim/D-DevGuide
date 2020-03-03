@@ -34,6 +34,7 @@ export interface IAlertType {
   readonly INFO: 'info';
   readonly QUESTION: 'question';
   readonly WARN: 'warning';
+  readonly LOADING: 'loading';
 }
 
 export const ALERT_TYPE: IAlertType = {
@@ -42,6 +43,7 @@ export const ALERT_TYPE: IAlertType = {
   INFO: 'info',
   QUESTION: 'question',
   WARN: 'warning',
+  LOADING: 'loading',
 };
 
 export interface SortOptions {
@@ -81,6 +83,7 @@ export const state = (): CommonState => ({
     INFO: 'info',
     QUESTION: 'question',
     WARN: 'warning',
+    LOADING: 'loading',
   } as IAlertType,
 });
 
@@ -97,8 +100,6 @@ export const actions: ActionTree<CommonState, RootState> = {
   alert({ commit, state, rootState }, payload): Promise<any> {
     return new Promise((resolve, reject) => {
       // type 에 따른 alert 을 띄우고 닫는다.
-      console.log('alert :: ', rootState.user.userToken);
-      // if (rootState.user.userToken) return;
       commit('ALERT', payload);
 
       if (payload.isShow === false) {

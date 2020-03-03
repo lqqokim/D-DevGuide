@@ -5,7 +5,7 @@
     <div class="box-gray-round download mgb-80">
       <dl class="download-wrap">
         <dd
-          v-for="(product, index) in products"
+          v-for="(product, index) in localProducts"
           :key="product.productCode + index"
           class="card-box"
         >
@@ -42,7 +42,7 @@
                 >{{ file.fileTitle }}</nuxt-link
               >
               <a
-                :href="`/uploads/${file.fileName}`"
+                :href="`/downloads/${file.fileName}`"
                 :download="file.originFileName"
                 ><span class="icon-download"
               /></a>
@@ -53,7 +53,7 @@
       <p v-if="count">
         <a role="button" class="arrow prev" @click="count--" />
       </p>
-      <p v-if="count !== $store.state.download.products.length - 3">
+      <p v-if="products.slice(count + 1, 3 + count + 1).length === 3">
         <a role="button" class="arrow next" @click="count++" />
       </p>
     </div>
@@ -66,12 +66,14 @@ import { IProduct } from '@/store/modules/download';
 @Component
 export default class DownloadList extends Vue {
   count: number = 0;
+  products!: IProduct[];
 
-  get products(): IProduct[] {
-    return this.$store.state.download.products.slice(
-      this.count,
-      3 + this.count
-    );
+  get localProducts(): IProduct[] {
+    return this.products.slice(this.count, 3 + this.count);
+  }
+
+  created() {
+    this.products = this.$store.state.download.products;
   }
 
   // onclickDownload(): void {
@@ -82,7 +84,6 @@ export default class DownloadList extends Vue {
   //     isShow: true,
   //     msg: '문서를 다운로드하시겠습니까?',
   //   }).then((result) => {
-  //     console.log('aa :: ', result);
   //     if (result.ok) {
   //       // const downloadBtnEl = this.$refs.downloadBtn;
   //       // console.log(this.$refs.downloadBtn);
@@ -92,15 +93,6 @@ export default class DownloadList extends Vue {
   //     }
   //   });
   // }
-
-  onclickMore(product: IProduct) {
-    this.$router.push({
-      name: 'downloadList',
-      params: {
-        productName: product.productName,
-      },
-    });
-  }
 }
 </script>
 <style scoped>

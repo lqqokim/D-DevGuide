@@ -85,6 +85,7 @@
                 }"
                 placeholder="DEWS15"
                 @input="changeProjectId"
+                @blur="checkProject"
               />
             </td>
           </tr>
@@ -110,7 +111,6 @@
                 >
                   {{ localProduct.targetBranch }}
                 </button>
-                <!-- 셀렉트박스  선택시 ui-select-wrap에 on 추가하면 display block 됨 -->
                 <div
                   class="ui-select-wrap"
                   :class="{ on: isClickedTargetBranch }"
@@ -139,10 +139,14 @@
                 :value="localProduct.manualDocPath"
                 type="text"
                 class="inp-base w-269"
-                placeholder="/docs"
+                placeholder="docs/document"
                 @input="changeManualDocPath"
               />
-              <button type="button" class="dbs-icon-button file"></button>
+              <button
+                type="button"
+                class="dbs-icon-button file"
+                @click="openSelectDocPathModal"
+              ></button>
             </td>
           </tr>
           <tr>
@@ -153,19 +157,52 @@
                 :disabled="!apiUseFlag"
                 type="text"
                 class="inp-base w-269"
-                placeholder="/docs/api"
+                placeholder="docs/api"
                 @input="changeAPIDocPath"
               />
               <button
                 type="button"
                 :disabled="!apiUseFlag"
                 class="dbs-icon-button file"
+                @click="openSelectAPIPathModal"
               ></button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    <!-- 문서 기본 경로 탐색 다이얼로그 -->
+    <modal-component
+      :modal-title="selectDocPathModalTitle"
+      :modal-name="selectDocPathModalName"
+      :modal-height="selectDocPathModalHeight"
+      :modal-width="selectDocPathModalWidth"
+      @emit-confirm="selectDocPathModalConfirm"
+    >
+      <git-folder-search-modal
+        slot="modalContent"
+        ref="selectDocPathModal"
+        :doc-path-flag="false"
+        :project-id="localProduct.projectId"
+        :current-ref="localProduct.targetBranch"
+      ></git-folder-search-modal>
+    </modal-component>
+    <!-- API 기본 경로 탐색 다이얼로그 -->
+    <modal-component
+      :modal-title="selectAPIPathModalTitle"
+      :modal-name="selectAPIPathModalName"
+      :modal-height="selectAPIPathModalHeight"
+      :modal-width="selectAPIPathModalWidth"
+      @emit-confirm="selectAPIPathModalConfirm"
+    >
+      <git-folder-search-modal
+        slot="modalContent"
+        ref="selectAPIPathModal"
+        :doc-path-flag="false"
+        :project-id="localProduct.projectId"
+        :current-ref="localProduct.targetBranch"
+      ></git-folder-search-modal>
+    </modal-component>
   </div>
 </template>
 
@@ -179,20 +216,53 @@ import {
   namespace,
 } from 'nuxt-property-decorator';
 import * as branch from '@/store/modules/branch';
+import * as repository from '@/store/modules/repository';
+import * as product from '@/store/modules/product';
+import ModalComponent from '@/components/common/modal/modalComponent.vue';
+import GitFolderSearchModal from '@/components/productEdit/GitFolderSearchModal.vue';
+import { IAlert } from '@/store/modules/common';
 
 const Branch = namespace('branch');
+const Common = namespace('common');
+const Repository = namespace('repository');
+const Product = namespace('product');
 
-@Component
+@Component({
+  components: {
+    ModalComponent,
+    GitFolderSearchModal,
+  },
+})
 export default class ProductInfo extends Vue {
   apiUseFlag: boolean = false;
   isExistProjectIdFlag: boolean = false;
   isClickedTargetBranch: boolean = false;
 
-  // @Branch.Action('getBranchList')
-  // getBranchListAction;
+  selectDocPathModalTitle: string = 'Git 폴더 탐색기';
+  selectDocPathModalName: string = 'selectDocPathModal';
+  selectDocPathModalHeight: string = '673px';
+  selectDocPathModalWidth: string = '700px';
+
+  selectAPIPathModalTitle: string = 'Git 폴더 탐색기';
+  selectAPIPathModalName: string = 'selectAPIPathModal';
+  selectAPIPathModalHeight: string = '673px';
+  selectAPIPathModalWidth: string = '700px';
+
+  $modal!: any;
+
+  $refs!: {
+    selectDocPathModal: any;
+    selectAPIPathModal: any;
+  };
+
   @Branch.Action('getBranchNameList')
   getBranchNameListAction;
   @Branch.Mutation('setBranchNameList') setBranchNameListEmpty;
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
+  @Repository.Action('getRepository') getRepositoryAction;
+  @Product.Action('checkProjectInfo') checkProjectInfoAction;
+
+  currentProjectId: string = '';
 
   @Prop() readonly product!: any;
   @Watch('product', { immediate: true, deep: true })
@@ -203,29 +273,10 @@ export default class ProductInfo extends Vue {
     this.apiUseFlag = val.apiUse;
     this.isClickedTargetBranch = false;
 
-    console.log(this.$store.state.product.projectIdList);
-    const isExistProjectId = this.$store.state.product.projectIdList.findIndex(
-      (projectId) => {
-        return projectId === Number(val.projectId);
-      }
-    );
-
-    this.isExistProjectIdFlag = isExistProjectId !== -1;
-
-    if (!this.isExistProjectIdFlag) {
-      this.setBranchNameListEmpty([]);
-    } else {
-      this.getBranchNameListAction({
-        projectId: Number(val.projectId),
-        gitlabToken: this.$store.state.user.user.gitlabToken,
-      });
-    }
-
     if (oldVal && val.productCode !== oldVal.productCode) {
       this.emitEvent();
     }
 
-    // this.localProduct = Object.assign({}, val);
     this.localProduct = val;
   }
 
@@ -239,13 +290,43 @@ export default class ProductInfo extends Vue {
     productCode: '',
     description: '',
     apiUse: '',
-    projectId: 0,
+    projectId: '',
     targetBranch: '',
     manualDocPath: '',
     APIDocPath: '',
     _id: '',
     isExistProjectIdFlag: false,
   };
+
+  mounted() {
+    setTimeout(() => {
+      this.checkProject();
+    }, 500);
+  }
+
+  checkProject() {
+    this.checkProjectInfoAction({
+      gitlabToken: this.$store.state.user.user.gitlabToken,
+      projectId: this.localProduct.projectId,
+    })
+      .then((res) => {
+        console.log(res);
+        this.currentProjectId = this.localProduct.projectId;
+        this.isExistProjectIdFlag = true;
+        this.getBranchNameListAction({
+          projectId: this.localProduct.projectId,
+          gitlabToken: this.$store.state.user.user.gitlabToken,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        this.isExistProjectIdFlag = false;
+        this.setBranchNameListEmpty([]);
+      });
+    // if (this.currentProjectId !== this.localProduct.projectId) {
+    //
+    // }
+  }
 
   // @ts-ignore
   changeProductName(e: InputEvent<HTMLInputElement>) {
@@ -270,14 +351,14 @@ export default class ProductInfo extends Vue {
   }
 
   getProduct() {
-    // this.localProduct.isExistProjectIdFlag = this.isExistProjectIdFlag;
-    return this.localProduct;
+    return [this.localProduct, this.isExistProjectIdFlag];
   }
 
   // @ts-ignore
   changeProjectId(e: InputEvent<HTMLInputElement>) {
-    console.log('여기');
     this.localProduct.projectId = e.target.value;
+    this.localProduct.APIDocPath = '';
+    this.localProduct.manualDocPath = '';
   }
 
   // @ts-ignore
@@ -294,6 +375,74 @@ export default class ProductInfo extends Vue {
   // @ts-ignore
   changeAPIDocPath(e: InputEvent<HTMLInputElement>) {
     this.localProduct.APIDocPath = e.target.value;
+  }
+
+  async openSelectDocPathModal() {
+    if (!this.isExistProjectIdFlag) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '유효한 프로젝트 ID 를 입력해주세요.',
+      }).then(() => {});
+      return;
+    }
+    await this.getRepositoryAction({
+      projectId: this.localProduct.projectId,
+      filePath: '',
+      ref: this.localProduct.targetBranch,
+      useDocPath: false,
+    });
+    this.$modal.show(this.selectDocPathModalName);
+  }
+
+  async openSelectAPIPathModal() {
+    if (!this.isExistProjectIdFlag) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '유효한 프로젝트 ID 를 입력해주세요.',
+      }).then(() => {});
+      return;
+    }
+    await this.getRepositoryAction({
+      projectId: this.localProduct.projectId,
+      filePath: '',
+      ref: this.localProduct.targetBranch,
+      useDocPath: false,
+    });
+    this.$modal.show(this.selectAPIPathModalName);
+  }
+
+  selectDocPathModalConfirm(clickConfirmBtn) {
+    const folderPath = this.$refs.selectDocPathModal.getData();
+    if (clickConfirmBtn && folderPath === undefined) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '폴더를 선택해주세요.',
+      }).then(() => {});
+      return;
+    }
+    if (clickConfirmBtn) {
+      this.localProduct.manualDocPath = folderPath.states.path;
+    }
+    this.$modal.hide(this.selectDocPathModalName);
+  }
+
+  selectAPIPathModalConfirm(clickConfirmBtn) {
+    const folderPath = this.$refs.selectAPIPathModal.getData();
+    if (clickConfirmBtn && folderPath === undefined) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '폴더를 선택해주세요.',
+      }).then(() => {});
+      return;
+    }
+    if (clickConfirmBtn) {
+      this.localProduct.APIDocPath = folderPath.states.path;
+    }
+    this.$modal.hide(this.selectAPIPathModalName);
   }
 }
 </script>

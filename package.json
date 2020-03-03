@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "description": "dev documents",
-  "author": "정일영",
+  "author": "김인수",
   "private": true,
   "scripts": {
     "dev": "nuxt-ts",
@@ -31,7 +31,7 @@
     "body-parser": "^1.19.0",
     "child_process": "^1.0.2",
     "cookie-parser": "^1.4.4",
-    "cookie-universal-nuxt": "^2.0.18",
+    "cookie-universal-nuxt": "^2.1.2",
     "cors": "^2.8.5",
     "crypto-js": "^3.1.9-1",
     "diff2html": "^2.12.1",
@@ -74,6 +74,7 @@
     "@vue/test-utils": "^1.0.0-beta.27",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.1.0",
+    "bcrypt": "^3.0.7",
     "eslint": "^6.1.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-nuxt": ">=0.4.2",

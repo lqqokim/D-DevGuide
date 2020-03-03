@@ -82,6 +82,10 @@ export default class BranchManageMergeRequest extends Vue {
   isAuthoredStaff: boolean = false;
 
   created() {
+    if (!this.$store.state.user.user.gitlabToken) {
+      return;
+    }
+
     if (
       this.$store.state.user.user.authority !== 'M' &&
       this.$store.state.product.product.staffs.length > 0
@@ -110,13 +114,28 @@ export default class BranchManageMergeRequest extends Vue {
       msg: '병합 요청을 승인하시겠습니까?',
     }).then(async (result) => {
       if (result.ok) {
-        console.log('confirm');
         await this.acceptMergeRequestAction({
           projectId: this.$store.state.product.product.projectId,
           productCode: this.$store.state.product.product.productCode,
           mergeRequestIId: mergeRequest.iid,
           gitlabToken: this.$store.state.user.user.gitlabToken,
-        });
+        })
+          .then((mergeResult) => {
+            this.alertAction({
+              type: 'check',
+              isShow: true,
+              msg: '병합이 정상적으로 되었습니다.',
+            }).then(() => {});
+          })
+          .catch((err) => {
+            if (err.response.status === 405) {
+              this.alertAction({
+                type: 'warning',
+                isShow: true,
+                msg: '병합 중 충돌이 발생했습니다.',
+              }).then(() => {});
+            }
+          });
 
         await this.getBranchListAction({
           productCode: this.$store.state.product.product.productCode,

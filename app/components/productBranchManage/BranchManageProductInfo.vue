@@ -47,19 +47,6 @@
         </ul>
       </div>
     </div>
-    <!--<div style="border: 1px solid black;">-->
-    <!--제품 정보 <br />-->
-    <!-- - 제품명 : {{ $store.state.product.product.productName }}<br />-->
-    <!-- - 제품설명 : {{ $store.state.product.product.description }}<br />-->
-    <!--<p v-if="$store.state.product.product.apiUse">- API 사용 여부 : 사용</p>-->
-    <!--<p v-else>- API 사용 여부 : 미사용</p>-->
-    <!--<br />-->
-    <!--Gitlab 리포지토리<br />-->
-    <!-- - 프로젝트 ID : {{ $store.state.product.product.projectId }}<br />-->
-    <!-- - 기준 브랜치 : {{ $store.state.product.product.targetBranch }}<br />-->
-    <!-- - 문서 기본 경로 : {{ $store.state.product.product.manualDocPath }}<br />-->
-    <!-- - API 기본 경로 : {{ $store.state.product.product.APIDocPath }}<br />-->
-    <!--</div>-->
   </div>
 </template>
 

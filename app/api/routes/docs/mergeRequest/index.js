@@ -8,13 +8,12 @@ const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
-// const services = new Gitlab({
-//   host: 'http://10.36.13.89',
-//   token: '__5uUEPux-qreBuxsJt2',
-// });
+// __5uUEPux-qreBuxsJt2 - 10.110.15.133 안예솔 gitlabToken
+// -x_eB2WV1oaC876jTPwP - 10.110.15.133 root gitlabToken
 
-// 안예솔 - __5uUEPux-qreBuxsJt2
-
+/**
+ * 병합 요청 목록 가져오기
+ */
 router.get('/getMergeRequestList', (req, res) => {
   const params = {
     projectId: req.query.projectId,
@@ -24,7 +23,7 @@ router.get('/getMergeRequestList', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
@@ -37,6 +36,9 @@ router.get('/getMergeRequestList', (req, res) => {
     });
 });
 
+/**
+ * 병합 요청 생성
+ */
 router.get('/createMergeRequest', (req, res) => {
   const projectId = req.query.projectId;
   const sourceBranch = req.query.sourceBranch;
@@ -49,7 +51,7 @@ router.get('/createMergeRequest', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
@@ -61,13 +63,18 @@ router.get('/createMergeRequest', (req, res) => {
     option
   )
     .then((result) => {
-      res.json(result);
+      res.status(200).send({ success: true, data: result });
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res
+        .status(err.response.status)
+        .send({ success: false, msg: err.message });
     });
 });
 
+/**
+ * 병합 요청 삭제
+ */
 router.get('/removeMergeRequest', (req, res) => {
   const projectId = req.query.projectId;
   const mergeRequestIId = req.query.mergeRequestIId;
@@ -75,7 +82,7 @@ router.get('/removeMergeRequest', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
@@ -90,6 +97,9 @@ router.get('/removeMergeRequest', (req, res) => {
     });
 });
 
+/**
+ * 병합 요청 승인
+ */
 router.get('/acceptMergeRequest', (req, res) => {
   const projectId = req.query.projectId;
   const mergeRequestIId = req.query.mergeRequestIId;
@@ -98,23 +108,24 @@ router.get('/acceptMergeRequest', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
   service.MergeRequests.accept(projectId, mergeRequestIId, option)
     .then((result) => {
-      res.json(result);
+      res.status(200).send({ success: true, data: result });
     })
     .catch((err) => {
-      if (err.response.status === 403) {
-        // TODO 메시지 박스 띄우기 (alert 사용 불가 -> alert is not defined 오류 발생)
-        // alert('해당 프로젝트에 admin 또는 owner 설정이 필요한 기능입니다.');
-      }
-      res.status(err.response.status).send({ error: err.description });
+      res
+        .status(err.response.status)
+        .send({ success: false, msg: err.message });
     });
 });
 
+/**
+ * 병합 요청한 브랜치의 변경 사항 가져오기
+ */
 router.get('/getChangesData', (req, res) => {
   const projectId = req.query.projectId;
   const mergeRequestIId = req.query.mergeRequestIId;
@@ -122,7 +133,7 @@ router.get('/getChangesData', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 

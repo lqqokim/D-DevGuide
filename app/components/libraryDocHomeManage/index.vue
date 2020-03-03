@@ -3,16 +3,13 @@
     <div class="view-top mgb-15">
       <h1 class="tit-con-text">문서<span>홈 화면 관리</span></h1>
     </div>
-    <div v-for="product in $store.state.document.products" :key="product._id">
+    <div
+      v-for="(product, productIdx) in $store.state.document.products"
+      :key="product._id"
+    >
       <div class="video-top">
         <p class="tit-con-sub">{{ product.productName }}</p>
         <div class="pst-button">
-          <button
-            type="button"
-            class="dbs-icon-button ico-left small horizontal"
-          >
-            이동
-          </button>
           <button
             type="button"
             class="dbs-icon-button ico-left small plus"
@@ -23,43 +20,55 @@
         </div>
       </div>
       <ul class="thumb-list x-document moving mgt-20 mgb-60">
-        <li
-          v-for="(managedDoc, index) in product.managedDocs"
-          :key="managedDoc._id"
-          :class="{ 'mgl-0': index === 0 }"
+        <draggable
+          v-model="localManagedDocs[productIdx]"
+          group="productCode"
+          handle=".dbs-icon-move"
+          animation="300"
+          style="display: flex;"
+          @change="draggableChange(product._id, productIdx)"
         >
-          <div class="thumb">
-            <button type="button" class="dbs-icon-move horizontal">
-              좌우 이동
-            </button>
-            <img
-              :src="
-                managedDoc.thumbnailPath &&
-                  managedDoc.thumbnailPath.replace('app/static', '')
-              "
-              alt="document"
-            />
-          </div>
-          <dl class="thumb-desc">
-            <!-- TO DO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
-            <dt style="word-break: break-all;">
-              <i class="icon-doc" :class="managedDoc.fileExt">{{
-                managedDoc.fileExt.toUpperCase()
-              }}</i
-              >{{ cutStr(managedDoc.docTitle) }}
-            </dt>
-            <dd>
-              {{ convertDateFormat(managedDoc.uploadDate)
-              }}<span class="administer"
-                ><a
-                  class="font-accent-color"
-                  @click="removeManagedDocs(product, managedDoc)"
-                  >삭제</a
-                ></span
+          <li
+            v-for="(managedDoc, index) in localManagedDocs[productIdx]"
+            :key="managedDoc._id"
+            :class="{ 'mgl-0': index === 0 }"
+          >
+            <div class="thumb" style="cursor: auto;">
+              <button
+                type="button"
+                class="dbs-icon-move horizontal"
+                style="cursor: move;"
               >
-            </dd>
-          </dl>
-        </li>
+                좌우 이동
+              </button>
+              <img
+                :src="
+                  managedDoc.thumbnailPath &&
+                    managedDoc.thumbnailPath.replace('app/static', '')
+                "
+                alt="document"
+              />
+            </div>
+            <dl class="thumb-desc">
+              <dt class="title-dim">
+                <i class="icon-doc" :class="managedDoc.fileExt">{{
+                  managedDoc.fileExt.toUpperCase()
+                }}</i
+                >{{ managedDoc.docTitle }}
+              </dt>
+              <dd>
+                {{ convertDateFormat(managedDoc.uploadDate)
+                }}<span class="administer"
+                  ><a
+                    class="font-accent-color"
+                    @click="removeManagedDocs(product, managedDoc)"
+                    >삭제</a
+                  ></span
+                >
+              </dd>
+            </dl>
+          </li>
+        </draggable>
       </ul>
     </div>
     <modal-component
@@ -77,6 +86,7 @@
   </div>
 </template>
 <script lang="ts">
+import draggable from 'vuedraggable';
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { dateFormat } from '~/utils/commonFuncs';
 import { IDocument, ListParams } from '@/store/modules/document';
@@ -89,11 +99,14 @@ const Common = namespace('common');
 
 @Component({
   components: {
+    draggable,
     ModalComponent,
     DocManageModal,
   },
 })
 export default class LibraryDownloadEdit extends Vue {
+  localManagedDocs: any[] = [];
+
   @Doc.Action('getDocsByProduct') getDocsByProductAction;
   @Doc.Action('updateManagedDoc') updateManagedDocAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
@@ -113,6 +126,12 @@ export default class LibraryDownloadEdit extends Vue {
   //   console.log(doc);
   //   return [`btn-${doc.fileExt}`];
   // }
+
+  created() {
+    this.$store.state.document.products.forEach((product) => {
+      this.localManagedDocs.push(product.managedDocs);
+    });
+  }
 
   async onClickAddButton(product) {
     await this.getDocsByProductAction({
@@ -134,26 +153,16 @@ export default class LibraryDownloadEdit extends Vue {
       this.updateManagedDocAction({
         productId: this.$store.state.document.selectedProduct._id,
         managedDocs: selectedDocs,
+      }).then(() => {
+        this.localManagedDocs = [];
+        this.$store.state.document.products.forEach((product) => {
+          this.localManagedDocs.push(product.managedDocs);
+        });
       });
       this.$modal.hide(this.docManageModalName);
     } else {
       this.$modal.hide(this.docManageModalName);
     }
-  }
-
-  cutStr(orgText): void {
-    let count = 0;
-    let returnText = orgText;
-    for (let idx = 0; idx < orgText.length; idx++) {
-      const currentByte = orgText.charCodeAt(idx);
-      currentByte > 128 ? (count += 2) : count++;
-      if (count > 40) {
-        returnText = orgText.substr(0, idx - 1) + '...';
-        break;
-      }
-    }
-
-    return returnText;
   }
 
   convertDateFormat(time): string {
@@ -173,11 +182,27 @@ export default class LibraryDownloadEdit extends Vue {
         this.updateManagedDocAction({
           productId: product._id,
           managedDocs: newData,
+        }).then(() => {
+          this.localManagedDocs = [];
+          this.$store.state.document.products.forEach((product) => {
+            this.localManagedDocs.push(product.managedDocs);
+          });
         });
       }
+    });
+  }
+
+  draggableChange(id, productIdx) {
+    this.updateManagedDocAction({
+      productId: id,
+      managedDocs: this.localManagedDocs[productIdx],
     });
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.dbs-icon-move {
+  cursor: move;
+}
+</style>

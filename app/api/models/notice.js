@@ -10,6 +10,7 @@ const noticeScheme = new mongoose.Schema({
   pageTitle: { type: String, default: '' },
   writeTime: { type: String, default: '' },
   writer: { type: String, default: '' },
+  index: { type: Number },
 });
 
 const NoticeModel = mongoose.model('Notice', noticeScheme);

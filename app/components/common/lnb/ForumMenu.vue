@@ -2,27 +2,39 @@
   <div class="left-menu">
     <p class="tit-con-left"><strong>질문/답변</strong></p>
     <div class="ui-accordion-left-pnl">
-      <ul v-for="(menu, index) in forumMenu" :key="index">
-        <li class="nav-item depth-1 page">
-          <a
-            class="nav-text"
-            @click="onclickCategory(menu.categories[index], index)"
-            >{{ menu.categories[index].categoryName }}</a
-          >
-        </li>
+      <ul>
         <li
           class="nav-item depth-1"
-          :class="{ folder: isProductFolder, selected: isProductSelected }"
+          :class="{ selected: isSelectedMyForum, page: isSelectedMyForum }"
         >
-          <a
+          <nuxt-link
+            :to="{
+              name: 'forumMy',
+            }"
             class="nav-text"
-            @click="onclickCategory(menu.categories[index + 1], index + 1)"
-            >{{ menu.categories[index + 1].categoryName }}</a
+            @click.native="onclickCategory('MyForum')"
+            >내 질문 / 답변</nuxt-link
+          >
+        </li>
+        <!--        <li-->
+        <!--          class="nav-item depth-1"-->
+        <!--          :class="{ folder: isProductFolder, selected: isProductSelected }"-->
+        <!--        >-->
+        <li
+          class="nav-item depth-1"
+          :class="{
+            // selected: isSelectedProductForum,
+            folder: isFolderProductForum,
+          }"
+        >
+          <a class="nav-text" @click="onclickCategory('ProductForum')"
+            >제품별 질문 / 답변</a
           >
           <ul
+            v-if="isFolderProductForum"
             ref="productNav"
             class="nav-container depth-2"
-            :style="{ display: navContainerDisplay }"
+            style="display: block;"
           >
             <!--            <li-->
             <!--              v-for="product in products"-->
@@ -31,9 +43,11 @@
             <!--            >-->
             <li
               v-for="product in products"
-              :key="product.productCode"
+              :key="product._id"
               class="nav-item depth-2 page"
-              :class="{ selected: product.productCode === selectedProductCode }"
+              :class="{
+                selected: $route.path === '/qna/' + product.productCode,
+              }"
             >
               <nuxt-link
                 :to="{
@@ -47,11 +61,21 @@
             </li>
           </ul>
         </li>
-        <li v-if="isAdmin()" class="nav-item depth-1 page">
-          <a
+        <li
+          v-if="isAdmin()"
+          class="nav-item depth-1"
+          :class="{
+            selected: isSelectedProductManage,
+            page: isSelectedProductManage,
+          }"
+        >
+          <nuxt-link
+            :to="{
+              name: 'forumProductManage',
+            }"
             class="nav-text"
-            @click="onclickCategory(menu.categories[index + 2], index + 2)"
-            >{{ menu.categories[index + 2].categoryName }}</a
+            @click.native="onclickCategory('ProductManage')"
+            >제품관리</nuxt-link
           >
         </li>
       </ul>
@@ -74,51 +98,108 @@ export default class ForumMenu extends Vue {
     productNav: any;
   };
 
-  forumMenu: any[] = [];
-  products = [];
+  // products = [];
 
-  isProductFolder: boolean = true;
-  isProductSelected: boolean = true;
-  navContainerDisplay: string = 'block';
   selectedProductCode!: string;
 
+  isSelectedMyForum: boolean = false;
+  isSelectedProductForum: boolean = false;
+  isSelectedProductManage: boolean = false;
+
+  isFolderProductForum: boolean = true;
+
   isAdmin(): boolean {
-    return this.$store.state.user.user.loginId === 'admin';
+    return this.$store.state.user.user.authority === 'S';
   }
 
-  @Watch('$route.params.productCode')
+  @Watch('$route.params.productCode', { deep: true, immediate: true })
   onChangeMenu(value, oldValue) {
-    this.selectedProductCode = value;
-    // console.log('onChangeMenu :: ', this.selectedProductCode);
-  }
+    // console.log('onChangeMenu :: ', value);
 
-  onclickCategory(category, index: number): void {
-    // console.log('onclickCategory :: ', category, index);
-    if (category.categoryCode === 'productManage') {
-      this.$router.push({
-        name: 'forumProductManage',
-      });
-    } else if (category.categoryCode === 'forumMy') {
-      if (!this.$store.state.user.user.loginId) {
-        this.alertAction({
-          type: 'warning',
-          isShow: true,
-          msg: '로그인 이후에 이용하실 수 있습니다.',
-        }).then((result) => {
-          if (result.ok) {
-            // next('/login');
-            // DBS 고객 로그인 화면으로 이동
-            location.href = '/html/Login.html';
-          }
-        });
-
-        return;
+    if (value === undefined) {
+      const path = this.$route.path;
+      if (path === '/qna/my') {
+        this.isSelectedMyForum = true;
+        this.isSelectedProductManage = false;
+      } else if (path === '/qna/manage/product') {
+        this.isSelectedMyForum = false;
+        this.isSelectedProductManage = true;
       }
 
-      this.$router.push({
-        name: 'forumMy',
-      });
+      this.selectedProductCode = '';
+    } else {
+      this.isSelectedMyForum = false;
+      this.isSelectedProductManage = false;
+
+      // @ts-ignore
+      // this.products = this.products.slice(); // for selection
+      this.selectedProductCode = value;
     }
+  }
+
+  onclickCategory(type: string) {
+    if (type === 'MyForum') {
+      this.isSelectedMyForum = true;
+      this.isSelectedProductForum = false;
+      this.isSelectedProductManage = false;
+
+      this.selectedProductCode = '';
+    } else if (type === 'ProductForum') {
+      this.isSelectedMyForum = false;
+      this.isSelectedProductForum = !this.isSelectedProductForum;
+      this.isSelectedProductManage = false;
+
+      this.isFolderProductForum = !this.isFolderProductForum;
+    } else {
+      this.isSelectedMyForum = false;
+      this.isSelectedProductForum = false;
+      this.isSelectedProductManage = true;
+
+      this.selectedProductCode = '';
+    }
+  }
+
+  // onclickProduct(productCode) {
+  //   console.log('onclickProduct :: ', productCode);
+  //   this.selectedProductCode = productCode;
+  // }
+
+  // onclickCategory(category, index: number): void {
+  //   // console.log('onclickCategory :: ', category, index);
+  //   if (category.categoryCode === 'productManage') {
+  //     this.$router.push({
+  //       name: 'forumProductManage',
+  //     });
+  //   } else if (category.categoryCode === 'forumMy') {
+  //     if (!this.$store.state.user.user.loginId) {
+  //       this.alertAction({
+  //         type: 'warning',
+  //         isShow: true,
+  //         msg: '로그인 이후에 이용하실 수 있습니다.',
+  //       }).then((result) => {
+  //         if (result.ok) {
+  //           // next('/login');
+  //           // DBS 고객 로그인 화면으로 이동
+  //           location.href = '/html/Login.html';
+  //         }
+  //       });
+  //
+  //       return;
+  //     }
+  //
+  //     this.$router.push({
+  //       name: 'forumMy',
+  //     });
+  //   }
+  // }
+
+  get products() {
+    const products = this.$store.state.forum.products.slice();
+    products.unshift({
+      productName: '전체',
+      productCode: 'ALL',
+    });
+    return products;
   }
 
   async created() {
@@ -126,53 +207,20 @@ export default class ForumMenu extends Vue {
       await this.forumProductsAction();
     }
 
-    const products = this.$store.state.forum.products.slice();
-    products.unshift({
-      productName: '전체',
-      productCode: 'ALL',
-    });
+    // const products = this.$store.state.forum.products.slice();
+    // products.unshift({
+    //   productName: '전체',
+    //   productCode: 'ALL',
+    // });
+    //
+    // this.products = products;
 
-    this.products = products;
-    this.forumMenu = [
-      {
-        categories: [
-          {
-            categoryName: '내 질문 / 답변',
-            categoryCode: 'forumMy',
-            isCategory: true,
-          },
-          {
-            categoryName: '제품별 질문 / 답변',
-            categoryCode: 'byProduct',
-            isCategory: true,
-          },
-          {
-            categoryName: '제품관리',
-            categoryCode: 'productManage',
-            isCategory: true,
-          },
-        ],
-      },
-    ];
+    if (this.$route.params.productCode) {
+      this.isFolderProductForum = true;
+      this.isSelectedProductForum = true;
+    }
 
     this.selectedProductCode = this.$route.params.productCode;
-    // console.log('created selectedProductCode', this.selectedProductCode);
-  }
-
-  mounted() {
-    this.$nextTick(() => {
-      // this.initMenu();
-    });
-  }
-
-  initMenu() {
-    // console.log(this.$refs.productNav);
-    this.$refs.productNav.style.display = 'none';
-  }
-
-  checkCategoryMenu() {
-    if (this.$route.params.productCode) {
-    }
   }
 }
 </script>

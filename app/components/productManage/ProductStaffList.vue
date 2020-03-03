@@ -14,7 +14,7 @@
         </button>
       </div>
     </div>
-    <div class="tbl-wrap mgb-20">
+    <div class="tbl-wrap mgb-20" style="overflow-y: auto; max-height: 180px;">
       <table class="tbl-write-ver tbl-fixed">
         <colgroup>
           <col style="width: 200px;" />
@@ -25,7 +25,7 @@
             <th>이름(아이디)</th>
             <th>작성</th>
             <th>병합</th>
-            <th>삭제</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -56,19 +56,55 @@
                 <label :for="'merge_' + index" class="dbs-checkbox"></label>
               </div>
             </td>
-            <td @click="onclickRemoveStaff(index)">삭제</td>
+            <td style="cursor: pointer;" @click="onclickRemoveStaff(index)">
+              삭제
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
+    <modal-component
+      :modal-title="searchGWUserModalTitle"
+      :modal-name="searchGWUserModalName"
+      :modal-height="searchGWUserModalHeight"
+      :modal-width="searchGWUserModalWidth"
+      @emit-confirm="searchGWUserModalConfirm"
+    >
+      <search-g-w-user-modal
+        slot="modalContent"
+        ref="searchGWUserModal"
+      ></search-g-w-user-modal>
+    </modal-component>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch, Emit } from 'nuxt-property-decorator';
+import {
+  Component,
+  Vue,
+  Prop,
+  Watch,
+  namespace,
+} from 'nuxt-property-decorator';
+import * as searchGWUser from '@/store/modules/searchGWUser.ts';
+import ModalComponent from '@/components/common/modal/modalComponent.vue';
+import SearchGWUserModal from '@/components/common/productManage/SearchGWUserModal.vue';
+import { IAlert } from '@/store/modules/common';
 
-@Component
+const SearchGWUser = namespace('searchGWUser');
+const Common = namespace('common');
+
+@Component({
+  components: {
+    ModalComponent,
+    SearchGWUserModal,
+  },
+})
 export default class ProductAdminList extends Vue {
+  @SearchGWUser.Action('getSearchGWUser')
+  getSearchGWUserAction;
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
+
   @Prop() readonly staffs!: any;
   @Watch('staffs', { immediate: true, deep: true })
   onStaffsChange(val) {
@@ -79,6 +115,55 @@ export default class ProductAdminList extends Vue {
     }
   }
 
+  $refs!: {
+    searchGWUserModal: any;
+  };
+
+  $modal!: any;
+
+  searchGWUserModalTitle: string = '그룹웨어 사용자 검색';
+  searchGWUserModalName: string = 'searchGWUserModal';
+  searchGWUserModalHeight: string = '673px';
+  searchGWUserModalWidth: string = '700px';
+
+  searchGWUserModalConfirm(clickConfirmBtn) {
+    const userInfo = this.$refs.searchGWUserModal.getData();
+
+    if (clickConfirmBtn) {
+      if (userInfo.loginId === '') {
+        this.alertAction({
+          type: 'warning',
+          isShow: true,
+          msg: '추가할 사용자를 선택하세요.',
+        }).then(() => {});
+      } else {
+        let duplicatedUser: boolean = false;
+        this.localStaffs.forEach((staff) => {
+          if (!duplicatedUser && staff.empId === userInfo.loginId) {
+            duplicatedUser = true;
+          }
+        });
+        if (duplicatedUser) {
+          this.alertAction({
+            type: 'warning',
+            isShow: true,
+            msg: '이미 등록되어있는 사용자입니다.',
+          }).then(() => {});
+        } else {
+          this.localStaffs.push({
+            empName: userInfo.empName,
+            empId: userInfo.loginId,
+            writeAuthority: false,
+            mergeAuthority: false,
+          });
+          this.$modal.hide(this.searchGWUserModalName);
+        }
+      }
+    } else {
+      this.$modal.hide(this.searchGWUserModalName);
+    }
+  }
+
   localStaffs: {
     empName: string;
     empId: string;
@@ -86,14 +171,24 @@ export default class ProductAdminList extends Vue {
     mergeAuthority: boolean;
   }[] = [];
 
-  onClickAddStaff(): void {
-    for (let i = 0; i < this.temp.length; i++) {
-      this.localStaffs.push(this.temp[i]);
-    }
+  async onClickAddStaff(): Promise<any> {
+    await this.getSearchGWUserAction({
+      empName: '',
+      loginId: '',
+    });
+    this.$modal.show(this.searchGWUserModalName);
   }
 
   onclickRemoveStaff(index): void {
-    this.localStaffs.splice(index, 1);
+    this.alertAction({
+      type: 'question',
+      isShow: true,
+      msg: '관리자에서 해당 사용자를 삭제하시겠습니까?',
+    }).then((res) => {
+      if (res.ok) {
+        this.localStaffs.splice(index, 1);
+      }
+    });
   }
 
   getStaffs() {
@@ -109,21 +204,6 @@ export default class ProductAdminList extends Vue {
     this.localStaffs[index].mergeAuthority = !this.localStaffs[index]
       .mergeAuthority;
   }
-
-  temp = [
-    {
-      empName: '노휘겸',
-      empId: 'whistle',
-      writeAuthority: true,
-      mergeAuthority: true,
-    },
-    {
-      empName: '전병철',
-      empId: 'years87',
-      writeAuthority: true,
-      mergeAuthority: false,
-    },
-  ];
 }
 </script>
 

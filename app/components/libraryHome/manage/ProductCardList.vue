@@ -7,7 +7,9 @@
     >
       <draggable
         v-model="localProducts"
-        :options="{ group: 'productName' }"
+        group="productName"
+        handle=".btn-move"
+        animation="300"
         @start="drag = true"
         @end="drag = false"
         @change="draggableLog"
@@ -50,36 +52,44 @@ export default class ProductCardList extends Vue {
     // console.log('onProductsChange :: ', products, this.localProducts.length);
 
     // after add new product
-    if (products.length > this.localProducts.length) {
-      if (!products[products.length - 1]._id) {
-        // new product selection
-        this.selectedProductIdx = products.length - 1;
+    if (products.length > 0) {
+      if (products.length > this.localProducts.length) {
+        if (!products[products.length - 1]._id) {
+          // new product selection
+          this.selectedProductIdx = products.length - 1;
 
-        setTimeout(() => {
-          // scroll to bottom
-          const scrollWrap: HTMLDivElement = this.$refs.scrollWrap;
-          scrollWrap.scrollTop = scrollWrap.scrollHeight;
-        });
+          setTimeout(() => {
+            // scroll to bottom
+            const scrollWrap: HTMLDivElement = this.$refs.scrollWrap;
+
+            if (scrollWrap) {
+              scrollWrap.scrollTop = scrollWrap.scrollHeight;
+            }
+          });
+        }
       }
-    }
-    // after remove product or get store products
-    else {
-      /* eslint-disable no-lonely-if */
-      if (this.isInitial) {
-        this.selectedProductIdx = 0;
+      // after remove product or get store products
+      else {
+        /* eslint-disable no-lonely-if */
+        if (this.isInitial) {
+          this.selectedProductIdx = 0;
 
-        setTimeout(() => {
-          // scroll to top
-          const scrollWrap: HTMLDivElement = this.$refs.scrollWrap;
-          scrollWrap.scrollTop = 0;
-        });
+          setTimeout(() => {
+            // scroll to top
+            const scrollWrap: HTMLDivElement = this.$refs.scrollWrap;
+
+            if (scrollWrap) {
+              scrollWrap.scrollTop = 0;
+            }
+          });
+        }
       }
-    }
 
-    // set localProducts
-    this.localProducts = products.slice();
-    this.isDisabledWrap = !this.localProducts[this.localProducts.length - 1]
-      ._id;
+      // set localProducts
+      this.localProducts = products.slice();
+      this.isDisabledWrap = !this.localProducts[this.localProducts.length - 1]
+        ._id;
+    }
   }
 
   isDisabledWrap: boolean = false;
@@ -137,7 +147,7 @@ export default class ProductCardList extends Vue {
 }
 </script>
 <style lang="css" scoped>
-.dbs-visual-list {
+.btn-move {
   cursor: move;
 }
 

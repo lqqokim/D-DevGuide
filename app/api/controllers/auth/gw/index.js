@@ -58,3 +58,32 @@ export const searchUser = (user) => {
 
   return request(options);
 };
+
+/**
+ * 이름으로 그룹웨어 직원 정보를 가져온다.
+ * @param user
+ * @private
+ */
+export const searchUserList = (user) => {
+  const requestBody = {
+    header: {
+      empSeq: '',
+      groupSeq: '',
+      tId: '',
+      pId: '',
+    },
+    body: {
+      empName: user.empName,
+      langCode: 'kr',
+    },
+  };
+
+  const options = {
+    url: 'https://gwa.douzone.com/interlock/api/orgchart/SearchUserList',
+    method: 'POST',
+    body: requestBody,
+    json: true,
+  };
+
+  return request(options);
+};

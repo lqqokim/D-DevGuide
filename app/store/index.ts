@@ -16,6 +16,7 @@ import * as version from './modules/version';
 import * as notice from './modules/notice';
 import * as forum from './modules/forum';
 import * as search from './modules/search';
+import * as searchGWUser from './modules/searchGWUser';
 
 export type RootState = root.State;
 Vue.use(Vuex);
@@ -39,6 +40,7 @@ export const store = new Vuex.Store({
     notice,
     forum,
     search,
+    searchGWUser,
   },
 });
 

@@ -40,12 +40,9 @@ import { Vue, Component, Prop, Emit } from 'nuxt-property-decorator';
 @Component
 export default class modalComponent extends Vue {
   @Prop() readonly modalTitle!: string;
-  // @Prop() readonly modalClasses!: Array<string>;
   @Prop() readonly modalName!: string;
   @Prop() readonly modalHeight!: string;
   @Prop() readonly modalWidth!: string;
-
-  // @Prop() readonly selectedBranch!: object;
 
   $refs!: {
     modalContent: any;
@@ -58,8 +55,6 @@ export default class modalComponent extends Vue {
   }
 
   closeModal() {
-    // const overlay = document.getElementsByClassName('dbs-overlay')[0];
-    // document.querySelector('.base-wrap').removeChild(overlay);
     this.$modal.hide(this.modalName);
   }
 }

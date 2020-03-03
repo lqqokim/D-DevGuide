@@ -16,7 +16,6 @@
       <div class="ui-tab-pnls">
         <section class="ui-tab-pnl active" role="tabpanel">
           <ul class="dbs-list-basic">
-            <!-- 수정 필요 -->
             <nuxt-link
               v-for="notice in $store.state.notice.noticeList"
               :key="notice.writeTime"
@@ -32,10 +31,6 @@
               tag="li"
               @click.native="removeExpandedOption"
             >
-              <!--<li-->
-              <!--v-for="notice in $store.state.notice.noticeList"-->
-              <!--:key="notice.writeTime"-->
-              <!--&gt;-->
               <dl>
                 <dd class="category">{{ notice.noticeTitle }}</dd>
                 <dd class="subject">
@@ -54,7 +49,6 @@
                 </dd>
                 <dd class="date">{{ notice.writeTime }}</dd>
               </dl>
-              <!--</li>-->
             </nuxt-link>
           </ul>
         </section>
@@ -86,9 +80,6 @@ export default class ProductCardList extends Vue {
 
   clickedProductNotice(idx, selectedProductCode) {
     this.clickedProductIndex = idx;
-    // this.selectProductAction({
-    //   productCode: selectedProductCode,
-    // });
     this.getNoticeListAction({
       productCode: selectedProductCode,
     });
@@ -104,12 +95,6 @@ export default class ProductCardList extends Vue {
     }
   }
   removeOption(treeData): void {
-    // console.log(treeData.length);
-    // if (treeData.length !== undefined) {
-    //   treeData.forEach((data) => {
-    //     this.removeSelectedOption(data);
-    //   });
-    // }
     treeData.option.expanded = false;
     if (treeData.option.selected && treeData.type === 'page') {
       treeData.option.selected = false;
@@ -118,11 +103,7 @@ export default class ProductCardList extends Vue {
       treeData.children.forEach((data) => {
         this.removeOption(data);
       });
-      // this.removeSelectedOption(treeData.children);
     }
-    // treeData.forEach((data) => {
-    //
-    // });
   }
 }
 </script>

@@ -255,11 +255,26 @@
   background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNC40OTciIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyNC40OTcgMTYiPgogICAgPGRlZnM+CiAgICAgICAgPHN0eWxlPgogICAgICAgICAgICAuY2xzLTF7ZmlsbDojZjBmO29wYWNpdHk6MH0uY2xzLTJ7ZmlsbDojNTU1O3N0cm9rZTpyZ2JhKDAsMCwwLDApO3N0cm9rZS1taXRlcmxpbWl0OjEwfQogICAgICAgIDwvc3R5bGU+CiAgICA8L2RlZnM+CiAgICA8ZyBpZD0iaWNfZWRpdG9yX21jYiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTEyMTggLTUzOSkiPgogICAgICAgIDxwYXRoIGlkPSJhcmVhIiBkPSJNMCAwaDI0djE2SDB6IiBjbGFzcz0iY2xzLTEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyMTggNTM5KSIvPgogICAgICAgIDxnIGlkPSLqt7jro7lfMjIwNCIgZGF0YS1uYW1lPSLqt7jro7kgMjIwNCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjQxLjk5OSAtMTApIj4KICAgICAgICAgICAgPHBhdGggaWQ9Iu2Vqey5mOq4sF82MyIgZD0iTTEyNjUwLTQ5Njd2LTEwaDNhMi45ODUgMi45ODUgMCAwIDEgMyAyLjk3NiAyLjk3NSAyLjk3NSAwIDAgMS0uNzc4IDIuMDIgMi45NzIgMi45NzIgMCAwIDEgLjc3OCAyIDMgMyAwIDAgMS0zIDN6bTItMmgydi0yaC0yem0wLTRoMnYtMmgtMnptLTEwIDFjMC0yLjc2IDEuNzkxLTUgNC01YTMuODU3IDMuODU3IDAgMCAxIDMuMzE2IDIuMmwtMS41MTUgMS41MTJjLS4zMjEtMS0xLTEuNzEyLTEuOC0xLjcxMi0xLjEgMC0yIDEuMzQzLTIgM3MuOSAzIDIgM2ExLjggMS44IDAgMCAwIDEuNDktMS4wMTNsMS40MjMgMS40MjNhMy42OCAzLjY4IDAgMCAxLTIuOTE0IDEuNTljLTIuMjA4IDAtNC0yLjIzOC00LTV6bS0zIDV2LTcuNWEuNS41IDAgMCAwLS41LS41LjUuNSAwIDAgMC0uNS41djcuNWgtMnYtNy41YS41LjUgMCAwIDAtLjUtLjUuNS41IDAgMCAwLS41LjV2Ny41aC0ydi04YTIgMiAwIDAgMSAyLTIgMiAyIDAgMCAxIDIgMiAyIDIgMCAwIDEgMi0yIDIgMiAwIDAgMSAyIDJ2OHoiIGNsYXNzPSJjbHMtMiIgZGF0YS1uYW1lPSLtlansuZjquLAgNjMiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xMTY1NiA1NTI5KSIvPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+Cg==) no-repeat center;
 }
 
-.ui-tab-pnls pre{
-  background: transparent;
+pre.ui-tab-pnl{
+  display: none;
+  position: relative;
+  text-align: left;
+  min-height: 30px;
+  margin-top: -1px;
+  padding: 20px;
+  border: 1px solid $gray-color1;
+  background: transparent !important;
+  &.active{
+    display: block;
+  }
 }
 
-/* 코드 블럭 영역 색상이 흐릿해서 배경 색상 잠시 바꿈 */
+/* 코드 블럭 영역 색상이 흐릿해서 배경 색상 잠시 바꿈, pre 태그에 강제 줄바꿈 적용 */
 .tui-editor-contents pre{
   background-color: #d5d5d5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -o-pre-wrap;
+  word-break: break-all;
 }

@@ -17,14 +17,7 @@
               />
               <label :for="'mvCheck' + index" class="dbs-checkbox"></label>
             </div>
-            <img
-              :src="
-                `https://img.youtube.com/vi/${
-                  video.isSeries ? video.series[0].youtubeId : video.youtubeId
-                }/maxresdefault.jpg`
-              "
-              alt=""
-            />
+            <img :src="imagePath(video)" alt="" />
             <em v-if="video.playTime" class="btn-time">{{ video.playTime }}</em>
             <div v-if="video.isSeries" class="play">
               <span class="count">{{ video.series.length }}</span>
@@ -95,6 +88,12 @@ export default class VideoManageModal extends Vue {
     }
 
     this.selectedVideos = this.$store.state.video.selectedProduct.managedVideos.slice();
+  }
+
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${
+      video.isSeries ? video.series[0].youtubeId : video.youtubeId
+    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
   }
 
   async onclickMoreView(): Promise<any> {

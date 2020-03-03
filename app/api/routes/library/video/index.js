@@ -1,4 +1,5 @@
 import { VideoModel, VideoProductModel } from './../../../models/video';
+import { ForumPostModel } from '~/api/models/forum';
 const request = require('request-promise-native');
 
 const { Router } = require('express');
@@ -45,7 +46,7 @@ router.post('/count/:_id', (req, res) => {
     { $inc: { viewCount: 1 } }
   )
     .then((result) => {
-      console.log('조회수 업데이트', result);
+      // console.log('조회수 업데이트', result);
 
       // VideoModel.findOneAndUpdate(
       //   {
@@ -62,7 +63,7 @@ router.post('/count/:_id', (req, res) => {
           { $inc: { 'series.$.viewCount': 1 } }
         )
           .then((response) => {
-            console.log('조회수 업데이트(Sub) ', response);
+            // console.log('조회수 업데이트(Sub) ', response);
 
             res.status(200).send({ success: true, data: response });
           })
@@ -171,6 +172,7 @@ router.delete('/remove/product/:_id', (req, res) => {
  */
 router.get('/products', (req, res) => {
   VideoProductModel.find()
+    .populate('managedVideos')
     .sort({ index: 1 }) // 오름차순 정렬
     .then((products) => {
       res.status(200).send({ success: true, data: products });
@@ -391,10 +393,9 @@ router.post('/update/:_id', (req, res) => {
   const video = req.body;
   const updateDate = Date.now();
   video.updateDate = updateDate;
-  console.log('동영상 업데이트 :: ', req.body);
+  // console.log('동영상 업데이트 :: ', req.body);
 
-  // "duration": "PT4M13S"
-
+  // parent 의 값을 추가
   video.isSeries &&
     video.series.map((item) => {
       if (!item.groupId) {
@@ -409,7 +410,6 @@ router.post('/update/:_id', (req, res) => {
         item.empName = video.empName;
         item.deptPath = video.deptPath;
         item.seriesTitle = video.videoTitle;
-        item.playTime = video.playTime;
         // getPlayTime(item.youtubeId, (playTime) => {
         //   item.playTime = playTime;
         // });
@@ -418,7 +418,7 @@ router.post('/update/:_id', (req, res) => {
 
   VideoModel.findOneAndUpdate(
     { _id: req.params._id },
-    { $set: req.body },
+    { $set: video },
     {
       new: true,
     }
@@ -432,7 +432,7 @@ router.post('/update/:_id', (req, res) => {
 });
 
 /**
- * 동영상을 삭제한다.
+ * 동영상 삭제
  */
 router.post('/remove/:_id', (req, res) => {
   const { _id } = req.params;
@@ -444,8 +444,20 @@ router.post('/remove/:_id', (req, res) => {
       if (result.n === 0) {
         return res.status(404).json({ success: false, msg: 'Video not found' });
       } else {
-        // projectId 로 video 목록 조회
-        VideoModel.find({ productCode })
+        VideoProductModel.findOneAndUpdate(
+          { productCode },
+          {
+            $pull: {
+              managedVideos: {
+                _id,
+              },
+            },
+          }
+        )
+          .then(() => {
+            // projectId 로 video 목록 조회
+            return VideoModel.find({ productCode });
+          })
           .then((videos) => {
             res.status(200).send({ success: true, data: videos });
           })
@@ -475,7 +487,7 @@ function YTDurationToSeconds(duration) {
   const minutes = parseInt(match[1]) || 0;
   const seconds = parseInt(match[2]) || 0;
 
-  console.log(hours, minutes, seconds);
+  // console.log(hours, minutes, seconds);
   let result = '';
   if (hours) {
     result = result + hours.toString() + ':';
@@ -497,18 +509,37 @@ function YTDurationToSeconds(duration) {
  * 동영상 홈 화면 관리 데이터 업데이트
  */
 router.post('/updateManagedVideo/:_id', (req, res) => {
+  const videos = req.body;
+
+  // videos.map((video, index) => {
+  //   video.index = index + 1;
+  // });
+
   VideoProductModel.findOneAndUpdate(
-    { _id: req.params._id },
-    { $set: { managedVideos: req.body } },
+    {
+      _id: req.params._id,
+    },
+    {
+      $set: {
+        managedVideos: videos,
+      },
+    },
     {
       new: true,
     }
   )
-    .then((video) => {
-      res.status(200).send({ success: true, data: video });
+    .then((product) => {
+      // 결과 product 의 managedVideo 는 _id로 이루어진 Array
+      res.status(200).send({
+        success: true,
+        data: product,
+      });
     })
     .catch((err) => {
-      res.status(500).send({ success: false, msg: err.message });
+      res.status(500).send({
+        success: false,
+        msg: err.message,
+      });
     });
 });
 
