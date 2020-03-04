@@ -3,7 +3,10 @@
     <div class="view-top mgb-20">
       <h1 class="tit-con-text">다운로드<span>홈 화면 관리</span></h1>
     </div>
-    <div v-for="product in $store.state.download.products" :key="product._id">
+    <div
+      v-for="(product, productIdx) in $store.state.download.products"
+      :key="product._id"
+    >
       <div class="view-top bdr-bot-none">
         <p class="tit-con-sub">{{ product.productName }}</p>
         <div class="pst-button">
@@ -17,35 +20,44 @@
         </div>
       </div>
       <ul class="dbs-list drag-drop moving mgb-60">
-        <li
-          v-for="managedFile in product.managedFiles"
-          :key="managedFile._id"
-          class="list-row"
+        <draggable
+          v-model="localManagedFiles[productIdx]"
+          group="productCode"
+          handle=".btn-dragdrop"
+          animation="300"
+          @change="draggableChange(product._id, productIdx)"
         >
-          <div class="project-detail">
-            <div class="btn-dragdrop"></div>
-            <div class="project-wrap">
-              <div class="project-title">
-                <p>{{ managedFile.fileTitle }}</p>
+          <li
+            v-for="managedFile in localManagedFiles[productIdx]"
+            :key="managedFile._id"
+            class="list-row"
+            style="cursor: auto;"
+          >
+            <div class="project-detail">
+              <div class="btn-dragdrop" style="cursor: move;"></div>
+              <div class="project-wrap">
+                <div class="project-title">
+                  <p>{{ managedFile.fileTitle }}</p>
+                </div>
+                <div class="user-info">
+                  <span class="file-name" data-filetype=".zip"
+                    ><em>{{ managedFile.originFileName }}</em></span
+                  ><span>{{ Math.round(managedFile.size / 1024) }}KB</span
+                  ><span>다운로드 {{ managedFile.downloadCount }}</span>
+                </div>
               </div>
-              <div class="user-info">
-                <span class="file-name" data-filetype=".zip"
-                  ><em>{{ managedFile.originFileName }}</em></span
-                ><span>{{ Math.round(managedFile.size / 1024) }}KB</span
-                ><span>다운로드 {{ managedFile.downloadCount }}</span>
+              <div class="project-controls">
+                <button
+                  type="button"
+                  class="dbs-icon-button ico-left small delete"
+                  @click="removeManagedFiles(product, managedFile)"
+                >
+                  삭제
+                </button>
               </div>
             </div>
-            <div class="project-controls">
-              <button
-                type="button"
-                class="dbs-icon-button ico-left small delete"
-                @click="removeManagedFiles(product, managedFile)"
-              >
-                삭제
-              </button>
-            </div>
-          </div>
-        </li>
+          </li>
+        </draggable>
       </ul>
     </div>
     <modal-component
@@ -63,6 +75,7 @@
   </div>
 </template>
 <script lang="ts">
+import draggable from 'vuedraggable';
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import ModalComponent from '@/components/common/modal/modalComponent.vue';
 import DownloadManageModal from '@/components/libraryDownloadHomeManage/DownloadManageModal.vue';
@@ -74,11 +87,14 @@ const Download = namespace('download');
 
 @Component({
   components: {
+    draggable,
     ModalComponent,
     DownloadManageModal,
   },
 })
 export default class LibraryDownloadHomeManage extends Vue {
+  localManagedFiles: any[] = [];
+
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @Download.Action('getFilesByProduct') getFilesByProductAction;
   @Download.Action('productByCode') productByCodeAction;
@@ -95,6 +111,12 @@ export default class LibraryDownloadHomeManage extends Vue {
   downloadManageModalHeight: string = '684px';
   downloadManageModalWidth: string = '826px';
 
+  created() {
+    this.$store.state.download.products.forEach((product) => {
+      this.localManagedFiles.push(product.managedFiles);
+    });
+  }
+
   downloadManageModalConfirm(clickConfirmBtn) {
     if (clickConfirmBtn) {
       const selectedFiles = this.$refs.downloadManageModal.getData();
@@ -102,6 +124,11 @@ export default class LibraryDownloadHomeManage extends Vue {
       this.updateManagedFilesAction({
         productId: this.$store.state.download.selectedProduct._id,
         managedFiles: selectedFiles,
+      }).then(() => {
+        this.localManagedFiles = [];
+        this.$store.state.download.products.forEach((product) => {
+          this.localManagedFiles.push(product.managedFiles);
+        });
       });
       this.$modal.hide(this.downloadManageModalName);
     } else {
@@ -139,11 +166,23 @@ export default class LibraryDownloadHomeManage extends Vue {
         this.updateManagedFilesAction({
           productId: product._id,
           managedFiles: newData,
+        }).then(() => {
+          this.localManagedFiles = [];
+          this.$store.state.download.products.forEach((product) => {
+            this.localManagedFiles.push(product.managedFiles);
+          });
         });
       }
+    });
+  }
+
+  draggableChange(id, productIdx) {
+    this.updateManagedFilesAction({
+      productId: id,
+      managedFiles: this.localManagedFiles[productIdx],
     });
   }
 }
 </script>
 
-<style scoped></style>
+<style lang="css" scoped></style>

@@ -3,7 +3,12 @@
     <div class="view-top">
       <h2 class="tit-con-text">질문 / 답변<span>제품관리</span></h2>
       <div class="pst-rbtn">
-        <button type="button" class="btn-sub-large" @click="onclickAddProduct">
+        <button
+          type="button"
+          class="btn-sub-large"
+          :disabled="isClickAdd"
+          @click="onclickAddProduct"
+        >
           추가
         </button>
         <button
@@ -23,22 +28,19 @@
         :is-initial="isInitialCardList"
         @selected-manage-product="changeSelectedManageProduct"
         @change-products="changeProducts"
-      ></product-card-list>
+      />
 
       <div class="right-proc-content">
         <h2 class="tit-con-icon-title icon-title dews">제품정보</h2>
 
         <!-- 제품정보 컴포넌트 -->
-        <product-info
-          ref="productInfoComp"
-          :product="selectedProduct"
-        ></product-info>
+        <product-info ref="productInfoComp" :product="selectedProduct" />
 
         <!-- 스태프 목록 컴포넌트 -->
         <product-staff-list
           ref="productStaffComp"
           :staffs="selectedProductStaffs"
-        ></product-staff-list>
+        />
 
         <div class="btn-wrap-sub">
           <button
@@ -193,70 +195,42 @@ export default class ForumProductManage extends Vue
 
     this.selectedProductIdx = value.index;
 
-    // init prev product input value
-    const prevProduct: IProduct = this.initialProducts[value.prevIndex];
-    this.products[value.prevIndex].productName = prevProduct.productName;
-    this.products[value.prevIndex].productCode = prevProduct.productCode;
-    this.products[value.prevIndex].description = prevProduct.description;
+    if (this.products.length > 0) {
+      // init prev product input value
+      const prevProduct: IProduct = this.initialProducts[value.prevIndex];
+      this.products[value.prevIndex].productName = prevProduct.productName;
+      this.products[value.prevIndex].productCode = prevProduct.productCode;
+      this.products[value.prevIndex].description = prevProduct.description;
 
-    // select current product, staffs
-    this.selectedProduct = this.products[value.index];
-    this.selectedProductStaffs = this.products[value.index].staffs;
+      // select current product, staffs
+      this.selectedProduct = this.products[value.index];
+      this.selectedProductStaffs = this.products[value.index].staffs;
+    }
   }
 
-  onclickSave(): void {
+  async onclickSave(): Promise<any> {
     const product = this.$refs.productInfoComp.getProduct();
     product.staffs = this.$refs.productStaffComp.getStaffs();
-    const productIdx: number = this.products.findIndex((item: IProduct) => {
-      return item.productCode === product.productCode;
-    });
 
     if (!this.validator(product)) {
       return;
     }
 
     if (product._id) {
-      this.updateProductAction(product)
-        .then((res) => {
-          if (res.success && res.data) {
-            this.alertAction({
-              type: 'check',
-              isShow: true,
-              msg: '제품정보가 수정되었습니다.',
-            });
-          }
-        })
-        .catch((err) => {
-          this.alertAction({
-            type: 'error',
-            isShow: true,
-            msg: err.msg,
-          });
-        });
+      await this.updateProductAction(product);
     } else {
-      this.registerProductAction(product)
-        .then((res) => {
-          if (res.success && res.data) {
-            this.alertAction({
-              type: 'check',
-              isShow: true,
-              msg: '제품이 등록되었습니다.',
-            });
-            // this.initialProducts[productIdx] = res.data;
-          }
-        })
-        .catch((err) => {
-          this.alertAction({
-            type: 'error',
-            isShow: true,
-            msg: err.msg,
-          });
-        });
+      await this.registerProductAction(product);
     }
 
     // init initialProducts, selectedProduct
     // this.initialProducts = this.$store.state.forum.products.slice();
-    // this.selectedProduct = this.products[0];
+
+    // 등록 후 첫번째 제품 선택
+    this.selectedProduct = this.products[0];
+
+    if (this.isClickAdd) {
+      this.isClickAdd = false;
+    }
   }
 
   onclickRemoveProduct(): void {

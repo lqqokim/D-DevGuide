@@ -99,61 +99,54 @@ import ProductEdit from '~/components/productEdit/index.vue';
   components: {
     ProductEdit,
   },
-  async fetch({ store, params }): Promise<any> {
+  fetch({ store, params }): any {
     try {
-      await store.dispatch('product/selectProduct', {
-        productCode: params.productCode,
-      });
-
-      if (
-        store.state.repository.treeData === undefined ||
-        store.state.repository.treeData.length === 0 ||
-        (params.branchName !== undefined && params.pageId === undefined)
-      ) {
-        await store.dispatch('repository/getIndexMdFile', {
-          productCode: params.productCode,
-          pageType: params.pageType,
-          ref: params.branchName,
-          refType: 'branch',
-          filePath: params.pageId,
-          pageTitle: params.pageTitle,
-          gitlabToken: store.state.user.user.gitlabToken,
-          // gitlabToken: '__5uUEPux-qreBuxsJt2',
-        });
-      }
-      if (params.pageId) {
-        await store.dispatch('repository/getRepositoryFile', {
-          productCode: params.productCode,
-          filePath: params.pageId + '.md',
-          ref: params.branchName,
-          refType: 'branch',
-          pageTitle: params.pageTitle,
-          gitlabToken: store.state.user.user.gitlabToken,
-          // gitlabToken: '__5uUEPux-qreBuxsJt2',
-        });
-      }
-      await store.dispatch('repository/getRepository', {
-        productCode: params.productCode,
-        ref: params.branchName,
-        gitlabToken: store.state.user.user.gitlabToken,
-        // gitlabToken: '__5uUEPux-qreBuxsJt2',
-      });
-      // await store.dispatch('repository/getFileSize', {
-      //   projectId: store.state.product.product.projectId,
-      //   ref: params.branchName,
-      //   repositoryData: store.state.repository.repositoryData,
+      // await store.dispatch('product/selectProduct', {
+      //   productCode: params.productCode,
       // });
-      await store.dispatch('repository/getRepository', {
-        productCode: params.productCode,
-        ref: params.branchName,
-        useDocPath: true,
-        gitlabToken: store.state.user.user.gitlabToken,
-        // gitlabToken: '__5uUEPux-qreBuxsJt2',
-      });
-      // await store.dispatch('repository/getFileSize', {
-      //   projectId: store.state.product.product.projectId,
+      //
+      // if (!store.state.user.user.gitlabToken) {
+      //   return;
+      // }
+      //
+      // if (
+      //   store.state.repository.treeData === undefined ||
+      //   store.state.repository.treeData.length === 0 ||
+      //   (params.branchName !== undefined && params.pageId === undefined)
+      // ) {
+      //   await store.dispatch('repository/getIndexMdFile', {
+      //     productCode: params.productCode,
+      //     pageType: params.pageType,
+      //     ref: params.branchName,
+      //     refType: 'branch',
+      //     filePath: params.pageId,
+      //     pageTitle: params.pageTitle,
+      //     gitlabToken: store.state.user.user.gitlabToken,
+      //   });
+      // }
+      // if (params.pageId) {
+      //   await store.dispatch('repository/getRepositoryFile', {
+      //     productCode: params.productCode,
+      //     filePath: params.pageId + '.md',
+      //     ref: params.branchName,
+      //     refType: 'branch',
+      //     pageTitle: params.pageTitle,
+      //     gitlabToken: store.state.user.user.gitlabToken,
+      //   });
+      // }
+      //
+      // await store.dispatch('repository/getRepository', {
+      //   productCode: params.productCode,
       //   ref: params.branchName,
-      //   repositoryData: store.state.repository.repositoryDocPathData,
+      //   gitlabToken: store.state.user.user.gitlabToken,
+      // });
+      //
+      // await store.dispatch('repository/getRepository', {
+      //   productCode: params.productCode,
+      //   ref: params.branchName,
+      //   useDocPath: true,
+      //   gitlabToken: store.state.user.user.gitlabToken,
+      //   pageType: params.pageType,
       // });
     } catch (err) {
       console.error(err);

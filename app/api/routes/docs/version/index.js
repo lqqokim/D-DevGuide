@@ -1,3 +1,4 @@
+import { VersionModel } from './../../../models/version';
 const { Router } = require('express');
 const router = Router();
 const Gitlab = require('gitlab').Gitlab;
@@ -6,22 +7,30 @@ router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
 const services = new Gitlab({
-  host: 'http://10.110.15.133',
-  token: '__5uUEPux-qreBuxsJt2',
+  host: process.env.GITLAB_URL,
+  token: '-x_eB2WV1oaC876jTPwP',
 });
 
+/**
+ * MongoDB 에서 version 리스트 가져오기
+ */
 router.get('/getVersionList', (req, res) => {
-  const projectId = req.query.projectId;
-
-  services.Releases.all(projectId)
-    .then((result) => {
-      res.json(result);
+  const productCode = {
+    productCode: req.query.productCode,
+  };
+  VersionModel.find(productCode)
+    .sort({ index: 1 })
+    .then((versions) => {
+      res.status(200).send({ success: true, data: versions });
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(500).send({ success: false, msg: err.message });
     });
 });
 
+/**
+ * Gitlab 프로젝트에 version 생성
+ */
 router.get('/createVersion', (req, res) => {
   const projectId = req.query.projectId;
   const option = {
@@ -33,19 +42,42 @@ router.get('/createVersion', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
   service.Releases.create(projectId, option)
-    .then((result) => {
-      res.json(result);
+    .then((version) => {
+      res.status(200).send({ success: true, data: version });
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(500).send({ success: false, msg: err.message });
     });
 });
 
+/**
+ * MongoDB 에 version data 추가
+ */
+router.post('/insertVersion', (req, res) => {
+  const version = req.body;
+  const versionModel = new VersionModel(version);
+
+  VersionModel.countDocuments({ productCode: req.body.productCode })
+    .then((count) => {
+      versionModel.index = count + 1;
+      return versionModel.save();
+    })
+    .then((version) => {
+      res.status(200).send({ success: true, data: version });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * Gitlab 에서 version 삭제
+ */
 router.get('/removeVersion', (req, res) => {
   const projectId = req.query.projectId;
   const tagName = req.query.tagName;
@@ -53,7 +85,7 @@ router.get('/removeVersion', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
@@ -63,6 +95,50 @@ router.get('/removeVersion', (req, res) => {
     })
     .catch((err) => {
       res.status(err.response.status).send({ error: err.description });
+    });
+});
+
+/**
+ * MongoDB 에서 version data 삭제
+ */
+router.get('/deleteVersion', (req, res) => {
+  const version = req.query;
+
+  VersionModel.deleteOne(version)
+    .then((versionData) => {
+      res.status(200).send({ success: true, data: versionData });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * MongoDB 에서 version 목록 수정
+ */
+router.put('/updateVersionIndex', (req, res) => {
+  const versions = req.body;
+  const promises = [];
+
+  // 버전 목록 index 수정
+  versions.map((version, index) => {
+    promises.push(
+      VersionModel.findOneAndUpdate(
+        {
+          productCode: version.productCode,
+          createdAt: version.createdAt,
+        },
+        { $set: { index: index + 1 } }
+      )
+    );
+  });
+
+  Promise.all(promises)
+    .then((versions) => {
+      res.status(200).send({ success: true, data: versions });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
     });
 });
 

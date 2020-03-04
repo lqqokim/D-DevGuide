@@ -23,7 +23,7 @@
         <thead>
           <tr>
             <th>이름(아이디)</th>
-            <th>삭제</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -40,24 +40,62 @@
         가집니다.
       </p>
     </div>
+
+    <modal-component
+      :modal-title="gwModalInfo.title"
+      :modal-name="gwModalInfo.name"
+      :modal-height="gwModalInfo.height"
+      :modal-width="gwModalInfo.width"
+      @emit-confirm="searchGWUserModalConfirm"
+    >
+      <search-g-w-user-modal
+        slot="modalContent"
+        ref="searchGWUserModal"
+      ></search-g-w-user-modal>
+    </modal-component>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch, Emit } from 'nuxt-property-decorator';
+import {
+  Component,
+  Vue,
+  Prop,
+  Watch,
+  Emit,
+  namespace,
+} from 'nuxt-property-decorator';
 import ProductCardList from '@/components/libraryHome/manage/ProductCardList.vue';
+import ModalComponent from '@/components/common/modal/modalComponent.vue';
+import SearchGWUserModal from '@/components/common/productManage/SearchGWUserModal.vue';
+
 import * as video from '@/store/modules/video';
+import { IAlert } from '~/store/modules/common';
+
+const SearchGWUser = namespace('searchGWUser');
+const Common = namespace('common');
 
 @Component({
   components: {
     ProductCardList,
+    ModalComponent,
+    SearchGWUserModal,
   },
 })
 export default class ProductStaffList extends Vue {
+  @SearchGWUser.Action('getSearchGWUser')
+  getSearchGWUserAction;
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @Prop() readonly staffs!: any;
   @Watch('staffs', { immediate: true, deep: true })
   onStaffsChange(val) {
     this.localStaffs = val.slice();
   }
+
+  $refs!: {
+    searchGWUserModal: any;
+  };
+
+  $modal!: any;
 
   localStaffs: {
     empName: string;
@@ -66,10 +104,26 @@ export default class ProductStaffList extends Vue {
     empId: string;
   }[] = [];
 
-  onClickAddStaff(): void {
-    for (let i = 0; i < this.temp.length; i++) {
-      this.localStaffs.push(this.temp[i]);
+  gwModalInfo = {
+    title: '그룹웨어 사용자 검색',
+    name: 'searchGWUserModal',
+    height: '673px',
+    width: '700px',
+  };
+
+  async onClickAddStaff(): Promise<any> {
+    // for (let i = 0; i < this.temp.length; i++) {
+    //   this.localStaffs.push(this.temp[i]);
+    // }
+
+    if (!this.$store.state.searchGWUser.searchGWUserList.length) {
+      await this.getSearchGWUserAction({
+        empName: '',
+        loginId: '',
+      });
     }
+
+    this.$modal.show(this.gwModalInfo.name);
   }
 
   onclickRemoveStaff(index): void {
@@ -80,31 +134,42 @@ export default class ProductStaffList extends Vue {
     return this.localStaffs;
   }
 
-  temp = [
-    {
-      empName: '노휘겸',
-      positionName: '수석 연구원',
-      deptPath: '플랫폼개발본부 플랫폼개발1팀',
-      empId: 'whistle',
-    },
-    {
-      empName: '정일영',
-      positionName: '책임 연구원',
-      deptPath: '플랫폼개발본부 플랫폼개발1팀',
-      empId: 'jiy',
-    },
-    {
-      empName: '전병철',
-      positionName: '연구원',
-      deptPath: '플랫폼개발본부 플랫폼개발1팀',
-      empId: 'jbc',
-    },
-    {
-      empName: '김인수',
-      positionName: '연구원',
-      deptPath: '플랫폼개발본부 플랫폼개발1팀',
-      empId: 'kis4204',
-    },
-  ];
+  searchGWUserModalConfirm(clickConfirmBtn) {
+    const userInfo = this.$refs.searchGWUserModal.getData();
+
+    if (clickConfirmBtn) {
+      if (userInfo.loginId === '') {
+        this.alertAction({
+          type: 'warning',
+          isShow: true,
+          msg: '추가할 사용자를 선택하세요.',
+        }).then(() => {});
+      } else {
+        let duplicatedUser: boolean = false;
+        this.localStaffs.forEach((staff) => {
+          if (!duplicatedUser && staff.empId === userInfo.loginId) {
+            duplicatedUser = true;
+          }
+        });
+        if (duplicatedUser) {
+          this.alertAction({
+            type: 'warning',
+            isShow: true,
+            msg: '이미 등록되어있는 사용자입니다.',
+          }).then(() => {});
+        } else {
+          this.localStaffs.push({
+            empName: userInfo.empName,
+            empId: userInfo.loginId,
+            deptPath: userInfo.deptPath,
+            positionName: userInfo.positionName,
+          });
+          this.$modal.hide(this.gwModalInfo.name);
+        }
+      }
+    } else {
+      this.$modal.hide(this.gwModalInfo.name);
+    }
+  }
 }
 </script>

@@ -49,29 +49,6 @@
         취소
       </button>
     </div>
-    <!--<div class="ui-tab small mgb-60">-->
-    <!--<div class="ui-tab-btns" role="tablist">-->
-    <!--<a href="#tab1" class="ui-tab-btn active"><i>HTML</i></a>-->
-    <!--<a href="#tab2" class="ui-tab-btn"><i>Javascript</i></a>-->
-    <!--<a href="#tab3" class="ui-tab-btn"><i>Result</i></a>-->
-    <!--<div class="pst-rbtn">-->
-    <!--<button type="button" class="dbs-icon-button ico-left small copy">-->
-    <!--복사-->
-    <!--</button>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--<div class="ui-tab-pnls">-->
-    <!--<section id="tab1" class="ui-tab-pnl active" role="tabpanel">-->
-    <!--<pre><code>HTML 코드 들어갑니다</code></pre>-->
-    <!--</section>-->
-    <!--<section id="tab2" class="ui-tab-pnl" role="tabpanel">-->
-    <!--<pre><code>Javascript 코드 들어갑니다.</code></pre>-->
-    <!--</section>-->
-    <!--<section id="tab3" class="ui-tab-pnl" role="tabpanel">-->
-    <!--<pre><code>결과 내용 들어갑니다.</code></pre>-->
-    <!--</section>-->
-    <!--</div>-->
-    <!--</div>-->
     <!-- 파일 업로드 버튼 클릭 시 파일 선택 다이얼로그 -->
     <modal-component
       :modal-title="fileUploadModalTitle"
@@ -88,8 +65,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component, namespace, Watch } from 'nuxt-property-decorator';
-import util from 'tui-code-snippet';
+import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import toMark from 'to-mark';
 import { expandAll } from '~/utils/commonFuncs';
 import ModalComponent from '@/components/common/modal/modalComponent.vue';
@@ -97,11 +73,13 @@ import CreatePageModal from '@/components/productEdit/CreatePageModal.vue';
 import FileUploadModal from '@/components/productEdit/FileUploadModal.vue';
 import * as repository from '@/store/modules/repository';
 import * as commit from '@/store/modules/commit';
+import * as product from '@/store/modules/product';
 import { IAlert } from '@/store/modules/common';
 import EventBus from '@/store/modules/repository.ts';
 
 const Repository = namespace('repository');
 const Commit = namespace('commit');
+const Product = namespace('product');
 const Common = namespace('common');
 
 @Component({
@@ -112,13 +90,25 @@ const Common = namespace('common');
   },
 })
 export default class ProductEdit extends Vue {
-  // editingViewerText!: string;
+  @Repository.Action('getIndexMdFile') getIndexMdFileAction;
+  @Repository.Action('getRepositoryFile') getRepositoryFileAction;
+  @Repository.Action('getRepository') getRepositoryAction;
+  @Repository.Action('getProjectInfo') getProjectInfoAction;
+  @Repository.Action('convertImagePath') convertImagePathAction;
+  @Repository.Mutation('setEditingPageTitle') setEditingPageTitle;
+  @Repository.Mutation('setEditingFilePath') setEditingFilePath;
+  @Repository.Mutation('setEditingViewerText') setEditingViewerText;
+  @Repository.Mutation('setPageTitle') setPageTitle;
+  @Repository.Mutation('setFilePath') setFilePath;
+  @Repository.Mutation('setViewerText') setViewerText;
+  @Repository.Mutation('setEditStatus') setEditStatus;
+  @Repository.Mutation('setEditingMenuTreeToJson') setEditingMenuTreeToJson;
+  @Repository.Mutation('setEditingMenuTree') setEditingMenuTree;
+  @Commit.Action('createCommit') createCommitAction;
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
+  @Product.Action('selectProduct') selectProductAction;
   viewerText!: string;
   mdData: string = ''; // 파일 트리 수정 내용 담는 변수
-
-  $modal!: any;
-  pnlsData: Array<any> = [];
-  btnsData: Array<any> = [];
 
   editorOptions: object = {
     exts: ['colorSyntax'],
@@ -147,20 +137,7 @@ export default class ProductEdit extends Vue {
     ],
   };
 
-  @Repository.Action('getIndexMdFile') getIndexMdFileAction;
-  @Repository.Action('getRepositoryFile') getRepositoryFileAction;
-  @Repository.Action('getProjectInfo') getProjectInfoAction;
-  @Repository.Mutation('setEditingPageTitle') setEditingPageTitle;
-  @Repository.Mutation('setEditingFilePath') setEditingFilePath;
-  @Repository.Mutation('setEditingViewerText') setEditingViewerText;
-  @Repository.Mutation('setPageTitle') setPageTitle;
-  @Repository.Mutation('setFilePath') setFilePath;
-  @Repository.Mutation('setViewerText') setViewerText;
-  @Repository.Mutation('setEditStatus') setEditStatus;
-  @Repository.Mutation('setEditingMenuTreeToJson') setEditingMenuTreeToJson;
-  @Repository.Mutation('setEditingMenuTree') setEditingMenuTree;
-  @Commit.Action('createCommit') createCommitAction;
-  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
+  $modal!: any;
 
   $refs!: {
     editorArea: any;
@@ -178,168 +155,250 @@ export default class ProductEdit extends Vue {
     const fileUploadModalData = this.$refs.fileUploadModal.getData();
 
     if (clickConfirmBtn) {
-      this.getProjectInfoAction({
-        projectId: this.$store.state.product.product.projectId,
-        gitlabToken: this.$store.state.user.user.gitlabToken,
-      }).then((res) => {
-        this.insertDownloadLink(res.data.name, fileUploadModalData);
-        this.$modal.hide(this.fileUploadModalName);
-      });
+      if (fileUploadModalData.length === 0) {
+        this.alertAction({
+          type: 'warning',
+          isShow: true,
+          msg: '첨부할 파일을 한 개 이상 선택해주세요.',
+        }).then(() => {});
+      } else {
+        fileUploadModalData.forEach((filePath) => {
+          this.getProjectInfoAction({
+            projectId: this.$store.state.product.product.projectId,
+            gitlabToken: this.$store.state.user.user.gitlabToken,
+          }).then((res) => {
+            this.insertDownloadLink(res.data.name, filePath);
+            this.$modal.hide(this.fileUploadModalName);
+          });
+        });
+      }
     } else {
       this.$modal.hide(this.fileUploadModalName);
     }
   }
 
   insertDownloadLink(projectName, filePath) {
-    const content = this.$refs.editorArea.invoke('getMarkdown');
     const splitFilePath: Array<string> = filePath.split('/');
     const fileName = splitFilePath[splitFilePath.length - 1];
+    const tuiEditor = this.$refs.editorArea.editor;
     if (filePath !== '') {
-      this.$refs.editorArea.invoke(
-        'setMarkdown',
-        content +
-          '\n[' +
-          fileName +
-          '](' +
-          'http://10.110.15.133/prototypes/' +
-          projectName +
-          '/raw/' +
-          this.$store.state.repository.currentRef +
-          '/' +
-          filePath +
-          '?inline=false)'
-      );
-      // } else {
-      //   fileName = responseData.file_path.split('/')[1];
-      //   this.$refs.editorArea.invoke(
-      //     'setMarkdown',
-      //     content +
-      //       '\n[' +
-      //       fileName +
-      //       '](' +
-      //       'http://10.36.13.89/prototypes/gitlab-test/raw/' +
-      //       responseData.branch +
-      //       '/' +
-      //       responseData.file_path +
-      //       '?inline=false)'
-      //   );
+      const data = {
+        url: filePath.charAt(0) === '/' ? filePath : '/' + filePath,
+        linkText: fileName,
+      };
+      if (tuiEditor.currentMode === 'wysiwyg') {
+        const wwe = tuiEditor.wwEditor;
+        tuiEditor.commandManager._wwCommand.get('AddLink').exec(wwe, data);
+      } else {
+        const mde = tuiEditor.mdEditor;
+        tuiEditor.commandManager._mdCommand.get('AddLink').exec(mde, data);
+      }
     }
+  }
+
+  created() {
+    if (!this.$store.state.user.user.gitlabToken) {
+      return;
+    }
+
+    this.selectProductAction({
+      productCode: this.$route.params.productCode,
+    });
+
+    if (
+      this.$store.state.repository.treeData === undefined ||
+      this.$store.state.repository.treeData.length === 0 ||
+      (this.$route.params.branchName !== undefined &&
+        this.$route.params.pageId === undefined)
+    ) {
+      this.getIndexMdFileAction({
+        productCode: this.$route.params.productCode,
+        pageType: this.$route.params.pageType,
+        ref: this.$route.params.branchName,
+        refType: 'branch',
+        filePath: this.$route.params.pageId,
+        pageTitle: this.$route.params.pageTitle,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
+      }).then(() => {
+        this.viewerText = this.$store.state.repository.viewerText;
+        this.setEditingViewerText(this.$store.state.repository.viewerText);
+        this.setEditingPageTitle(this.$store.state.repository.pageTitle);
+        this.setEditingFilePath(this.$store.state.repository.filePath);
+        if (this.$store.state.repository.editStatus !== 'cancel') {
+          this.setEditStatus('init');
+        }
+      });
+    }
+    if (this.$route.params.pageId) {
+      this.getRepositoryFileAction({
+        productCode: this.$route.params.productCode,
+        filePath: this.$route.params.pageId + '.md',
+        ref: this.$route.params.branchName,
+        refType: 'branch',
+        pageTitle: this.$route.params.pageTitle,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
+      }).then(() => {
+        this.viewerText = this.$store.state.repository.viewerText;
+        this.setEditingViewerText(this.$store.state.repository.viewerText);
+        this.setEditingPageTitle(this.$store.state.repository.pageTitle);
+        this.setEditingFilePath(this.$store.state.repository.filePath);
+        if (this.$store.state.repository.editStatus !== 'cancel') {
+          this.setEditStatus('init');
+        }
+      });
+    }
+
+    this.getRepositoryAction({
+      productCode: this.$route.params.productCode,
+      ref: this.$route.params.branchName,
+      gitlabToken: this.$store.state.user.user.gitlabToken,
+    });
+
+    this.getRepositoryAction({
+      productCode: this.$route.params.productCode,
+      ref: this.$route.params.branchName,
+      useDocPath: true,
+      gitlabToken: this.$store.state.user.user.gitlabToken,
+      pageType: this.$route.params.pageType,
+    });
+
+    // this.viewerText = this.$store.state.repository.viewerText;
+    // this.setEditingViewerText(this.$store.state.repository.viewerText);
+    // this.setEditingPageTitle(this.$store.state.repository.pageTitle);
+    // this.setEditingFilePath(this.$store.state.repository.filePath);
+    // if (this.$store.state.repository.editStatus !== 'cancel') {
+    //   this.setEditStatus('init');
+    // }
   }
 
   mounted() {
     // commit file 을 한 곳에서 처리하기 위한 이벤트
-    EventBus.$on('commitFiles', (pageTitleParam, filePathParam) => {
-      this.alertAction({
-        type: 'question',
-        isShow: true,
-        msg: '수정중이던 내용을 commit 하시겠습니까?',
-      }).then(async (result) => {
-        if (result.ok) {
-          const actionArr: Array<any> = [
-            {
-              action: this.$store.state.repository.editStatus,
-              file_path: this.$store.state.repository.editingFilePath,
-              content: this.$store.state.repository.editingViewerText,
-            },
-          ];
-          // 문서명 또는 마크다운 경로를 수정한 경우 (index.md 파일도 함께 commit 되어야함)
-          if (
-            this.$store.state.repository.editingMenuTreeToJson !== undefined &&
-            this.$store.state.repository.editingMenuTreeToJson.length === 1
-          ) {
-            const indexPath: string =
-              this.$route.params.pageType === 'Document'
-                ? this.$store.state.product.product.manualDocPath
-                : this.$store.state.product.product.APIDocPath;
+    EventBus.$on(
+      'commitFiles',
+      (pageTitleParam, filePathParam, changeEditingMenu) => {
+        this.alertAction({
+          type: 'question',
+          isShow: true,
+          msg: '수정중이던 내용을 commit 하시겠습니까?',
+        }).then(async (result) => {
+          if (result.ok) {
+            const actionArr: Array<any> = [];
+            if (!changeEditingMenu) {
+              actionArr.push({
+                action: this.$store.state.repository.editStatus,
+                file_path: this.$store.state.repository.editingFilePath,
+                content: this.$store.state.repository.editingViewerText,
+              });
+            }
+            // 문서명 또는 마크다운 경로를 수정한 경우 (index.md 파일도 함께 commit 되어야함)
+            if (
+              this.$store.state.repository.editingMenuTreeToJson !==
+                undefined &&
+              this.$store.state.repository.editingMenuTreeToJson.length === 1
+            ) {
+              const indexPath: string =
+                this.$route.params.pageType === 'Document'
+                  ? this.$store.state.product.product.manualDocPath
+                  : this.$store.state.product.product.APIDocPath;
 
-            const editedMenuTree = this.$store.state.repository
-              .editingMenuTreeToJson[0].children;
+              const editedMenuTree = this.$store.state.repository
+                .editingMenuTreeToJson[0].children;
 
-            editedMenuTree.forEach((editedData) => {
-              this.jsonToMd(editedData, 1);
+              editedMenuTree.forEach((editedData) => {
+                this.jsonToMd(editedData, 1);
+              });
+              actionArr.push({
+                action: 'update',
+                file_path: indexPath + '/index.md',
+                content: this.mdData,
+              });
+            }
+
+            await this.createCommitAction({
+              productCode: this.$route.params.productCode,
+              branchName: this.$route.params.branchName,
+              commitMessage: 'commit',
+              gitlabToken: this.$store.state.user.user.gitlabToken,
+              actions: actionArr,
             });
-            actionArr.push({
-              action: 'update',
-              file_path: indexPath + '/index.md',
-              content: this.mdData,
+
+            await this.getIndexMdFileAction({
+              productCode: this.$route.params.productCode,
+              pageType: this.$route.params.pageType,
+              ref: this.$route.params.branchName,
+              refType: 'branch',
+              filePath: pageTitleParam,
+              pageTitle: filePathParam,
             });
-          }
 
-          await this.createCommitAction({
-            productCode: this.$route.params.productCode,
-            branchName: this.$route.params.branchName,
-            commitMessage: 'commit',
-            gitlabToken: this.$store.state.user.user.gitlabToken,
-            actions: actionArr,
-          });
-
-          await this.getIndexMdFileAction({
-            productCode: this.$route.params.productCode,
-            pageType: this.$route.params.pageType,
-            ref: this.$route.params.branchName,
-            refType: 'branch',
-            filePath: pageTitleParam,
-            pageTitle: filePathParam,
-          });
-
-          const editingMenuTree = [
-            {
-              title: this.$store.state.product.product.productName,
-              option: {
-                expanded: true,
-                selected: false,
-                path: undefined,
+            const editingMenuTree = [
+              {
+                title: this.$store.state.product.product.productName,
+                option: {
+                  expanded: true,
+                  selected: false,
+                  path: undefined,
+                },
+                type: 'folder',
+                children: this.$store.state.repository.treeData.slice(),
               },
-              type: 'folder',
-              children: this.$store.state.repository.treeData.slice(),
-            },
-          ];
+            ];
 
-          if (editingMenuTree.length > 0) {
-            editingMenuTree.forEach((data) => {
-              expandAll(data);
-            });
+            if (editingMenuTree.length > 0) {
+              editingMenuTree.forEach((data) => {
+                expandAll(data);
+              });
+            }
+            this.setEditingMenuTree(editingMenuTree);
+
+            this.setFilePath(this.$store.state.repository.editingFilePath);
+            this.setPageTitle(this.$store.state.repository.editingPageTitle);
+            this.setViewerText(this.$store.state.repository.editingViewerText);
+            this.setEditStatus('init');
+            await this.setEditingMenuTreeToJson([]);
+          } else {
+            await this.setEditStatus('cancel');
+            this.$refs.editorArea.invoke(
+              'setMarkdown',
+              this.$store.state.repository.viewerText
+            );
+            this.$refs.editorArea.editor.moveCursorToStart();
+            this.setEditingViewerText(this.$store.state.repository.viewerText);
+            this.setEditingPageTitle(this.$store.state.repository.pageTitle);
+            this.setEditingFilePath(this.$store.state.repository.filePath);
+            await this.setEditingMenuTreeToJson([]);
           }
-          this.setEditingMenuTree(editingMenuTree);
-
-          this.setFilePath(this.$store.state.repository.editingFilePath);
-          this.setPageTitle(this.$store.state.repository.editingPageTitle);
-          this.setViewerText(this.$store.state.repository.editingViewerText);
-          this.setEditStatus('init');
-          // this.$router.go(0); // 새로고침
-        } else {
-          this.setEditStatus('cancel');
-        }
-        this.$router.push({
-          name: 'editDoc',
-          params: {
-            productCode: this.$route.params.productCode,
-            pageType: this.$route.params.pageType,
-            branchName: this.$route.params.branchName,
-            pageTitle: pageTitleParam,
-            pageId: filePathParam,
-          },
+          await this.setEditingMenuTreeToJson([]);
+          this.mdData = '';
+          await this.$router.push({
+            name: 'editDoc',
+            params: {
+              productCode: this.$route.params.productCode,
+              pageType: this.$route.params.pageType,
+              branchName: this.$route.params.branchName,
+              pageTitle: pageTitleParam,
+              pageId: filePathParam,
+            },
+          });
         });
-        this.setEditingMenuTreeToJson([]);
-        this.mdData = '';
-      });
-    });
+      }
+    );
 
     const tuiEditor = this.$refs.editorArea.editor.getUI().getToolbar();
     const multiCodeBlockButton = document.createElement('button');
     const fileUploadButton = document.createElement('button');
     multiCodeBlockButton.setAttribute(
       'class',
-      'tui-italic tui-toolbar-icons test'
+      'tui-multiCodeBlock tui-toolbar-icons'
     );
     fileUploadButton.setAttribute('class', 'tui-fileUpload tui-toolbar-icons');
     tuiEditor.addButton({
       name: 'multiCodeBlock',
       command: 'multiCodeBlock',
       tooltip: 'Insert Multi codeBlock',
-      className: 'tui-italic tui-toolbar-icons test',
+      className: 'tui-multiCodeBlock tui-toolbar-icons',
       $el: document.getElementsByClassName(
-        'tui-italic tui-toolbar-icons test'
+        'tui-multiCodeBlock tui-toolbar-icons'
       )[0],
     });
     tuiEditor.addButton({
@@ -353,14 +412,8 @@ export default class ProductEdit extends Vue {
     });
   }
 
-  created() {
-    this.viewerText = this.$store.state.repository.viewerText;
-    this.setEditingViewerText(this.$store.state.repository.viewerText);
-    this.setEditingPageTitle(this.$store.state.repository.pageTitle);
-    this.setEditingFilePath(this.$store.state.repository.filePath);
-    if (this.$store.state.repository.editStatus !== 'cancel') {
-      this.setEditStatus('init');
-    }
+  beforeDestroy() {
+    EventBus.$off('commitFiles');
   }
 
   jsonToMd(jsonData, depth) {
@@ -383,102 +436,36 @@ export default class ProductEdit extends Vue {
     }
   }
 
-  // TODO 버그찾아보기
   // 확인 버튼 클릭 시
   createCommit() {
-    // this.$emit('commit');
     if (
-      this.$store.state.repository.viewerText ===
-        this.$refs.editorArea.invoke('getMarkdown') &&
-      this.$store.state.repository.pageTitle ===
-        this.$store.state.repository.editingPageTitle &&
-      this.$store.state.repository.filePath ===
-        this.$store.state.repository.editingFilePath
+      this.$store.state.repository.editStatus === 'update' ||
+      this.$store.state.repository.editStatus === 'create'
     ) {
-      this.alertAction({
-        type: 'warning',
-        isShow: true,
-        msg: '수정중인 내용이 없습니다.',
-      }).then((result) => {
-        if (result.ok) {
-          console.log('confirm');
-        }
-      });
-    } else {
-      // console.log('emit 들어오는 곳');
       EventBus.$emit(
         'commitFiles',
         this.$store.state.repository.editingPageTitle,
         this.$store.state.repository.editingFilePath
       );
-
-      // console.log('왜여기로들어옴?');
-      // return 'update';
-      // this.alertAction({
-      //   type: 'question',
-      //   isShow: true,
-      //   msg: '수정중이던 내용을 commit 하시겠습니까?',
-      // }).then(async (result) => {
-      //   if (result.ok) {
-      //     const actionArr: Array<any> = [
-      //       {
-      //         action: this.$store.state.repository.editStatus,
-      //         file_path: this.$store.state.repository.editingFilePath,
-      //         content: this.$refs.editorArea.invoke('getMarkdown'),
-      //       },
-      //     ];
-      //     // 문서명 또는 마크다운 경로를 수정한 경우 (index.md 파일도 함께 commit 되어야함)
-      //     if (this.$store.state.repository.editingMenuTreeToJson.length === 1) {
-      //       const indexPath: string =
-      //         this.$route.params.pageType === 'Document'
-      //           ? this.$store.state.product.product.manualDocPath
-      //           : this.$store.state.product.product.APIDocPath;
-      //
-      //       const editedMenuTree = this.$store.state.repository
-      //         .editingMenuTreeToJson[0].children;
-      //       editedMenuTree.forEach((editedData) => {
-      //         this.jsonToMd(editedData, 1);
-      //       });
-      //       actionArr.push({
-      //         action: 'update',
-      //         file_path: indexPath + '/index.md',
-      //         content: this.mdData,
-      //       });
-      //     }
-      //
-      //     await this.createCommitAction({
-      //       productCode: this.$route.params.productCode,
-      //       branchName: this.$route.params.branchName,
-      //       commitMessage: 'commit',
-      //       gitlabToken: this.$store.state.user.user.gitlabToken,
-      //       actions: actionArr,
-      //     });
-      //
-      //     this.$router.push({
-      //       name: 'editDoc',
-      //       params: {
-      //         productCode: this.$route.params.productCode,
-      //         pageType: this.$route.params.pageType,
-      //         branchName: this.$route.params.branchName,
-      //         pageTitle: this.$store.state.repository.editingPageTitle,
-      //         pageId: this.$store.state.repository.editingFilePath,
-      //       },
-      //     });
-      //     this.$refs.editorArea.editor.moveCursorToStart();
-      //     this.setEditingMenuTreeToJson([]);
-      //     this.mdData = '';
-      //     this.setEditStatus('none');
-      //   }
-      // });
       this.$refs.editorArea.editor.moveCursorToStart();
+    } else if (
+      this.$store.state.repository.editingMenuTreeToJson.length === 1
+    ) {
+      EventBus.$emit(
+        'commitFiles',
+        this.$store.state.repository.editingPageTitle,
+        this.$store.state.repository.editingFilePath,
+        true
+      );
+      this.$refs.editorArea.editor.moveCursorToStart();
+    } else {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '수정중인 내용이 없습니다.',
+      }).then(() => {});
     }
   }
-
-  // @Watch('$store.state.repository.editStatus')
-  // changeStatus(val) {
-  //   console.log('-----');
-  //   console.log(val);
-  // }
 
   // 취소 버튼 클릭 시
   onClickEditCancel() {
@@ -510,43 +497,40 @@ export default class ProductEdit extends Vue {
     if (this.$store.state.repository.editStatus === 'init') {
       this.setEditStatus('none');
     }
-    // console.log('on editor focus', this.$store.state.repository.editStatus);
     this.$refs.editorArea.$el
       .querySelectorAll('.ui-tab-btn')
       .forEach((titleBtn) => {
         titleBtn.addEventListener('click', (e) => {
-          titleButtonClick(e.target);
+          titleButtonClick(e.target, this.$refs.editorArea);
         });
       });
   }
 
   onEditorChange() {
-    // console.log('on editor change', this.$store.state.repository.editStatus);
-    // this.setEditStatus('update');
-    if (this.$store.state.repository.editStatus !== 'init') {
+    if (
+      this.$store.state.repository.editStatus !== 'init' &&
+      this.$store.state.repository.editStatus !== 'create'
+    ) {
       this.setEditStatus('update');
     }
     this.setEditingViewerText(this.$refs.editorArea.invoke('getMarkdown'));
-    // TODO null일 때 다시 원래 데이터를 넣어주어야 함
-    // null 일 떄에는 엔터쳐서 사라지는 경우임!!!
-    const pnls = this.$refs.editorArea.$el.querySelectorAll('.ui-tab-pnls');
-    if (pnls !== null && pnls.length > 0) {
-      pnls.forEach((pnl) => {
-        if (pnl.previousElementSibling === null) {
-          pnl.remove();
+    if (this.$refs.editorArea.editor.currentMode === 'wysiwyg') {
+      const uiTabPnl = this.$refs.editorArea.$el.querySelectorAll(
+        '.ui-tab-pnl'
+      );
+      for (let idx = 0; idx < uiTabPnl.length; idx++) {
+        if (uiTabPnl[idx].previousElementSibling.tagName === 'DIV') {
+          uiTabPnl[idx].previousElementSibling.remove();
         }
-      });
+      }
+      this.$refs.editorArea.$el
+        .querySelectorAll('.ui-tab-btn')
+        .forEach((titleBtn) => {
+          titleBtn.addEventListener('click', (e) => {
+            titleButtonClick(e.target, this.$refs.editorArea);
+          });
+        });
     }
-    const btns = this.$refs.editorArea.$el.querySelectorAll('.ui-tab-btns');
-    if (btns !== null && btns.length > 0) {
-      btns.forEach((btn) => {
-        if (btn.nextElementSibling === null) {
-          btn.remove();
-        }
-      });
-    }
-    this.pnlsData = Array.prototype.slice.call(pnls);
-    this.btnsData = Array.prototype.slice.call(btns);
   }
 
   onEditorLoad() {
@@ -554,6 +538,10 @@ export default class ProductEdit extends Vue {
     const tuiEditor = this.$refs.editorArea;
     const modal = this.$modal;
     const fileUploadModalName = this.fileUploadModalName;
+    const viewerText = this.$store.state.repository.viewerText;
+    const convertImagePathAction = this.convertImagePathAction;
+    const currentProductCode = this.$store.state.product.product.productCode;
+    const refName = this.$store.state.repository.currentRef;
     const md = require('markdown-it')({
       html: true,
       linkify: true,
@@ -595,48 +583,38 @@ export default class ProductEdit extends Vue {
               .length;
             const html =
               '<p></p>' +
-              '<div class="ui-tab small"><div class="ui-tab-btns" data-tabnum="tab_' +
+              '<section class="ui-tab small" data-tabnum="tab_' +
               tabNum +
               '" role="tablist">' +
-              '<a class="ui-tab-btn active" data-tabnum="tab_' +
+              '<input class="ui-tab-btn active" data-tabnum="tab_' +
               tabNum +
-              '" data-value="0" data-tomark-pass=""><i>JavaScript</i></a>' +
-              '<a class="ui-tab-btn" data-tabnum="tab_' +
+              '" data-value="0" data-tomark-pass="" role="button" value="javascript"/>' +
+              '<input class="ui-tab-btn" data-tabnum="tab_' +
               tabNum +
-              '" data-value="1" data-tomark-pass=""><i>HTML</i></a>' +
-              '<a class="ui-tab-btn" data-tabnum="tab_' +
+              '" data-value="1" data-tomark-pass="" role="button" value="html"/>' +
+              '<input class="ui-tab-btn" data-tabnum="tab_' +
               tabNum +
-              '" data-value="2" data-tomark-pass=""><i>Result</i></a></div>' +
-              '<div class="ui-tab-pnls" data-tabnum="tab_' +
+              '" data-value="2" data-tomark-pass="" role="button" value="result"/>' +
+              '</section>' +
+              '<pre data-multiTab data-te-codeblock class="tab_' +
               tabNum +
-              '">' +
-              '<section class="ui-tab-pnl active" data-tomark-pass="" role="tabpanel">' +
-              '<pre data-te-codeblock class="tab_' +
+              ' lang-javascript ui-tab-pnl active" data-language="javascript"></pre>' +
+              // '<section class="ui-tab-pnl" data-tomark-pass="" role="tabpanel">' +
+              '<pre data-multiTab data-te-codeblock class="tab_' +
               tabNum +
-              ' lang-javascript" data-language="javascript"></pre></section>' +
-              '<section class="ui-tab-pnl" data-tomark-pass="" role="tabpanel">' +
-              '<pre data-te-codeblock class="tab_' +
+              ' lang-html ui-tab-pnl" data-language="html"></pre>' +
+              // '<section class="ui-tab-pnl" data-tomark-pass="" role="tabpanel">' +
+              '<pre data-multiTab data-te-codeblock class="tab_' +
               tabNum +
-              ' lang-html" data-language="html"></pre></section>' +
-              '<section class="ui-tab-pnl" data-tomark-pass="" role="tabpanel">' +
-              '<pre data-te-codeblock class="tab_' +
-              tabNum +
-              ' lang-result" data-language="result"></pre></section>' +
-              '</div></div>' +
-              '';
+              ' lang-result ui-tab-pnl" data-language="result"></pre>' +
+              '<section style="display: none;"><article></article></section>';
             const result = md.render(html);
             tuiEditor.editor.wwEditor.getEditor().insertHTML(result);
-            // 첫 번째로 만드는 다중 코드 블럭 탭일 경우 개행을 없애줘야 함
-            // if (tabNum === 0) {
-            //   tuiEditor.$el
-            //     .querySelector('div.ui-tab.small.mgb-60')
-            //     .previousElementSibling.remove();
-            // }
             tuiEditor.$el
               .querySelectorAll('.ui-tab-btn')
               .forEach((titleBtn) => {
                 titleBtn.addEventListener('click', (e) => {
-                  titleButtonClick(e.target);
+                  titleButtonClick(e.target, tuiEditor);
                 });
               });
             // // html 변수 안에 url을 넣으면 a 태그가 생겨서 text 값으로 삽입
@@ -646,10 +624,10 @@ export default class ProductEdit extends Vue {
           },
         }
       );
-      //   // commandManager 를 이용하여 정의해놓은 command 추가
+      // commandManager 를 이용하여 정의해놓은 command 추가
       tuiEditor.editor.commandManager.addCommand(mdMultiCodeBlockCommand);
       tuiEditor.editor.commandManager.addCommand(wwMultiCodeBlockCommand);
-      //
+
       // 파일 업로드 버튼 클릭 시
       const mdFileUploadCommand = tuiEditor.editor.commandManager.constructor.command(
         '',
@@ -663,59 +641,99 @@ export default class ProductEdit extends Vue {
       );
 
       tuiEditor.editor.commandManager.addCommand(mdFileUploadCommand);
-      //
-      // previewStyle 이 vertical 일 때 preview 에 다중 코드 블럭 탭 UI 를 출력시키기 위해 이벤트 확장
-      const eventManager = tuiEditor.editor.eventManager;
-      eventManager.listen('contentChangedFromMarkdown', function() {
-        const lastestMarkdownValue = tuiEditor.invoke('getHtml');
-        if (tuiEditor.editor.preview.isVisible()) {
-          tuiEditor.editor.preview.lazyRunner.run(
-            'refresh',
-            lastestMarkdownValue
-          );
-          if (
-            lastestMarkdownValue.includes(
-              '<div class="ui-tab small" data-tomark-pass="">'
-            )
-          ) {
-            setTimeout(function() {
-              // if ($('.lang-result').length > 0) {
-              //   $.each($('.lang-result'), function(idx, value) {
-              //     var preClass = $(value)
-              //       .parent('pre')
-              //       .attr('class');
-              //     var src = $(value).text();
-              //     $(value)
-              //       .parent('pre')
-              //       .before(
-              //         '<div class="' +
-              //           preClass +
-              //           '"><iframe width="300" height="300" src="' +
-              //           src +
-              //           '"></iframe></div>'
-              //       );
-              //     $(value)
-              //       .parent('pre')
-              //       .remove();
-              //   });
-              // }
-              tuiEditor.$el
-                .querySelectorAll('.ui-tab-btn')
-                .forEach((titleBtn) => {
-                  titleBtn.addEventListener('click', (e) => {
-                    titleButtonClick(e.target);
-                  });
+      // // previewStyle 이 vertical 일 때 preview 에 다중 코드 블럭 탭 UI 를 출력시키기 위해 이벤트 확장
+      // const eventManager = tuiEditor.editor.eventManager;
+      // eventManager.listen('contentChangedFromMarkdown', function() {
+      //   const lastestMarkdownValue = tuiEditor.invoke('getHtml');
+      //   if (tuiEditor.editor.preview.isVisible()) {
+      //     tuiEditor.editor.preview.lazyRunner.run(
+      //       'refresh',
+      //       lastestMarkdownValue
+      //     );
+      //     if (
+      //       lastestMarkdownValue.includes(
+      //         '<div class="ui-tab small" data-tomark-pass="">'
+      //       )
+      //     ) {
+      //       setTimeout(function() {
+      //         // if ($('.lang-result').length > 0) {
+      //         //   $.each($('.lang-result'), function(idx, value) {
+      //         //     var preClass = $(value)
+      //         //       .parent('pre')
+      //         //       .attr('class');
+      //         //     var src = $(value).text();
+      //         //     $(value)
+      //         //       .parent('pre')
+      //         //       .before(
+      //         //         '<div class="' +
+      //         //           preClass +
+      //         //           '"><iframe width="300" height="300" src="' +
+      //         //           src +
+      //         //           '"></iframe></div>'
+      //         //       );
+      //         //     $(value)
+      //         //       .parent('pre')
+      //         //       .remove();
+      //         //   });
+      //         // }
+      //         tuiEditor.$el
+      //           .querySelectorAll('.ui-tab-btn')
+      //           .forEach((titleBtn) => {
+      //             titleBtn.addEventListener('click', (e) => {
+      //               titleButtonClick(e.target, tuiEditor);
+      //             });
+      //           });
+      //       }, 900);
+      //     }
+      //   }
+      // });
+      // previewStyle 이 tab 일 때 preview 에 다중 코드 블럭 탭 UI 를 출력시키기 위해 refresh 함수 확장
+      tuiEditor.editor.preview.refresh = async function(markdown) {
+        // git 에서 받아온 이미지를 화면에 보여지도록 변환하는 코드
+        const gitImageFileReg = /\[((.|\n)*?)\)/g;
+        const gitImageArray = markdown.match(gitImageFileReg);
+        if (gitImageArray !== null && gitImageArray.length > 0) {
+          for (let idx = 0; idx < gitImageArray.length; idx++) {
+            if (gitImageArray[idx].includes('](/')) {
+              const splitStr = gitImageArray[idx].split('](');
+
+              const uploadFilePath = splitStr[1].split(')')[0];
+              const fileType = uploadFilePath.split('.');
+              if (
+                fileType[fileType.length - 1].toLowerCase() === 'png' ||
+                fileType[fileType.length - 1].toLowerCase() === 'jpg'
+              ) {
+                const altStr = splitStr[0].split('[')[1];
+                const fileFormat =
+                  fileType[fileType.length - 1].toLowerCase() === 'jpg'
+                    ? 'jpeg'
+                    : 'png';
+
+                await convertImagePathAction({
+                  productCode: currentProductCode,
+                  ref: refName,
+                  filePath: uploadFilePath.slice(1),
+                }).then((res) => {
+                  const replaceText =
+                    '![GitImage__' +
+                    altStr +
+                    '](data:image/' +
+                    fileFormat +
+                    ';base64,' +
+                    res.content +
+                    ')';
+                  markdown = markdown.replace(gitImageArray[idx], replaceText);
                 });
-            }, 900);
+              }
+            }
           }
         }
-      });
-      // previewStyle 이 tab 일 때 preview 에 다중 코드 블럭 탭 UI 를 출력시키기 위해 refresh 함수 확장
-      tuiEditor.editor.preview.refresh = function(markdown) {
+        this.render(this.convertor.toHTMLWithCodeHightlight(markdown));
         if (!markdown.includes('<!-- tabs:start -->')) {
           this.render(this.convertor.toHTMLWithCodeHightlight(markdown));
         } else {
           tuiEditor.editor.preview.setHTML(tuiEditor.invoke('getHtml'));
+          // this.render(this.convertor.toHTMLWithCodeHightlight(markdown));
           // 프리뷰에서 result 영역이 url 이 아닌 iframe 이 출력되도록 바꿔주는 코드
           // if ($('.lang-result').length > 0) {
           // $.each($('.lang-result'), function(idx, value) {
@@ -740,10 +758,11 @@ export default class ProductEdit extends Vue {
 
           tuiEditor.$el.querySelectorAll('.ui-tab-btn').forEach((titleBtn) => {
             titleBtn.addEventListener('click', (e) => {
-              titleButtonClick(e.target);
+              titleButtonClick(e.target, tuiEditor);
             });
           });
         }
+        const tuiPreviewArea = tuiEditor.$el.querySelector('.te-preview');
       };
 
       // convertor 의 toHTML, toMarkdown 을 확장하기 위하여 convertor 생성
@@ -760,7 +779,7 @@ export default class ProductEdit extends Vue {
             const codeBlocks = tab.match(cbReg);
             if (codeBlocks !== null && codeBlocks.length > 0) {
               replaceText =
-                '<div class="ui-tab small"><div class="ui-tab-btns" data-tabnum="tab_' +
+                '<section class="ui-tab small" data-tabnum="tab_' +
                 tabIndex +
                 '" role="tablist">';
               let k: number = 0; // 다중 코드 블럭에서 각 코드 블럭에 순서를 매기기 위한 변수
@@ -770,25 +789,25 @@ export default class ProductEdit extends Vue {
                 const activeClass = codeBlockIndex === 0 ? ' active' : ''; // 첫 번째 탭 타이틀에 active class 추가
                 tabTitle = tabTitle === '' ? 'codeblock' : tabTitle; // ``` 다음에 아무것도 안썼을 경우 탭 타이틀을 codeblock 으로 출력
                 replaceText +=
-                  '<a class="ui-tab-btn' +
+                  '<input class="ui-tab-btn' +
                   activeClass +
                   '" data-tabnum="tab_' +
                   tabIndex +
                   '" data-value="' +
                   k++ +
-                  '"><i>' +
+                  '" role="button" value="' +
                   tabTitle +
-                  '</i></a>';
+                  '"/>';
               });
             }
             string = string.replace(
               '<!-- tabs:start -->',
-              replaceText +
-                '</div><div class="ui-tab-pnls" data-tabnum="tab_' +
-                tabIndex +
-                '">'
+              replaceText + '</section>'
             );
-            string = string.replace('<!-- tabs:end -->', '</div></div><br>');
+            string = string.replace(
+              '<!-- tabs:end -->',
+              '<section style="display: none;"><article></article></section><br/>'
+            );
           });
         }
         let html = this._markdownToHtml(string);
@@ -798,70 +817,58 @@ export default class ProductEdit extends Vue {
         );
         // TODO 만약에 markdown to wysywyg 시 개행 문제가 있으면 여기서 br 을 다 없애버려서 나는 거니까 여기서 처리해야함
         html = this._removeBrToMarkPassAttributeInCode(html);
-        const tabHTMLReg = /<div class="ui-tab small"((.|\n)*?)<\/div><\/div>/g;
+        const tabHTMLReg = /<section class="ui-tab small"((.|\n)*?)<\/article><\/section>/g;
         const tabHTMLArray = html.match(tabHTMLReg);
         if (tabHTMLArray !== null && tabHTMLArray.length > 0) {
           tabHTMLArray.forEach((tabHTML, tabIndex) => {
             let insertSectionTag = tabHTML.replace(
               '<pre>',
-              '<section class="ui-tab-pnl active" role="tabpanel"><pre class="tab_' +
+              '<pre data-multiTab class="tab_' +
                 tabIndex +
-                '">'
+                ' ui-tab-pnl active">'
             );
             insertSectionTag = insertSectionTag
               .split('<pre>')
               .join(
-                '<section class="ui-tab-pnl" role="tabpanel"><pre class="tab_' +
-                  tabIndex +
-                  '">'
+                '<pre data-multiTab class="tab_' + tabIndex + ' ui-tab-pnl">'
               );
-            insertSectionTag = insertSectionTag
-              .split('</pre>')
-              .join('</pre></section>');
             html = html.replace(tabHTML, insertSectionTag);
           });
         }
         tuiEditor.$el.querySelectorAll('.ui-tab-btn').forEach((titleBtn) => {
           titleBtn.addEventListener('click', (e) => {
-            titleButtonClick(e.target);
+            titleButtonClick(e.target, tuiEditor);
           });
         });
+        html = decodeURI(html);
         return html;
       };
 
       // wysiwyg 을 markdown 으로 변환할 때
       convertor.toMarkdown = function(html, toMarkOptions) {
-        const removeATagReg = /<a class="ui-tab-btn((.|\n)*?)\/a>/g;
-        const tabTitleBtns = html.match(removeATagReg);
+        html = html
+          .split('</section><pre><code data-multitab=""')
+          .join('</section>tabs:start<pre><code data-multitab=""');
+
+        // 마지막 section tag 를 찾아서 tabs:end 를 넣어줌
+        html = html
+          .split('<section style="display: none;"></section>')
+          .join('tabs:end');
+        html = html
+          .split(
+            '<section style="display: none;" data-tomark-pass=""><article data-tomark-pass=""></article></section>'
+          )
+          .join('tabs:end');
+        html = html.split('<section></section>').join('tabs:end');
+
+        const removeBtns = /<section class="ui-tab small((.|\n)*?)\/section>/g;
+
+        const tabTitleBtns = html.match(removeBtns);
         if (tabTitleBtns !== null && tabTitleBtns.length > 0) {
           tabTitleBtns.forEach((tabTitleBtn) => {
             html = html.split(tabTitleBtn).join('');
           });
         }
-
-        const findFirstSectionTagReg = /<br>(?:<br>)?<section class="ui-tab-pnl((.|\n)*?)role="tabpanel">/g;
-        const firstSectionTags = html.match(findFirstSectionTagReg);
-        const removeSectionTagReg = /<section class="ui-tab-pnl((.|\n)*?)role="tabpanel">/g;
-        const sectionTags = html.match(removeSectionTagReg);
-        // 첫 번째 section tag 를 찾아서 tabs:start 를 넣어줌
-        if (firstSectionTags !== null && firstSectionTags.length > 0) {
-          firstSectionTags.forEach((firstSection) => {
-            html = html.split(firstSection).join('tabs:start');
-          });
-        }
-
-        // 마지막 section tag 를 찾아서 tabs:end 를 넣어줌
-        html = html.split('</section><br>').join('tabs:end');
-
-        // section tag 를 없애줌
-        if (sectionTags !== null && sectionTags.length > 0) {
-          sectionTags.forEach((sectionTag) => {
-            html = html.split(sectionTag).join('');
-          });
-        }
-
-        // section tag 를 없애줌
-        html = html.split('</section>').join('');
 
         const resultArray: Array<any> = [];
         html = this.eventManager.emitReduce(
@@ -890,33 +897,41 @@ export default class ProductEdit extends Vue {
           } else if (line.includes('tabs:start')) {
             line = line.replace('tabs:start', '<!-- tabs:start -->');
           } else if (line.includes('tabs:end')) {
-            line = line.replace('tabs:end', '<!-- tabs:end -->');
+            line = line.replace('tabs:end', '<!-- tabs:end -->\n');
           }
           resultArray[index] = line;
         });
         return resultArray.join('\n');
       };
+      tuiEditor.invoke('setMarkdown', viewerText);
+      tuiEditor.$el.querySelectorAll('.ui-tab-btn').forEach((titleBtn) => {
+        titleBtn.addEventListener('click', (e) => {
+          titleButtonClick(e.target, tuiEditor);
+        });
+      });
+      tuiEditor.editor.moveCursorToStart();
     }, 100);
   }
 }
-function titleButtonClick(titleBtn) {
-  const clickTabNum = titleBtn.parentNode.dataset.tabnum; // 에디터 전체에서 몇 번째 다중 코드 블럭인지 판단하는 변수
-  const clickValue = titleBtn.parentNode.dataset.value; // 몇 번째 탭 타이틀을 선택했는지 판단하는 변수
-  const btnParentNode = titleBtn.parentNode.parentNode;
-  const pnlParentNode = titleBtn.parentNode.parentNode.nextElementSibling;
-  // let contentArea; // 코드 블럭 영역
-  // 위즈윅 모드, 프리뷰 모드에서 각각 구조가 달라서 따로 처리해주어야 함
-  // console.log(clickTabNum);
-  // console.log(clickValue);
-  // console.log(titleBtn.parentNode.parentNode.nextElementSibling);
-  // console.log(titleBtn.parentNode.parentNode.nextElementSibling.children);
-  if (pnlParentNode.dataset.tabnum === clickTabNum) {
-    const childrenPnlNode = pnlParentNode.children;
-    for (let idx = 0; idx < childrenPnlNode.length; idx++) {
-      childrenPnlNode[idx].classList.remove('active');
-      if (idx === Number(clickValue)) {
-        childrenPnlNode[idx].classList.add('active');
-      }
+function titleButtonClick(titleBtn, tuiEditor) {
+  const clickTabNum = titleBtn.dataset.tabnum; // 에디터 전체에서 몇 번째 다중 코드 블럭인지 판단하는 변수
+  const clickValue = titleBtn.dataset.value; // 몇 번째 탭 타이틀을 선택했는지 판단하는 변수
+  const btnParentNode = titleBtn.parentNode;
+
+  let tuiEditorArea = tuiEditor.$el.querySelector('.te-ww-container');
+  if (tuiEditor.editor.currentMode === 'markdown') {
+    tuiEditorArea = tuiEditor.$el.querySelector('.te-preview');
+  }
+  const tabPnls = tuiEditorArea.querySelectorAll('.' + clickTabNum);
+
+  for (let idx = 0; idx < tabPnls.length; idx++) {
+    tabPnls[idx].classList.remove('active');
+    // // 엔터 연속 두 번 누르면 개행이 생겨서 그거 없애려고 추가한 코드
+    // if (tabPnls[idx].previousElementSibling.tagName === 'DIV') {
+    //   tabPnls[idx].previousElementSibling.remove();
+    // }
+    if (idx === Number(clickValue)) {
+      tabPnls[idx].classList.add('active');
     }
   }
 
@@ -929,22 +944,6 @@ function titleButtonClick(titleBtn) {
       }
     }
   }
-  // if ($(self).siblings('article.multiTab').length === 0) {
-  //   contentArea = $(self)
-  //     .parent('div')
-  //     .siblings('article.multiTab')
-  //     .find('.' + clickTabNum);
-  // } else {
-  //   contentArea = $(self)
-  //     .siblings('article.multiTab')
-  //     .find('.' + clickTabNum);
-  // }
-  // contentArea.addClass('hide');
-  // contentArea.eq(clickValue).removeClass('hide');
-  // $(self)
-  //   .siblings('input')
-  //   .removeClass('on');
-  // $(self).addClass('on');
 }
 </script>
 

@@ -197,6 +197,17 @@
               font-size: 15px;
               line-height: 25px;
               color: $font-color2;
+              &.contents-dim{
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                word-wrap: break-word;
+                line-height: 25px;
+                max-height: 50px;
+                word-break: break-all;
+              }
             }
           }
         }
@@ -372,8 +383,9 @@
     }
     .comment-box {
       padding: 15px 0;
-      border-width: 1px 0;
-      border-style: solid;
+      //border-width: 1px 0;
+      //border-style: solid;
+      border-bottom: 1px solid;
       border-color: $gray-color1;
     }
     .comment {

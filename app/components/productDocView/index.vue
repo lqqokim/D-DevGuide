@@ -6,13 +6,11 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import SearchContents from './SearchContents.vue';
 import ProductRepositoryFileViewer from './ProductRepositoryFileViewer.vue';
 import ProductRepositoryFileTOC from './ProductRepositoryFileTOC.vue';
 
 @Component({
   components: {
-    SearchContents,
     ProductRepositoryFileViewer,
     ProductRepositoryFileTOC,
   },

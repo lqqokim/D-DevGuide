@@ -55,7 +55,11 @@ const ProductSchema = new mongoose.Schema({
   productCode: { type: String, required: true, unique: true },
   description: { type: String, required: true },
   staffs: [staffSchema],
-  managedVideos: [videoSchema],
+  // managedVideos: [videoSchema],
+  managedVideos: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'lib_video_video' },
+    // { index: { type: Number } },
+  ],
 });
 
 // ProductSchema.plugin(autoIncrement.plugin, {

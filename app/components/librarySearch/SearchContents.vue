@@ -37,14 +37,7 @@
             @click="onClickVideo(video)"
           >
             <div class="thumb">
-              <img
-                :src="
-                  `https://img.youtube.com/vi/${
-                    video.isSeries ? video.series[0].youtubeId : video.youtubeId
-                  }/maxresdefault.jpg`
-                "
-                alt=""
-              />
+              <img :src="imagePath(video)" alt="" />
               <em class="btn-time">{{ video.playTime }}</em>
               <div v-if="video.isSeries" class="play">
                 <span class="count">{{ video.series.length }}</span>
@@ -53,14 +46,10 @@
             </div>
 
             <dl class="thumb-desc">
-              <!-- TO DO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
-              <dt>
+              <dt class="title-dim">
                 <i v-if="isNew(video.updateDate)" class="icon-new">N</i>
-                <span
-                  v-if="!video.isSeries"
-                  v-html="cutStr(video.videoTitle)"
-                ></span>
-                <span v-else v-html="cutStr(video.seriesTitle)"></span>
+                <span v-if="!video.isSeries">{{ video.videoTitle }}</span>
+                <span v-else>{{ video.seriesTitle }}</span>
               </dt>
               <dd>
                 <template v-if="isNew(video.updateDate)">
@@ -104,10 +93,9 @@
               <span class="btn-type btn-word" :class="docType(doc)"></span>
             </div>
             <dl class="thumb-desc">
-              <!-- TODO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
-              <dt @click="onClickDoc(doc)">
+              <dt class="title-dim" @click="onClickDoc(doc)">
                 <i v-if="isNew(doc.updateDate)" class="icon-new">N</i>
-                <span v-html="cutStr(doc.docTitle)"></span>
+                <span>{{ doc.docTitle }}</span>
               </dt>
 
               <dd>
@@ -119,14 +107,6 @@
                 </template>
               </dd>
             </dl>
-            <!--<dl class="thumb-desc">-->
-            <!--&lt;!&ndash; TO DO 두줄 이상인 경우 말줄임으로 나오게 해주세요 &ndash;&gt;-->
-            <!--<dt>-->
-            <!--<i class="icon-new">N</i>2019-11-23 DEWS/UI 세미나 발표 자료-->
-            <!--제목이 긴 경우-->
-            <!--</dt>-->
-            <!--<dd>2019-09-24<span class="hit">조회 1039</span></dd>-->
-            <!--</dl>-->
           </li>
         </ul>
       </div>
@@ -170,11 +150,11 @@
                 <button
                   type="button"
                   class="dbs-icon-button ico-left small download"
-                  @click="onclickDownload(file)"
                 >
                   <a
-                    :href="`/uploads/${file.fileName}`"
+                    :href="`/downloads/${file.fileName}`"
                     :download="file.originFileName"
+                    @click="onclickDownload(file)"
                     >다운로드</a
                   >
                 </button>
@@ -209,8 +189,13 @@ export default class SearchContents extends Vue {
     contentRef: any;
   };
 
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${
+      video.isSeries ? video.series[0].youtubeId : video.youtubeId
+    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
+
   created() {
-    // TODO 다운로드, 문서 length 도 0일 때에만 false 로 바뀌어야 함
     if (
       this.$store.state.video.searchVideosResult.length === 0 &&
       this.$store.state.document.searchDocsResult.length === 0 &&
@@ -338,25 +323,6 @@ export default class SearchContents extends Vue {
       ddTag.style.display = 'contents';
       spanTag.textContent = '접기';
     }
-  }
-
-  cutStr(orgText): void {
-    let count = 0;
-    let returnText = orgText;
-    for (let idx = 0; idx < orgText.length; idx++) {
-      const currentByte = orgText.charCodeAt(idx);
-      currentByte > 128 ? (count += 2) : count++;
-      if (count > 60) {
-        returnText = orgText.substr(0, idx - 1) + '...';
-        break;
-      }
-    }
-
-    returnText = returnText
-      .split(this.$route.params.searchWord)
-      .join('<em>' + this.$route.params.searchWord + '</em>');
-
-    return returnText;
   }
 }
 </script>

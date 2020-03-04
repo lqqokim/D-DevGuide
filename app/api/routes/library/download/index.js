@@ -7,6 +7,7 @@ import { FileModel, FileProductModel } from './../../../models/download';
 import { VideoProductModel } from '~/api/models/video';
 import { ForumPostModel } from '~/api/models/forum';
 const fs = require('fs');
+const path = require('path');
 
 const mongoose = require('mongoose');
 
@@ -46,17 +47,19 @@ router.get('/searchDownloads/:productCode', (req, res) => {
   const { productCode } = req.params;
   const { searchWord, sort, skip, limit } = req.query;
 
+  const query = new RegExp(searchWord);
+
   const findOptions = {
     productCode,
     $or: [
       {
         fileTitle: {
-          $regex: searchWord,
+          $regex: query,
         },
       },
       {
         description: {
-          $regex: searchWord,
+          $regex: query,
         },
       },
     ],
@@ -153,15 +156,21 @@ router.post('/product/update/:_id', (req, res) => {
  * 다운로드 홈 화면 관리 데이터 업데이트
  */
 router.post('/updateManagedFile/:_id', (req, res) => {
+  const files = req.body;
+
+  // files.map((file, index) => {
+  //   file.index = index + 1;
+  // });
+
   FileProductModel.findOneAndUpdate(
     { _id: req.params._id },
-    { $set: { managedFiles: req.body } },
+    { $set: { managedFiles: files } },
     {
       new: true,
     }
   )
-    .then((file) => {
-      res.status(200).send({ success: true, data: file });
+    .then((product) => {
+      res.status(200).send({ success: true, data: product });
     })
     .catch((err) => {
       res.status(500).send({ success: false, msg: err.message });
@@ -374,30 +383,62 @@ router.post('/register', libraryDownloadFile.single('file'), (req, res) => {
   const { file } = req;
   const data = JSON.parse(req.body.data);
   const filePath = 'app/static/downloads/';
+  const date = Date.now();
 
   console.log('[Download 파일정보] ', file);
   console.log('[Download 데이터]', data);
 
   // 파일을 변경한 경우
   if (data._id) {
-    data.updateDate = Date.now();
-    data.originFileName = file.originalname;
-    data.fileName = file.filename;
-    data.filePath = file.path;
-    data.size = file.size;
+    const changedFileData = {
+      ...data,
+      updateDate: date,
+      originFileName: file.originalname,
+      fileName: file.filename,
+      filePath: file.path,
+      size: file.size,
+    };
 
     FileModel.findOneAndUpdate(
-      { _id: data._id },
-      { $set: data },
+      {
+        _id: changedFileData._id,
+      },
+      {
+        $set: changedFileData,
+      },
       {
         new: true,
       }
     )
       .then((file) => {
-        res.status(200).send({ success: true, data: file });
+        const files = [
+          `app/static/downloads/${data.fileName.split('.')[0]}.${
+            // eslint-disable-next-line standard/computed-property-even-spacing
+            data.originFileName.split('.')[
+              data.originFileName.split('.').length - 1
+            ]
+          }`,
+        ];
+
+        // temp 폴더에 있는 파일 및 썸네일 이미지 제거
+        removeFile(files, function(err) {
+          if (err) {
+            console.log(err);
+          } else {
+            // console.log('temp files removed');
+          }
+        });
+
+        res.status(200).send({
+          success: true,
+          data: file,
+        });
       })
       .catch((err) => {
-        res.status(500).send({ success: false, msg: err.message });
+        res.status(500).send({
+          success: false,
+          msg: err.message,
+        });
       });
   }
   // 새로운 파일 등록
@@ -415,27 +456,33 @@ router.post('/register', libraryDownloadFile.single('file'), (req, res) => {
     fileModel.deptPath = data.deptPath;
     fileModel.description = data.description;
 
-    fileModel.uploadDate = Date.now();
-    fileModel.updateDate = Date.now();
+    fileModel.uploadDate = date;
+    fileModel.updateDate = date;
     fileModel.downloadCount = 0;
 
     // multer 파일 정보
     fileModel.originFileName = file.originalname;
     // fileModel.fileName = file.filename;
-    fileModel.fileName = fileModel._id + '.' + file.originalname.split('.')[1];
+    fileModel.fileName = fileModel._id + path.extname(file.originalname);
     // fileModel.filePath = file.filePath;
     fileModel.filePath = filePath + fileModel.fileName;
     fileModel.size = file.size;
 
-    console.log('[fileModel] ', fileModel);
+    // console.log('[fileModel] ', fileModel);
 
     fileModel
       .save()
       .then((file) => {
-        res.status(200).send({ success: true, data: file });
+        res.status(200).send({
+          success: true,
+          data: file,
+        });
       })
       .catch((err) => {
-        res.status(500).send({ success: false, msg: err.message });
+        res.status(500).send({
+          success: false,
+          msg: err.message,
+        });
       });
   }
 });
@@ -443,20 +490,71 @@ router.post('/register', libraryDownloadFile.single('file'), (req, res) => {
 /**
  * 다운로드 파일 삭제
  */
-router.delete('/remove/:_id', (req, res) => {
-  FileModel.deleteOne({ _id: req.params._id })
+router.post('/remove/:_id', (req, res) => {
+  const { _id } = req.params;
+  const { productCode, file } = req.body;
+  let data;
+
+  FileModel.deleteOne({ _id })
     .then((result) => {
+      data = result;
       if (result.n === 0) {
         return res
           .status(404)
           .json({ success: false, msg: 'Document not found' });
       } else {
-        return res.status(200).json({ success: true, data: result });
+        return FileProductModel.findOneAndUpdate(
+          { productCode },
+          {
+            $pull: {
+              managedFiles: {
+                _id,
+              },
+            },
+          }
+        );
       }
+    })
+    .then(() => {
+      // 파일 수정전 존재하던 파일
+      const files = [
+        `app/static/downloads/${file.fileName.split('.')[0]}.${
+          // eslint-disable-next-line standard/computed-property-even-spacing
+          file.originFileName.split('.')[
+            file.originFileName.split('.').length - 1
+          ]
+        }`,
+      ];
+
+      // temp 폴더에 있는 파일 및 썸네일 이미지 제거
+      removeFile(files, function(err) {
+        if (err) {
+          console.log(err);
+        } else {
+          // console.log('download file removed');
+        }
+      });
+
+      res.status(200).json({ success: true, data });
     })
     .catch((err) => {
       res.status(500).send({ success: false, msg: err.message });
     });
 });
+
+const removeFile = (files, callback) => {
+  let i = files.length;
+  files.forEach((filepath) => {
+    fs.unlink(filepath, function(err) {
+      i--;
+      if (err) {
+        callback(err);
+        return false;
+      } else if (i <= 0) {
+        callback(null);
+      }
+    });
+  });
+};
 
 module.exports = router;

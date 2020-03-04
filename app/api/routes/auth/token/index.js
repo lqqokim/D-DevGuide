@@ -8,7 +8,15 @@ router.post('/', (req, res) => {
   if (token) {
     checkUserByToken(token)
       .then((result) => {
-        res.send(JSON.parse(result));
+        // { "msg":"","res":true,"data":{"ID":"kis4204","IDX":"434","NAME":"김인수A","AUTHORITY":"E"}}
+
+        const parseResult = JSON.parse(result);
+
+        if (parseResult.data.ID === 'admin@test.com') {
+          parseResult.data.ID = 'admin';
+        }
+
+        res.send(parseResult);
       })
       .catch((err) => {
         res.send(err);

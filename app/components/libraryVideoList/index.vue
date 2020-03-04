@@ -6,38 +6,34 @@
         동영상 <span>{{ $store.state.video.selectedProduct.productName }}</span>
       </p>
       <div v-if="isCheckEmp() || isAdmin()" class="register">
-        <button
-          type="button"
+        <nuxt-link
+          :to="{
+            name: 'videoRegister',
+            params: {
+              productCode: $route.params.productCode,
+              editType: 'register',
+              type: 'single',
+            },
+          }"
           class="btn-main blue small"
-          @click="
-            $router.push({
-              name: 'videoRegister',
-              params: {
-                productCode: $store.state.video.selectedProduct.productCode,
-                editType: 'register',
-                type: 'single',
-              },
-            })
-          "
+          tag="button"
         >
           추가
-        </button>
-        <button
-          type="button"
+        </nuxt-link>
+        <nuxt-link
+          :to="{
+            name: 'videoRegister',
+            params: {
+              productCode: $store.state.video.selectedProduct.productCode,
+              editType: 'register',
+              type: 'series',
+            },
+          }"
           class="btn-main blue small"
-          @click="
-            $router.push({
-              name: 'videoRegister',
-              params: {
-                productCode: $store.state.video.selectedProduct.productCode,
-                editType: 'register',
-                type: 'series',
-              },
-            })
-          "
+          tag="button"
         >
           시리즈 추가
-        </button>
+        </nuxt-link>
       </div>
     </div>
     <ul class="thumb-list video mgt-20 mgb-60">
@@ -53,14 +49,7 @@
           }"
         >
           <div class="thumb">
-            <img
-              :src="
-                `https://img.youtube.com/vi/${
-                  video.isSeries ? video.series[0].youtubeId : video.youtubeId
-                }/maxresdefault.jpg`
-              "
-              alt=""
-            />
+            <img :src="imagePath(video)" alt="" />
             <!--          <iframe-->
             <!--            width="100%"-->
             <!--            height="100%"-->
@@ -89,6 +78,7 @@
                 video: video,
               },
             }"
+            class="title-dim"
             tag="dt"
           >
             <i v-if="isNew(video.uploadDate)" class="icon-new">N</i>
@@ -104,7 +94,7 @@
             <template>
               {{ convertDateFormat(video.uploadDate) }}
             </template>
-            <span class="hit">조회 {{ video.viewCount }}</span>
+            <span class="hit">조회 {{ calVideoCount(video) }}</span>
           </dd>
           <dd v-if="isCheckEmp() || isAdmin()">
             {{ video.empName }} ({{ video.deptPath }})
@@ -123,6 +113,7 @@
                     video: video,
                   },
                 }"
+                style="display: inline-block;"
                 >수정</nuxt-link
               ><a class="font-accent-color" @click="onclickRemove(video)"
                 >삭제</a
@@ -213,6 +204,12 @@ export default class LibraryVideoList extends Vue {
     }
   }
 
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${
+      video.isSeries ? video.series[0].youtubeId : video.youtubeId
+    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
+
   onclickRemove(video: IVideo): void {
     const msg: string = video.isSeries
       ? '시리즈 내 모든 영상이 삭제됩니다. 삭제하시겠습니까?'
@@ -230,10 +227,27 @@ export default class LibraryVideoList extends Vue {
     });
   }
 
+  calVideoCount(video) {
+    if (video.isSeries) {
+      let viewCount = 0;
+
+      video.series.map((video) => {
+        viewCount = viewCount + video.viewCount;
+      });
+
+      return viewCount;
+    } else {
+      return video.viewCount;
+    }
+  }
+
   initData(): void {
     this.videosByProduct = this.$store.state.video.videosByProduct;
     this.countMore = 1;
-    this.isViewMore = true;
+
+    //  total 초기화
+    this.total = this.$store.state.document.totalSize;
+    this.isViewMore = this.total > this.LIMIT;
   }
 
   async onclickMoreView(): Promise<any> {

@@ -2,7 +2,7 @@
   <div class="container-panel">
     <div class="view-top mgb-20">
       <h1 class="tit-con-text">
-        {{ $store.state.product.product.productCode }}<span>브랜치 비교</span>
+        {{ $store.state.product.product.productName }}<span>브랜치 비교</span>
       </h1>
     </div>
     <div class="view-top bdr-bot-none">
@@ -36,13 +36,50 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
+import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { Diff2Html } from 'diff2html';
+import * as mergeRequest from '@/store/modules/mergeRequest';
+import * as branch from '@/store/modules/branch';
+import * as product from '@/store/modules/product';
+
 import 'diff2html/dist/diff2html.min.css';
+
+const MergeRequest = namespace('mergeRequest');
+const Branch = namespace('branch');
+const Product = namespace('product');
 
 @Component
 export default class ProductBranchCompare extends Vue {
-  prettyHtml(commit) {
+  @MergeRequest.Action('getChangesData') getChangesDataAction;
+  @Branch.Action('getBranchChangesData') getBranchChangesDataAction;
+  @Product.Action('selectProduct') selectProductAction;
+
+  created() {
+    if (!this.$store.state.user.user.gitlabToken) {
+      return;
+    }
+
+    if (this.$route.params.mergeRequestIId !== undefined) {
+      this.getChangesDataAction({
+        productCode: this.$route.params.productCode,
+        mergeRequestIId: this.$route.params.mergeRequestIId,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
+      });
+    } else {
+      this.getBranchChangesDataAction({
+        productCode: this.$route.params.productCode,
+        branchName: this.$route.params.branchName,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
+      });
+      // this.selectProductAction({
+      //   productCode: this.$route.params.productCode,
+      // }).then(() => {
+      //
+      // });
+    }
+  }
+
+  prettyHtml() {
     let differenceData = '';
     if (this.$route.params.mergeRequestIId !== undefined) {
       this.$store.state.mergeRequest.mergeRequestDiffData.forEach((changes) => {

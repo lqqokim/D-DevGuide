@@ -47,36 +47,21 @@
           class="ui-tab-btn"
           data-tab="1"
           :class="{ active: $route.name === 'devDocSearch' }"
-          @click="
-            $router.push({
-              name: 'devDocSearch',
-              params: { searchWord: $route.params.searchWord },
-            })
-          "
+          @click="onClickTab('devDocSearch')"
           ><i>개발자 문서</i></a
         >
         <a
           class="ui-tab-btn"
           data-tab="2"
           :class="{ active: $route.name === 'qnaSearch' }"
-          @click="
-            $router.push({
-              name: 'qnaSearch',
-              params: { searchWord: $route.params.searchWord },
-            })
-          "
+          @click="onClickTab('qnaSearch')"
           ><i>질문/답변</i></a
         >
         <a
           class="ui-tab-btn"
           data-tab="3"
           :class="{ active: $route.name === 'librarySearch' }"
-          @click="
-            $router.push({
-              name: 'librarySearch',
-              params: { searchWord: $route.params.searchWord },
-            })
-          "
+          @click="onClickTab('librarySearch')"
           ><i>자료실</i></a
         >
       </div>
@@ -145,6 +130,15 @@ export default class SearchBar extends Vue {
           });
         }
       }
+    }
+  }
+
+  onClickTab(routerName) {
+    if (routerName !== this.$route.name) {
+      this.$router.push({
+        name: routerName,
+        params: { searchWord: this.$route.params.searchWord },
+      });
     }
   }
 }

@@ -1,8 +1,8 @@
 <template>
-  <div class="base-wrap">
+  <div>
     <div class="indx-top">
       <div class="dbs-index-slider-wrap">
-        <div class="indx-slider slide-01" style="display: block;">
+        <div class="indx-slider" :class="sliderImage" style="display: block;">
           <div class="indx-slider-desc fl">
             <dl>
               <dt class="main-top">
@@ -24,38 +24,38 @@
               </a>
             </div>
             <p class="slider-arrow">
-              <a role="button" class="arrow prev"></a>
-              <a role="button" class="arrow next"></a>
+              <a role="button" class="arrow prev" @click="onclickPrevImage" />
+              <a role="button" class="arrow next" @click="onclickNextImage" />
             </p>
           </div>
         </div>
-        <div class="indx-slider slide-02" style="display: none;">
-          <div class="indx-slider-desc fl">
-            <dl>
-              <dt class="main-top">
-                <strong>국내 최초 경영교육</strong><br />시뮬레이션 프로그램
-              </dt>
-              <dd class="main-sub">
-                실제 경영 사례에서 도출한 경영 문제와 시나리오를 기반으로
-                문제해결을 시도하고 경쟁하는 롤플레잉 형태의 경영교육 시뮬레이션
-                게임입니다.
-              </dd>
-            </dl>
-            <div class="btn-wrap txt-left mgt-30">
-              <button type="button" class="btn-main blue">
-                자세히 보기
-              </button>
-            </div>
-            <p class="slider-arrow">
-              <a role="button" class="arrow prev"></a>
-              <a role="button" class="arrow next"></a>
-            </p>
-          </div>
-        </div>
+        <!--        <div class="indx-slider slide-02" style="display: none;">-->
+        <!--          <div class="indx-slider-desc fl">-->
+        <!--            <dl>-->
+        <!--              <dt class="main-top">-->
+        <!--                <strong>국내 최초 경영교육</strong><br />시뮬레이션 프로그램-->
+        <!--              </dt>-->
+        <!--              <dd class="main-sub">-->
+        <!--                실제 경영 사례에서 도출한 경영 문제와 시나리오를 기반으로-->
+        <!--                문제해결을 시도하고 경쟁하는 롤플레잉 형태의 경영교육 시뮬레이션-->
+        <!--                게임입니다.-->
+        <!--              </dd>-->
+        <!--            </dl>-->
+        <!--            <div class="btn-wrap txt-left mgt-30">-->
+        <!--              <button type="button" class="btn-main blue">-->
+        <!--                자세히 보기-->
+        <!--              </button>-->
+        <!--            </div>-->
+        <!--            <p class="slider-arrow">-->
+        <!--              <a role="button" class="arrow prev"></a>-->
+        <!--              <a role="button" class="arrow next"></a>-->
+        <!--            </p>-->
+        <!--          </div>-->
+        <!--        </div>-->
       </div>
       <div class="quick-folder">
         <ul :class="'col-' + productListLength">
-          <li v-for="product in productList" :key="product.productCode">
+          <li v-for="product in productList" :key="product._id">
             <nuxt-link
               :to="{
                 name: 'detail',
@@ -175,8 +175,33 @@ import { Vue, Component } from 'nuxt-property-decorator';
 @Component
 export default class ProjectMain extends Vue {
   readonly dbsPath = '/html/PagePanel.html';
+  private imageClasses: string[] = ['slide-01', 'slide-02'];
   productListLength: number = 1;
   productList: Array<any> = [];
+
+  get sliderImage() {
+    const KEY = this.imageClasses[0];
+
+    return {
+      [KEY]: true,
+    };
+  }
+
+  mounted() {
+    setInterval(() => {
+      this.onclickNextImage();
+    }, 10000);
+  }
+
+  onclickPrevImage(): void {
+    // @ts-ignore
+    this.imageClasses.unshift(this.imageClasses.pop());
+  }
+
+  onclickNextImage(): void {
+    // @ts-ignore
+    this.imageClasses.push(this.imageClasses.shift());
+  }
 
   created() {
     if (

@@ -1,16 +1,26 @@
 <template>
-  <div id="notfound">
-    <div class="notfound">
-      <div class="notfound-404">
-        <h1>4<span>0</span>4</h1>
+  <client-only>
+    <div id="notfound">
+      <div class="notfound">
+        <h2>죄송합니다.</h2>
+        <h2>요청하신 페이지를 찾을 수 없습니다.</h2>
+        <p>
+          방문하시려는 페이지의 주소가 잘못 입력되었거나,
+        </p>
+        <p>
+          페이지의 주소가 변경 혹은 삭제되어 요청하신 페이지를 찾을 수 없습니다.
+        </p>
+        <br />
+        <div class="notfound-404">
+          <h1>4<span>0</span>4</h1>
+        </div>
+        <!--      <form class="notfound-search">-->
+        <!--        <input type="text" placeholder="Search..." />-->
+        <!--        <button type="button"><span></span></button>-->
+        <!--      </form>-->
       </div>
-      <h2>the page you requested could not found</h2>
-      <form class="notfound-search">
-        <input type="text" placeholder="Search..." />
-        <button type="button"><span></span></button>
-      </form>
     </div>
-  </div>
+  </client-only>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

@@ -1,6 +1,4 @@
 <template>
-  <!--<div class="dbs-dialog-wrap w-700" style="display: none; height: 673px;">-->
-  <!--<div class="dialog-wrap">-->
   <div class="dbs-dialog">
     <div class="gray-info-box mgb-20">
       <div class="box-desc">
@@ -8,10 +6,6 @@
           <li>
             <span>프로젝트 ID</span>
             {{ $store.state.product.product.projectId }}
-          </li>
-          <li>
-            <span>기본경로</span>
-            {{ $store.state.product.product.manualDocPath }}
           </li>
         </ul>
       </div>
@@ -36,10 +30,7 @@
       <div class="dialog-menu-tree">
         <tree
           ref="repositoryTree"
-          :data="repositoryDocPathData"
           :options="treeOptions"
-          @node:dragging:start="logDragStart"
-          @node:dragging:finish="logDragFinish"
           @node:clicked="clickTree"
         >
           <div slot-scope="{ node }">
@@ -62,37 +53,29 @@
             </thead>
             <tbody>
               <tr
-                v-for="child in selectedNode.children"
+                v-for="(child, index) in selectedNode.children"
                 :key="child.states.path"
               >
-                <td
-                  v-if="
-                    child.states.type === 'blob' &&
-                      child.text.slice(-3) === '.md'
-                  "
-                  class="txt-left"
-                  @click="selectFile(child.states.path)"
-                >
-                  {{ child.text }}
+                <td v-if="child.states.type === 'blob'" class="txt-left">
+                  <div class="dbs-checkbox-wrapper">
+                    <input
+                      :id="'uiCheck' + child.text + index"
+                      type="checkbox"
+                      :name="'uiCheck' + child.text + index"
+                      :checked="selectedFilePath.includes(child.states.path)"
+                      @click="onClickCheckBox(child.states.path)"
+                    />
+                    <label
+                      :for="'uiCheck' + child.text + index"
+                      class="dbs-checkbox"
+                      v-html="cutStr(child.text)"
+                    >
+                    </label>
+                  </div>
                 </td>
-                <td
-                  v-if="
-                    child.states.type === 'blob' &&
-                      child.text.slice(-3) === '.md'
-                  "
-                  class="txt-data"
-                >
+                <td v-if="child.states.type === 'blob'" class="txt-data">
                   {{ child.states.size }}KB
                 </td>
-                <!-- 글자 수가 클 때 ...으로 표현되는 부분 -->
-                <!--<td class="txt-left">-->
-                <!--<span class="file-name" data-filetype=".md"-->
-                <!--&gt;<em-->
-                <!--&gt;Search PlaceGetstaredSearch PlaceGetstaredSearch-->
-                <!--PlaceGetstaredSearch PlaceGetstared.md</em-->
-                <!--&gt;</span-->
-                <!--&gt;-->
-                <!--</td>-->
               </tr>
             </tbody>
           </table>
@@ -100,13 +83,11 @@
       </div>
     </div>
   </div>
-  <!--</div>-->
-  <!--</div>-->
 </template>
 
 <script lang="ts">
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
-import * as repository from '@/store/modules/repository';
+import { TreeNode } from '@/store/modules/repository';
 import { IAlert } from '@/store/modules/common';
 
 const Repository = namespace('repository');
@@ -116,7 +97,8 @@ const Common = namespace('common');
 export default class FileUploadModal extends Vue {
   @Repository.Action('uploadFile') uploadFileAction;
   @Repository.Action('getRepository') getRepositoryAction;
-  @Repository.Action('getFileSizeTest') getFileSizeAction;
+  @Repository.Action('getFileSize') getFileSizeAction;
+  @Repository.Action('getBlobFileSize') getBlobFileSizeAction;
   @Repository.Action('getProjectInfo') getProjectInfoAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
@@ -131,44 +113,47 @@ export default class FileUploadModal extends Vue {
       state: 'data',
       data: 'path',
     },
-    dnd: true,
-    // checkbox: true,
+    fetchData: this.fetchData(),
   };
-  selectedNode = {
+  selectedNode: TreeNode = {
     id: '',
-    text: '',
     states: {
-      path: '',
-      type: '',
+      selected: false,
+      selectable: false,
+      checked: false,
+      expanded: false,
+      disabled: false,
       visible: false,
+      editable: false,
+      draggable: false,
+      type: '',
+      path: '',
+      size: 0,
     },
+    children: [],
+    isBatch: false,
+    isEditing: false,
+    text: '',
   };
-  selectedFilePath: string = '';
-  repositoryDocPathData = this.$store.state.repository.repositoryDocPathData;
+  selectedFilePath: Array<string> = [];
+  repositoryDocPathData = this.$store.state.repository.repositoryData.slice();
 
-  logDragStart(node): void {
-    console.log('Start dragging: ' + node.text);
-  }
+  fetchData() {
+    this.repositoryDocPathData = this.$store.state.repository.repositoryData.slice();
 
-  logDragFinish(targetNode, distinationNode): void {
-    console.log(`Stop dragging: [TARGET]${targetNode.text}`);
-  }
-
-  // TODO 용량 뿌려주는 부분 다시 해보기
-  clickTree(node) {
-    this.selectedFilePath = '';
-    this.selectedNode = node;
     this.getFileSizeAction({
       projectId: this.$store.state.product.product.projectId,
       ref: this.$store.state.repository.currentRef,
-      children: node.children,
-    }).then((res) => {
-      Vue.set(this.selectedNode, 'children', res);
+      repositoryData: this.repositoryDocPathData,
+    }).then(() => {
+      this.$refs.repositoryTree.tree.setModel(this.repositoryDocPathData);
+      this.selectedNode.children = this.$refs.repositoryTree.tree.model.slice();
+      return this.repositoryDocPathData;
     });
   }
 
-  selectFile(path) {
-    this.selectedFilePath = path;
+  clickTree(node) {
+    this.selectedNode = node;
   }
 
   fileUploadToGit() {
@@ -207,27 +192,73 @@ export default class FileUploadModal extends Vue {
           this.getRepositoryAction({
             productCode: this.$store.state.product.product.productCode,
             ref: this.$store.state.repository.currentRef,
-            useDocPath: true,
+            // useDocPath: true,
             gitlabToken: this.$store.state.user.user.gitlabToken,
           }).then(() => {
             this.repositoryDocPathData = [];
             this.repositoryDocPathData = this.$store.state.repository.repositoryDocPathData;
-            const appendNode = this.$refs.repositoryTree.append(
-              this.selectedNode,
-              {
-                text: fileData.name,
+
+            this.getBlobFileSizeAction({
+              projectId: this.$store.state.product.product.projectId,
+              ref: this.$store.state.repository.currentRef,
+              filePath: this.selectedNode.states.path + '/' + fileData.name,
+            }).then((blobData) => {
+              let appendNode!: TreeNode;
+              if (this.selectedNode.text === '') {
+                appendNode = this.$refs.repositoryTree.append({
+                  text: fileData.name,
+                });
+              } else {
+                appendNode = this.$refs.repositoryTree.append(
+                  this.selectedNode,
+                  {
+                    text: fileData.name,
+                  }
+                );
               }
-            );
-            appendNode.states.path =
-              this.selectedNode.states.path + '/' + fileData.name;
-            appendNode.states.type = 'blob';
-            appendNode.states.visible = false;
+
+              appendNode.states.size = Math.round(blobData.size / 1024);
+              appendNode.states.path =
+                this.selectedNode.states.path + '/' + fileData.name;
+              appendNode.states.type = 'blob';
+              appendNode.states.visible = false;
+              if (this.selectedNode.text === '') {
+                this.selectedNode.children = this.$refs.repositoryTree.tree.model.slice();
+              }
+            });
           });
         }
       })
       .catch((err) => {
         console.error(err);
       });
+  }
+
+  cutStr(orgText) {
+    let count = 0;
+    let returnText = orgText;
+    for (let idx = 0; idx < orgText.length; idx++, count++) {
+      // const currentByte = orgText.charCodeAt(idx);
+      // currentByte > 128 ? (count += 2) : count++;
+      if (count > 30) {
+        // TODO 수정 필요
+        const splitStr = orgText.split('.');
+        returnText =
+          '<span class="file-name" data-filetype=".' +
+          splitStr[splitStr.length - 1] +
+          '"><em>' +
+          returnText +
+          '</em></span>';
+        break;
+      }
+    }
+    return returnText;
+  }
+
+  onClickCheckBox(filePath) {
+    this.selectedFilePath.includes(filePath)
+      ? this.selectedFilePath.splice(this.selectedFilePath.indexOf(filePath), 1)
+      : this.selectedFilePath.push(filePath);
   }
 
   getData() {

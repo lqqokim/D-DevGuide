@@ -174,7 +174,6 @@ import libraryDownloadRegisterEdit from '@/components/libraryDownloadRegisterEdi
     libraryDownloadRegisterEdit,
   },
   async fetch({ store, params }) {
-    console.log('fetch :: ', params);
     try {
       if (!store.state.download.producs) {
         await store.dispatch('download/fileProducts');

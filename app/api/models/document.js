@@ -37,7 +37,11 @@ const docProductSchema = new mongoose.Schema({
   productCode: { type: String, required: true, unique: true },
   description: { type: String, required: true },
   staffs: [staffSchema],
-  managedDocs: [docSchema],
+  // managedDocs: [docSchema],
+  managedDocs: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'lib_doc_document' },
+    // { index: { type: Number } },
+  ],
 });
 
 const DocProductModel = mongoose.model('lib_doc_product', docProductSchema);

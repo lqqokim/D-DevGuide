@@ -9,13 +9,14 @@ const staffSchema = new mongoose.Schema({
 });
 
 const productScheme = new mongoose.Schema({
+  index: { type: Number, unique: false },
   productName: { type: String, default: '', required: true },
   productCode: { type: String, default: '', unique: true, required: true },
   description: { type: String, default: '', required: true },
   apiUse: { type: Boolean, default: false, required: true },
-  projectId: { type: Number, default: '', unique: true, required: true },
+  projectId: { type: String, default: '', unique: true, required: true },
   targetBranch: { type: String, default: '', required: true },
-  manualDocPath: { type: String, default: '', required: true },
+  manualDocPath: { type: String, default: '' },
   APIDocPath: { type: String, default: '' },
   staffs: [staffSchema],
 });

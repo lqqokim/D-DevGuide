@@ -13,17 +13,21 @@
     <nuxt />
 
     <FooterComp></FooterComp>
+    <alert-component v-show="alertInfo.isShow" :info="alertInfo" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'nuxt-property-decorator';
+import { IAlert } from '@/store/modules/common';
 import HeaderComp from '@/components/common/header/index.vue';
 import FooterComp from '@/components/common/footer/index.vue';
+import AlertComponent from '@/components/common/alert/index.vue';
 
 @Component({
   components: {
     HeaderComp,
     FooterComp,
+    AlertComponent,
   },
 })
 export default class SearchLayout extends Vue {
@@ -43,6 +47,10 @@ LNB_FORUM = 'Forum';
 
   get isBannerLoad() {
     return !!this.$route.meta.pageType;
+  }
+
+  get alertInfo(): IAlert {
+    return this.$store.state.common.alert;
   }
 }
 </script>

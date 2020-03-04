@@ -14,7 +14,6 @@ const libraryDocumentFile = multer({
       cb(null, 'app/static/uploads/');
     },
     filename(req, file, cb) {
-      console.log('filename : ', req.body);
       const originalname = file.originalname.split('.')[0];
       const fileExtension = file.originalname.split('.')[1];
       // cb(null, new Date().valueOf() + path.extname(file.originalname));

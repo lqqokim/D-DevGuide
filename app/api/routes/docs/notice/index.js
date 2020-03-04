@@ -6,55 +6,86 @@ const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
-// 공지사항 등록
+/**
+ * 공지사항 등록
+ */
 router.post('/noticeRegister', (req, res) => {
-  const noticeModel = new NoticeModel();
-  noticeModel.productCode = req.body.productCode;
-  noticeModel.category = req.body.category;
-  noticeModel.noticeTitle = req.body.noticeTitle;
-  noticeModel.noticeDescription = req.body.noticeDescription;
-  noticeModel.filePath = req.body.filePath;
-  noticeModel.pageTitle = req.body.pageTitle;
-  noticeModel.writeTime = req.body.writeTime;
-  noticeModel.writer = req.body.writer;
+  const notice = req.body;
+  const noticeModel = new NoticeModel(notice);
 
-  noticeModel.save(function(err) {
-    if (err) {
-      res.json({ result: 0 });
-      return;
-    }
-
-    res.json({ result: 1 });
-  });
+  NoticeModel.countDocuments({ productCode: req.body.productCode })
+    .then((count) => {
+      noticeModel.index = count + 1;
+      return noticeModel.save();
+    })
+    .then((notice) => {
+      res.status(200).send({ success: true, data: notice });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
 });
 
-// 공지사항 목록
+/**
+ * 공지사항 리스트 가져오기
+ */
 router.get('/getNoticeList', (req, res) => {
   const productCode = {
     productCode: req.query.productCode,
   };
-  NoticeModel.find(productCode, function(err, result) {
-    if (err) return res.status(500).send({ error: 'database failure' });
-    res.json(result);
-  });
+  NoticeModel.find(productCode)
+    .sort({ index: -1 })
+    .then((notices) => {
+      res.status(200).send({ success: true, data: notices });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
 });
 
-// 공지사항 삭제
-router.get('/noticeDelete', (req, res) => {
-  const noticeData = {
-    productCode: req.query.productCode,
-    category: req.query.category,
-    noticeTitle: req.query.noticeTitle,
-    noticeDescription: req.query.noticeDescription,
-    filePath: req.query.filePath,
-    pageTitle: req.query.pageTitle,
-    writeTime: req.query.writeTime,
-    writer: req.query.writer,
-  };
-  NoticeModel.deleteOne(noticeData, function(err, result) {
-    if (err) return res.status(500).send({ error: 'database failure' });
-    res.json(result);
+/**
+ * 공지사항 리스트 수정
+ */
+router.put('/updateNoticeIndex', (req, res) => {
+  const notices = req.body;
+  const promises = [];
+  const noticesLength = notices.length;
+
+  // 공지사항 목록 index 수정
+  notices.map((notice, index) => {
+    promises.push(
+      NoticeModel.findOneAndUpdate(
+        {
+          productCode: notice.productCode,
+          writeTime: notice.writeTime,
+        },
+        { $set: { index: noticesLength - index } }
+      )
+    );
   });
+
+  Promise.all(promises)
+    .then((notices) => {
+      res.status(200).send({ success: true, data: notices });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 공지사항 삭제
+ */
+router.get('/noticeDelete', (req, res) => {
+  const notice = req.query;
+
+  NoticeModel.deleteOne(notice)
+    .then((noticeData) => {
+      res.status(200).send({ success: true, data: noticeData });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
 });
 
 module.exports = router;

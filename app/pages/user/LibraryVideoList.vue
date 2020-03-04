@@ -138,8 +138,6 @@ import LibraryVideoList from '@/components/libraryVideoList/index.vue';
   components: {
     LibraryVideoList,
   },
-  middleware: 'check-auth',
-
   async fetch({ params, store }) {
     try {
       if (!params.product) {

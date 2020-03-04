@@ -138,7 +138,6 @@
 <script lang="ts">
 import { Vue, Component, namespace, Watch } from 'nuxt-property-decorator';
 import TurndownService from 'turndown';
-import DocEditor from '@/components/libraryDocEdit/DocEditor.vue';
 import FileComponent from '@/components/common/file/FileComponent.vue';
 import { IDocument } from '@/store/modules/document';
 import { IAlert } from '~/store/modules/common';
@@ -155,7 +154,6 @@ const Doc = namespace('document');
 @Component({
   components: {
     FileComponent,
-    DocEditor,
   },
 })
 export default class LibraryDocRegister extends Vue {
@@ -166,7 +164,7 @@ export default class LibraryDocRegister extends Vue {
 
   @Watch('$route', { immediate: true, deep: true })
   onChangeRoute(to, from) {
-    console.log('onChangeRoute :: ', to, from);
+    // console.log('onChangeRoute :: ', to, from);
     // console.log('onChangeMenu :: ', this.selectedProductCode);
   }
 
@@ -194,8 +192,6 @@ export default class LibraryDocRegister extends Vue {
   selectedTempName: string = '';
 
   created() {
-    console.log(this.$route);
-
     const selectedProduct = this.$store.state.document.selectedProduct;
     if (selectedProduct._id) {
       this.selectedCategory.productName = selectedProduct.productName;
@@ -208,6 +204,13 @@ export default class LibraryDocRegister extends Vue {
   }
 
   mounted() {
+    // // remove tui toolbar image button
+    // const tuiImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
+    //   '.tui-image.tui-toolbar-icons'
+    // );
+    //
+    // tuiImageBtnEl.parentNode!.removeChild(tuiImageBtnEl);
+
     setTimeout(() => {
       if (this.$refs.fileInputText && this.$refs.fileInputText.value) {
         this.$refs.fileInputText.value = this.doc.originDocName;
@@ -230,7 +233,6 @@ export default class LibraryDocRegister extends Vue {
     await this.previewDocAction(file);
     this.thumbnailPath = this.$store.state.document.selectedTemp.thumbnailPath;
     this.selectedTempName = this.$store.state.document.selectedTemp.docName;
-    console.log('selectedTemp ', this.$store.state.document.selectedTemp);
   }
 
   async onclickSave(): Promise<any> {
@@ -258,6 +260,16 @@ export default class LibraryDocRegister extends Vue {
     this.doc.description = this.$refs.tui.invoke('getValue'); // get tui-editor md
     this.doc.productName = this.selectedCategory.productName;
     this.doc.productCode = this.selectedCategory.productCode;
+
+    if (!this.doc.description) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '문서에 대한 설명을 입력해주세요.',
+      });
+
+      return;
+    }
 
     const payload = {
       isChange: !!this.inputFile,
@@ -317,7 +329,7 @@ export default class LibraryDocRegister extends Vue {
       async (e: InputEvent<HTMLInputElement>) => {
         fileData = e.path[0];
 
-        console.log('fileData ', fileData.files[0]);
+        // console.log('fileData ', fileData.files[0]);
         this.inputFile = fileData;
         await this.previewDocAction(fileData);
 

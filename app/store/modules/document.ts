@@ -181,41 +181,173 @@ export const mutations: MutationTree<DocState> = {
 };
 
 export const actions: ActionTree<DocState, RootState> = {
-  registerProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
-    // if (payload && payload._id) {
-    //   delete payload._id;
-    // }
+  async registerProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
+    try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '제품을 등록중입니다.',
+        },
+        { root: true }
+      );
 
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { data } = await this.$axios.post(
-          'api/library/document/product',
-          payload
+      const { data } = await this.$axios.post(
+        'api/library/document/product',
+        payload
+      );
+
+      if (data.success && data.data) {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '제품이 등록되었습니다.',
+          },
+          { root: true }
         );
-
-        await dispatch('docProducts');
-        resolve(data);
-      } catch (e) {
-        reject(e);
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
       }
-    });
+
+      await dispatch('docProducts');
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+    }
   },
 
   // 제품 정보 수정
-  updateProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { data } = await this.$axios.post(
-          'api/library/document/product/update/' + payload._id,
-          payload
-        );
+  async updateProduct({ commit, dispatch }, payload: IProduct): Promise<any> {
+    try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '제품을 수정중입니다.',
+        },
+        { root: true }
+      );
 
-        // await dispatch('docProducts');
-        resolve(data);
-      } catch (e) {
-        reject(e);
+      const { data } = await this.$axios.post(
+        'api/library/document/product/update/' + payload._id,
+        payload
+      );
+
+      // console.log('updateProduct :: ', data);
+
+      if (data.success && data.data) {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '제품정보가 수정되었습니다.',
+          },
+          { root: true }
+        );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
       }
-    });
+
+      await dispatch('docProducts');
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+    }
+  },
+
+  async removeProduct(
+    { commit, state, dispatch },
+    payload: IProduct
+  ): Promise<any> {
+    try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '제품을 삭제중입니다.',
+        },
+        { root: true }
+      );
+
+      const { data } = await this.$axios.delete(
+        'api/library/document/remove/product/' + payload._id
+      );
+
+      // console.log('removeProduct : ', data);
+
+      if (data.success) {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '제품이 삭제되었습니다.',
+          },
+          { root: true }
+        );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
+      }
+
+      await dispatch('docProducts');
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+    }
   },
 
   // 제품 목록 수정
@@ -223,6 +355,18 @@ export const actions: ActionTree<DocState, RootState> = {
     { commit, dispatch },
     payload: IProduct[]
   ): Promise<any> {
+    if (!payload.length) {
+      return;
+    }
+
+    // managedDocs _id 추출 (for request large )
+    payload.map((product) => {
+      // @ts-ignore
+      product.managedDocs = product.managedDocs.map(
+        (doc: IDocument) => doc._id
+      );
+    });
+
     try {
       const { data } = await this.$axios.put(
         'api/library/document/products',
@@ -239,15 +383,54 @@ export const actions: ActionTree<DocState, RootState> = {
           },
           { root: true }
         );
+      } else {
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.WARN,
+            isShow: true,
+            msg: data.msg,
+          },
+          { root: true }
+        );
       }
-    } catch (e) {}
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+    }
   },
 
-  async searchDocs({ commit }, payload: { searchWord: string }): Promise<any> {
+  async searchDocs(
+    { commit, dispatch },
+    payload: { searchWord: string }
+  ): Promise<any> {
     try {
+      // 특수문자가 포함되어있을 경우 특수문자 앞에 \ 를 붙여주어야 함
+      const regex = /[~!@#$%^&*()_+|<>?:{}]/gi;
+      let matchSearchWord = payload.searchWord.match(regex);
+      let searchWordParam = payload.searchWord;
+
+      if (matchSearchWord !== null && matchSearchWord.length > 0) {
+        matchSearchWord = matchSearchWord.filter((item, idx, array) => {
+          return array.indexOf(item) === idx;
+        });
+        for (let idx = 0; idx < matchSearchWord.length; idx++) {
+          searchWordParam = searchWordParam
+            .split(matchSearchWord[idx])
+            .join('\\' + matchSearchWord[idx]);
+        }
+      }
+
       const { data } = await this.$axios.get(
         'api/library/document/searchDocs',
-        { params: { searchWord: payload.searchWord } }
+        { params: { searchWord: searchWordParam } }
       );
 
       if (data.success && data.data) {
@@ -256,6 +439,17 @@ export const actions: ActionTree<DocState, RootState> = {
           searchWord: payload.searchWord,
         });
       }
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '검색 중입니다.',
+        },
+        { root: true }
+      );
     } catch (e) {
       console.error(e);
     }
@@ -267,7 +461,7 @@ export const actions: ActionTree<DocState, RootState> = {
         'api/library/document/count/' + payload
       );
 
-      console.log('[updateDocCount] ', data);
+      // console.log('[updateDocCount] ', data);
 
       if (data.success) {
         // commit('countIncrement');
@@ -284,7 +478,7 @@ export const actions: ActionTree<DocState, RootState> = {
       );
 
       if (data.success && data.data) {
-        commit('docsAllByProduct', data.data as IDocument[]);
+        await commit('docsAllByProduct', data.data as IDocument[]);
       }
     } catch (e) {
       console.error(e);
@@ -298,7 +492,7 @@ export const actions: ActionTree<DocState, RootState> = {
       );
 
       if (data.success && data.data) {
-        commit('selectedProduct', data.data as IProduct);
+        await commit('selectedProduct', data.data as IProduct);
       }
     } catch (e) {
       console.error(e);
@@ -314,8 +508,18 @@ export const actions: ActionTree<DocState, RootState> = {
     }
   ): Promise<any> {
     let res;
-
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '문서를 수정중입니다.',
+        },
+        { root: true }
+      );
+
       if (!payload.isChange) {
         res = await this.$axios.post(
           'api/library/document/update/' + state.selectedDoc._id,
@@ -324,7 +528,7 @@ export const actions: ActionTree<DocState, RootState> = {
           }
         );
 
-        console.log('updateDoc :: ', payload);
+        // console.log('updateDoc :: ', payload);
       } else {
         const formData = new FormData();
         formData.append('file', payload.file.files[0]);
@@ -332,13 +536,13 @@ export const actions: ActionTree<DocState, RootState> = {
 
         res = await this.$axios.post('api/library/document/register', formData);
 
-        dispatch('getDocsByProduct', {
+        await dispatch('getDocsByProduct', {
           data: state.selectedProduct,
         });
       }
 
       if (res.data.success && res.data.data) {
-        dispatch('getDocsByProduct', {
+        await dispatch('getDocsByProduct', {
           data: state.selectedProduct,
         });
         await dispatch(
@@ -367,7 +571,7 @@ export const actions: ActionTree<DocState, RootState> = {
         {
           type: ALERT_TYPE.WARN,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -427,10 +631,10 @@ export const actions: ActionTree<DocState, RootState> = {
   },
 
   async docDetail({ commit }, payload: string): Promise<any> {
-    console.log('docDetail :: ', payload);
+    // console.log('docDetail :: ', payload);
     try {
       const { data } = await this.$axios.get('api/library/document/' + payload);
-      console.log('selectedDoc :: ', data);
+      // console.log('selectedDoc :: ', data);
 
       if (data.success && data.data) {
         commit('selectedDoc', data.data as Document);
@@ -476,14 +680,24 @@ export const actions: ActionTree<DocState, RootState> = {
     }
   ): Promise<any> {
     try {
-      console.log('createDoc payload', rootState);
+      // console.log('createDoc payload', rootState);
+
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '문서를 등록중입니다.',
+        },
+        { root: true }
+      );
+
       payload.data.empId = rootState.user.user.loginId;
       payload.data.empName = rootState.user.user.name;
-      payload.data.deptPath = rootState.user.user.deptPath.split('|')[3];
 
-      // payload.data.empId = 'kis4204';
-      // payload.data.empName = '김인수A';
-      // payload.data.deptPath = '플랫폼개발1팀';
+      const deptPathSplit = rootState.user.user.deptPath.split('|');
+      payload.data.deptPath = deptPathSplit[deptPathSplit.length - 2];
 
       const formData = new FormData();
       formData.append('file', payload.file.files[0]);
@@ -494,7 +708,7 @@ export const actions: ActionTree<DocState, RootState> = {
         formData
       );
 
-      console.log('createDoc :: ', data.data);
+      // console.log('createDoc :: ', data.data);
 
       if (data.success && data.data) {
         dispatch('getDocsByProduct', {
@@ -527,7 +741,7 @@ export const actions: ActionTree<DocState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -546,7 +760,7 @@ export const actions: ActionTree<DocState, RootState> = {
       );
 
       if (data.success && data.data) {
-        console.log('Preview 업로드 완료 :: ', data.data);
+        // console.log('Preview 업로드 완료 :: ', data.data);
         // commit('selectedDoc', data.data);
         commit('selectedTemp', data.data);
       } else {
@@ -557,12 +771,27 @@ export const actions: ActionTree<DocState, RootState> = {
     }
   },
 
-  async removeDoc({ commit, state, dispatch }, payload: string): Promise<any> {
+  async removeDoc(
+    { commit, state, dispatch },
+    payload: IDocument
+  ): Promise<any> {
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '문서를 삭제중입니다.',
+        },
+        { root: true }
+      );
+
       const { data } = await this.$axios.post(
-        'api/library/document/remove/' + payload,
+        'api/library/document/remove/' + payload.docName,
         {
           productCode: state.selectedProduct.productCode,
+          _id: payload._id,
         }
       );
 
@@ -597,7 +826,7 @@ export const actions: ActionTree<DocState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );

@@ -37,10 +37,10 @@
         </nuxt-link>
       </div>
       <p v-if="count">
-        <a role="button" class="arrow prev" @click="count--"></a>
+        <a role="button" class="arrow prev" @click="count--" />
       </p>
-      <p v-if="count !== $store.state.forum.products.length - 4">
-        <a role="button" class="arrow next" @click="count++"></a>
+      <p v-if="products.slice(count + 1, 4 + count + 1).length === 4">
+        <a role="button" class="arrow next" @click="count++" />
       </p>
     </div>
     <h1 class="tit-h1 mgb-15">질문/답변 현황</h1>
@@ -135,8 +135,10 @@ export default class ForumHome extends Vue {
   selectedProduct!: IProduct;
   activityCondition!: IActivityCondition;
 
+  products!: IProduct[];
+
   get localProducts(): IProduct[] {
-    return this.$store.state.forum.products.slice(this.count, 4 + this.count);
+    return this.products.slice(this.count, 4 + this.count);
   }
 
   isLoginUser(): boolean {
@@ -145,6 +147,7 @@ export default class ForumHome extends Vue {
 
   created() {
     this.activityCondition = this.$store.state.forum.activityCondition;
+    this.products = this.$store.state.forum.products;
   }
 
   onclickForumRegister(): void {

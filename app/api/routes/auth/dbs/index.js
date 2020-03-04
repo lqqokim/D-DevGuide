@@ -7,14 +7,14 @@ import {
 const { Router } = require('express');
 const router = Router();
 
-router.post('/memberCheck', (req, res) => {
-  console.log('memberCheck :: ');
-  const { user } = req.body;
-
-  checkDBSUser(user, (result) => {
-    res.send(result.data);
-  });
-});
+// router.post('/memberCheck', (req, res) => {
+//   console.log('memberCheck :: ');
+//   const { user } = req.body;
+//
+//   checkDBSUser(user, (result) => {
+//     res.send(result.data);
+//   });
+// });
 
 router.post('/createToken', (req, res) => {
   const { user } = req.body;

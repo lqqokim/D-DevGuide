@@ -7,15 +7,20 @@ router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
 const services = new Gitlab({
-  host: 'http://10.110.15.133',
-  token: '__5uUEPux-qreBuxsJt2',
+  host: process.env.GITLAB_URL,
+  token: '-x_eB2WV1oaC876jTPwP',
 });
 
-// 안예솔 - __5uUEPux-qreBuxsJt2
+// __5uUEPux-qreBuxsJt2 - 안예솔
+// -x_eB2WV1oaC876jTPwP - 10.110.15.133 root
+// Gyo5UfCbuVQugwB_ryTW - git.comet.duzon.net
 
+/**
+ * repository file 에서 검색
+ */
 router.get('/devDocSearch', (req, res) => {
   const contents = req.query.contents;
-  const projectId = { projectId: Number(req.query.projectId) };
+  const projectId = { projectId: req.query.projectId };
 
   services.Search.all('blobs', contents, projectId)
     .then((result) => {

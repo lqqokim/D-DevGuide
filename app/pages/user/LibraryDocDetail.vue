@@ -192,7 +192,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-import LibraryDocDetail from '@/components/LibraryDocDetail/index.vue';
+import LibraryDocDetail from '@/components/libraryDocDetail/index.vue';
 
 @Component({
   layout: 'default',

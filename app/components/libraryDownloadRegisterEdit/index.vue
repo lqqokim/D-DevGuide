@@ -187,6 +187,12 @@ export default class LibraryDownloadRegisterEdit extends Vue {
   }
 
   mounted() {
+    // // remove tui toolbar image button
+    // const tuiImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
+    //   '.tui-image.tui-toolbar-icons'
+    // );
+    //
+    // tuiImageBtnEl.parentNode!.removeChild(tuiImageBtnEl);
     // setTimeout(() => {
     //   if (this.$refs.fileInputText && this.$refs.fileInputText.value) {
     //     this.$refs.fileInputText.value = this.file.originFileName;
@@ -205,8 +211,8 @@ export default class LibraryDownloadRegisterEdit extends Vue {
       return;
     }
 
-    console.log(this.file);
-    console.log(this.inputFile);
+    // console.log(this.file);
+    // console.log(this.inputFile);
 
     if (!this.isExistInputFile) {
       this.alertAction({

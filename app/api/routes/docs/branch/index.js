@@ -6,25 +6,18 @@ const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
-// const services = new Gitlab({
-//   host: 'http://10.36.13.89',
-//   token: '__5uUEPux-qreBuxsJt2',
-// });
+// __5uUEPux-qreBuxsJt2 - 10.110.15.133 안예솔 gitlabToken
+// -x_eB2WV1oaC876jTPwP - 10.110.15.133 root gitlabToken
 
-// 안예솔 - __5uUEPux-qreBuxsJt2
-
-// 프로젝트 브랜치 목록 가져오기
+/**
+ * 프로젝트 브랜치 목록 가져오기
+ */
 router.get('/getBranchList', (req, res) => {
   const projectId = req.query.projectId;
-  let gitlabToken = req.query.gitlabToken;
-
-  // TODO 없애야함
-  if (gitlabToken === undefined) {
-    gitlabToken = '__5uUEPux-qreBuxsJt2';
-  }
+  const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
@@ -50,19 +43,17 @@ router.get('/getBranchList', (req, res) => {
 //     });
 // });
 
+/**
+ * 프로젝트 브랜치 생성
+ */
 router.post('/createBranch', (req, res) => {
   const projectId = req.body.projectId;
   const branchName = req.body.branchName;
   const ref = req.body.ref;
-  let gitlabToken = req.body.gitlabToken;
-
-  // TODO 없애야함
-  if (gitlabToken === undefined) {
-    gitlabToken = '__5uUEPux-qreBuxsJt2';
-  }
+  const gitlabToken = req.body.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 

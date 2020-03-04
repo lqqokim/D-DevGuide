@@ -113,6 +113,7 @@
         :video="videoProp"
         :series-videos="seriesVideos"
         @remove-video-series="removeVideoSeries"
+        @change-series-videos="changeSeriesVideos"
       />
       <div class="movie-register-toastui">
         <TuiEditor
@@ -164,6 +165,7 @@ interface VideoProp {
   youtubeId: string;
   videoTitle: string;
   description: string;
+  playTime: string;
   tempSeriesVideoTitle?: string;
   series?: IVideo[];
 }
@@ -202,6 +204,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     videoTitle: '',
     youtubeId: '',
     description: '',
+    playTime: '',
     // for series
     tempSeriesVideoTitle: '',
   };
@@ -237,19 +240,26 @@ export default class LibraryVideoRegisterEdit extends Vue {
       ? this.video.seriesTitle
       : this.video.videoTitle;
     this.videoProp.description = this.video.description;
+    this.videoProp.playTime = this.video.playTime;
     this.seriesVideos = this.video.isSeries
       ? this.$store.state.video.selectedVideoSeries
       : [];
+  }
 
-    console.log(
-      'seriesVideos!!! :: ',
-      this.$store.state.video.selectedVideoSeries
-    );
+  mounted() {
+    // // remove tui toolbar image button
+    // const tuiImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
+    //   '.tui-image.tui-toolbar-icons'
+    // );
+    //
+    // tuiImageBtnEl.parentNode!.removeChild(tuiImageBtnEl);
   }
 
   onfocusoutInput(): void {
     // 시리즈 등록시에는 blur event x
     if (this.$route.params.type === 'series') return;
+
+    // focusout 발생시에 썸네일 추출
     this.videoProp.youtubeId = this.video.youtubeId;
     this.videoProp.videoTitle = this.video.videoTitle;
     this.videoProp.tempSeriesVideoTitle = this.tempSeriesVideoTitle;
@@ -266,7 +276,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
       this.alertAction({
         type: 'warning',
         isShow: true,
-        msg: '미리보기 할 YoutubeId가 없습니다.',
+        msg: '미리보기 할 YouTube ID 가 없습니다.',
       });
 
       return;
@@ -282,6 +292,11 @@ export default class LibraryVideoRegisterEdit extends Vue {
 
   removeVideoSeries(index: number): void {
     this.seriesVideos.splice(index, 1);
+  }
+
+  changeSeriesVideos(seriesVideos) {
+    // console.log('changeSeriesVideos :: ', seriesVideos);
+    this.seriesVideos = seriesVideos;
   }
 
   onclickSave(): void {
@@ -304,7 +319,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
       this.alertAction({
         type: 'warning',
         isShow: true,
-        msg: 'YoutubeID를 추가해주세요.',
+        msg: 'YouTube ID 를 추가해주세요.',
       });
 
       return;
@@ -315,7 +330,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
       this.alertAction({
         type: 'warning',
         isShow: true,
-        msg: 'YoutubeID를 추가해주세요.',
+        msg: 'YouTube ID 를 추가해주세요.',
       });
 
       return;
@@ -339,7 +354,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
       this.alertAction({
         type: 'warning',
         isShow: true,
-        msg: 'youtubeId를 입력해주세요.',
+        msg: 'YouTube ID 를 입력해주세요.',
       });
 
       return;
@@ -357,6 +372,17 @@ export default class LibraryVideoRegisterEdit extends Vue {
 
     try {
       const playTime = await this.playTime(this.video.youtubeId);
+
+      // if (!playTime) {
+      //   this.alertAction({
+      //     type: 'warning',
+      //     isShow: true,
+      //     msg: '존재하지 않는 YouTube ID 입니다.',
+      //   });
+      //
+      //   return;
+      // }
+
       // add series video
       this.seriesVideos.push({
         youtubeId: this.video.youtubeId,
@@ -388,6 +414,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     }).then(async (result) => {
       if (result.ok) {
         await this.createVideoAction(this.video);
+        this.initData();
         this.redirect();
       }
     });
@@ -404,9 +431,23 @@ export default class LibraryVideoRegisterEdit extends Vue {
     }).then(async (result) => {
       if (result.ok) {
         await this.updateVideoAction(this.video);
+        this.initData();
         this.redirect();
       }
     });
+  }
+
+  initData(): void {
+    this.videoProp = {
+      videoTitle: '',
+      youtubeId: '',
+      description: '',
+      playTime: '',
+      // for series
+      tempSeriesVideoTitle: '',
+    };
+
+    this.seriesVideos = [];
   }
 
   redirect(): void {
@@ -438,18 +479,19 @@ export default class LibraryVideoRegisterEdit extends Vue {
     });
   }
 
-  playTime(youtubeId): Promise<any> {
-    return fetch(
+  async playTime(youtubeId): Promise<any> {
+    // const trimStr = youtubeId.replace(/(^\s*)|(\s*$)/gi, '');
+    const { data } = await this.$axios.get(
       `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=contentDetails&key=${API_KEY}`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.items.length) {
-          return this.YTDurationToSeconds(res.items[0].contentDetails.duration);
-        } else {
-          return '';
-        }
-      });
+    );
+
+    // console.log('playTime :: ', data);
+
+    if (data.items.length > 0) {
+      return this.YTDurationToSeconds(data.items[0].contentDetails.duration);
+    } else {
+      return '';
+    }
   }
 
   YTDurationToSeconds(duration) {
@@ -465,7 +507,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     const minutes = parseInt(match[1]) || 0;
     const seconds = parseInt(match[2]) || 0;
 
-    console.log(hours, minutes, seconds);
+    // console.log(hours, minutes, seconds);
     let result = '';
     if (hours) {
       result = result + hours.toString() + ':';
@@ -473,10 +515,14 @@ export default class LibraryVideoRegisterEdit extends Vue {
 
     if (minutes) {
       result = result + minutes.toString() + ':';
+    } else {
+      result = result + '00:';
     }
 
     if (seconds) {
       result = result + seconds.toString();
+    } else {
+      result = result + '00';
     }
 
     // return hours * 3600 + minutes * 60 + seconds;

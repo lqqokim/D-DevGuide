@@ -34,7 +34,7 @@ const fileProductSchema = new mongoose.Schema({
   productName: { type: String, required: true },
   productCode: { type: String, required: true, unique: true },
   description: { type: String, required: true },
-  managedFiles: [fileSchema],
+  managedFiles: [fileSchema, { index: { type: Number } }],
   staffs: [staffSchema],
 });
 

@@ -61,8 +61,8 @@
                 ><dt>
                   <strong>{{ post.title }}</strong>
                 </dt>
-                <dd>{{ removeMdFormat(post.contents) }}</dd></nuxt-link
-              >
+                <dd class="contents-dim" v-html="removeMdFormat(post.contents)"
+              /></nuxt-link>
               <dd class="user-info mgt-15">
                 <span>{{ convertDateFormat(post.regDate) }}</span
                 ><span>{{ post.userName }}({{ post.userId }})</span
@@ -124,7 +124,9 @@ export default class InProgressList extends Vue {
   }
 
   removeMdFormat(contents: string): string {
-    return removeMd(contents);
+    return removeMd(contents)
+      .split('\n')
+      .join('<br/>');
   }
 
   convertDateFormat(time): string {

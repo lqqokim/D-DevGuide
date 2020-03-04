@@ -216,13 +216,20 @@ import ProductDocView from '~/components/productDocView/index.vue';
         productCode: params.productCode,
       });
 
+      if (
+        params.branchName !== undefined &&
+        !store.state.user.user.gitlabToken
+      ) {
+        return;
+      }
+
       let refName: string = '';
       let currentRefType: string = 'targetBranch';
       if (params.branchName !== undefined) {
         refName = params.branchName;
         currentRefType = 'branch';
       } else if (params.versionName !== undefined) {
-        refName = params.versionName;
+        refName = 'DOC_' + params.versionName;
         currentRefType = 'version';
       } else {
         refName = store.state.product.product.targetBranch;

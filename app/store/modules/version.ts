@@ -1,11 +1,21 @@
+/* eslint-disable */
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
+import { Notice } from '~/store/modules/notice';
+import { ALERT_TYPE } from '~/store/modules/common';
 
 interface VersionState {
-  versionList: Array<any>;
+  versionList: Array<Version>;
 }
 
-export interface Version {}
+export interface Version {
+  productCode: string;
+  tagName: string;
+  createdAt: string;
+  description: string;
+  authorName: string;
+  authorID: string;
+}
 
 interface Response {
   config: object;
@@ -22,47 +32,52 @@ export const state = (): VersionState => ({
 
 export const namespaced: boolean = true;
 
-export const getters: GetterTree<VersionState, RootState> = {
-  // getFilePath(state) {
-  //   const fullFilePath = state.filePath.split('/');
-  //   return fullFilePath[fullFilePath.length - 1].split('.md')[0];
-  // },
-};
+export const getters: GetterTree<VersionState, RootState> = {};
 
 export const mutations: MutationTree<VersionState> = {
-  setVersionList(state, payload: []) {
+  setVersionList(state, payload: Array<Version>) {
     state.versionList = payload;
   },
 };
 
 export const actions: ActionTree<VersionState, RootState> = {
   async getVersionList(
-    { commit, state },
+    { commit, state, dispatch },
     payload: { productCode: string }
   ): Promise<any> {
     try {
-      const productData: Response = await this.$axios.get(
-        'api/docs/product/getProjectId',
+      // Loading Alert
+      dispatch(
+        'common/alert',
         {
-          params: {
-            productCode: payload.productCode,
-          },
-        }
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '버전 리스트를 가져오는 중입니다.',
+        },
+        { root: true }
       );
-      const versionListData: Response = await this.$axios.get(
+
+      const { data } = await this.$axios.get(
         'api/docs/version/getVersionList',
         {
-          params: {
-            projectId: productData.data.projectId,
-          },
+          params: payload,
         }
       );
-      versionListData.data.forEach((versionData) => {
-        versionData.created_at = versionData.created_at
-          .replace('T', ' ')
-          .split('.')[0];
-      });
-      commit('setVersionList', versionListData.data);
+
+      if (data.success && data.data) {
+        commit('setVersionList', data.data);
+      }
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '버전 리스트를 가져오는 중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }
@@ -70,7 +85,7 @@ export const actions: ActionTree<VersionState, RootState> = {
   async createVersion(
     { commit, state, dispatch },
     payload: {
-      projectId: number;
+      projectId: string;
       productCode: string;
       tagName: string;
       versionName: string;
@@ -79,18 +94,58 @@ export const actions: ActionTree<VersionState, RootState> = {
     }
   ): Promise<any> {
     try {
-      await this.$axios.get('api/docs/version/createVersion', {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '버전을 생성 중입니다.',
+        },
+        { root: true }
+      );
+
+      // gitlab 에 버전 생성
+      const { data } = await this.$axios.get('api/docs/version/createVersion', {
         params: {
           projectId: payload.projectId,
-          tagName: payload.tagName,
+          tagName: 'DOC_' + payload.tagName,
           tagDescription: payload.versionName,
           ref: payload.ref,
           gitlabToken: payload.gitlabToken,
         },
       });
-      await dispatch('getVersionList', {
-        productCode: payload.productCode,
-      });
+      if (data.success && data.data) {
+        // mongoDB 에 버전 생성
+        const insertInMongo: Response = await this.$axios.post(
+          'api/docs/version/insertVersion',
+          {
+            productCode: payload.productCode,
+            tagName: payload.tagName,
+            createdAt: data.data.created_at.replace('T', ' ').split('.')[0],
+            description: payload.versionName,
+            authorName: data.data.author.name,
+            authorID: data.data.author.username,
+          }
+        );
+
+        if (insertInMongo.data.success && insertInMongo.data.data) {
+          await dispatch('getVersionList', {
+            productCode: payload.productCode,
+          });
+        }
+      }
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '버전을 생성 중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }
@@ -98,25 +153,80 @@ export const actions: ActionTree<VersionState, RootState> = {
   async removeVersion(
     { commit, state, dispatch },
     payload: {
-      projectId: number;
+      projectId: string;
       tagName: string;
       productCode: string;
       gitlabToken: string;
+      description: string;
+      authorName: string;
+      authorID: string;
     }
   ): Promise<any> {
     try {
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '버전을 삭제 중입니다.',
+        },
+        { root: true }
+      );
+
+      // gitlab 에서 버전 삭제
       await this.$axios.get('api/docs/version/removeVersion', {
         params: {
           projectId: payload.projectId,
-          tagName: payload.tagName,
+          tagName: 'DOC_' + payload.tagName,
           gitlabToken: payload.gitlabToken,
         },
       });
+
+      // mongoDB 에서 버전 삭제
+      await this.$axios.get('api/docs/version/deleteVersion', {
+        params: {
+          productCode: payload.productCode,
+          tagName: payload.tagName,
+          description: payload.description,
+          authorName: payload.authorName,
+          authorID: payload.authorID,
+        },
+      });
+
       await dispatch('getVersionList', {
         productCode: payload.productCode,
       });
+
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '버전을 삭제 중입니다.',
+        },
+        { root: true }
+      );
     } catch (err) {
       console.error(err);
     }
+  },
+
+  // 버전 목록 순서 수정
+  async updateVersionIndex(
+    { commit, dispatch },
+    payload: Version[]
+  ): Promise<any> {
+    try {
+      const { data } = await this.$axios.put(
+        'api/docs/version/updateVersionIndex',
+        payload
+      );
+
+      if (data.success && data.data) {
+        commit('setVersionList', data.data);
+      }
+    } catch (e) {}
   },
 };

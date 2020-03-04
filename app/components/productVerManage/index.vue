@@ -91,44 +91,52 @@
       </li>
     </ul>
     <ul class="dbs-list drag-drop moving mgb-80">
-      <li
-        v-for="version in $store.state.version.versionList"
-        :key="version.tag_name"
-        class="list-row"
+      <draggable
+        v-model="localVersionList"
+        group="tagName"
+        handle=".btn-dragdrop"
+        @change="draggableChange"
       >
-        <div class="project-detail">
-          <div class="btn-dragdrop"></div>
-          <div class="project-wrap">
-            <div class="project-title">
-              <p>
-                <strong>{{ version.description }}</strong>
-              </p>
+        <li
+          v-for="version in localVersionList"
+          :key="version.tagName"
+          class="list-row"
+        >
+          <div class="project-detail">
+            <div class="btn-dragdrop"></div>
+            <div class="project-wrap">
+              <div class="project-title">
+                <p>
+                  <strong>{{ version.description }}</strong>
+                </p>
+              </div>
+              <div class="project-description">
+                <p class="dbs-icon-button ico-left ico-contents tag">
+                  DOC_{{ version.tagName }}
+                </p>
+              </div>
             </div>
-            <div class="project-description">
-              <p class="dbs-icon-button ico-left ico-contents tag">
-                {{ version.tag_name }}
-              </p>
+            <div class="project-controls">
+              <div class="update-note">
+                <p>{{ version.createdAt }}</p>
+                <p>{{ version.authorName }}({{ version.authorID }})</p>
+              </div>
+              <button
+                type="button"
+                class="dbs-icon-button ico-left small delete"
+                @click="removeVersion(version)"
+              >
+                삭제
+              </button>
             </div>
           </div>
-          <div class="project-controls">
-            <div class="update-note">
-              <p>{{ version.created_at }}</p>
-              <p>{{ version.author.name }}({{ version.author.username }})</p>
-            </div>
-            <button
-              type="button"
-              class="dbs-icon-button ico-left small delete"
-              @click="removeVersion(version.tag_name)"
-            >
-              삭제
-            </button>
-          </div>
-        </div>
-      </li>
+        </li>
+      </draggable>
     </ul>
   </div>
 </template>
 <script lang="ts">
+import draggable from 'vuedraggable';
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import * as version from '@/store/modules/version';
 import { IAlert } from '@/store/modules/common';
@@ -136,18 +144,38 @@ import { IAlert } from '@/store/modules/common';
 const Version = namespace('version');
 const Common = namespace('common');
 
-@Component
+@Component({
+  components: {
+    draggable,
+  },
+})
 export default class ProductVerManage extends Vue {
   newVersionCreateFlag: boolean = false;
+  localVersionList: any[] = [];
 
+  @Version.Action('getVersionList') getVersionListAction;
   @Version.Action('createVersion') createVersionAction;
   @Version.Action('removeVersion') removeVersionAction;
+  @Version.Action('updateVersionIndex') updateVersionIndexAction;
+
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   $refs!: {
     versionName: any;
     tagName: any;
   };
+
+  created() {
+    if (!this.$store.state.user.user.gitlabToken) {
+      return;
+    }
+
+    this.getVersionListAction({
+      productCode: this.$route.params.productCode,
+    }).then(() => {
+      this.localVersionList = this.$store.state.version.versionList.slice();
+    });
+  }
 
   switchVersionCreateFlag() {
     this.newVersionCreateFlag = !this.newVersionCreateFlag;
@@ -177,19 +205,20 @@ export default class ProductVerManage extends Vue {
             projectId: this.$store.state.product.product.projectId,
             productCode: this.$store.state.product.product.productCode,
             versionName: this.$refs.versionName.value,
-            tagName: 'DOC_' + this.$refs.tagName.value,
+            tagName: this.$refs.tagName.value,
             ref: this.$store.state.product.product.targetBranch,
             gitlabToken: this.$store.state.user.user.gitlabToken,
           });
           this.$refs.versionName.value = '';
           this.$refs.tagName.value = '';
           this.newVersionCreateFlag = false;
+          this.localVersionList = this.$store.state.version.versionList.slice();
         }
       });
     }
   }
 
-  removeVersion(tag) {
+  removeVersion(version) {
     this.alertAction({
       type: 'question',
       isShow: true,
@@ -199,11 +228,19 @@ export default class ProductVerManage extends Vue {
         await this.removeVersionAction({
           projectId: this.$store.state.product.product.projectId,
           productCode: this.$store.state.product.product.productCode,
-          tagName: tag,
+          tagName: version.tagName,
+          description: version.description,
+          authorName: version.authorName,
+          authorID: version.authorID,
           gitlabToken: this.$store.state.user.user.gitlabToken,
         });
+        this.localVersionList = this.$store.state.version.versionList.slice();
       }
     });
+  }
+
+  draggableChange() {
+    this.updateVersionIndexAction(this.localVersionList);
   }
 }
 </script>

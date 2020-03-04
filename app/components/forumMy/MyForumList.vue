@@ -109,10 +109,11 @@
                   ><dt>
                     <strong>{{ post.title }}</strong>
                   </dt>
-                  <dd>
-                    {{ removeMdFormat(post.contents) }}
-                  </dd></nuxt-link
-                >
+                  <dd
+                    class="contents-dim"
+                    v-html="removeMdFormat(post.contents)"
+                  />
+                </nuxt-link>
                 <dd class="user-info mgt-15">
                   <i class="flag-qna">{{ post.boardCode }}</i
                   ><span>{{ convertDateFormat(post.regDate) }}</span
@@ -126,18 +127,20 @@
       </div>
     </div>
     <div v-if="postsByProduct.length > 0" class="paging mgb-80">
-      <template v-if="nextCount > 0">
+      <template>
         <button
           type="button"
-          class="btn-page-first disabled"
+          class="btn-page-first"
+          :class="{ disabled: !(nextCount > 0) }"
           title="처음으로"
-          @click="onclickFirstPage"
+          @click="onclickFirstPage(!(nextCount > 0))"
         />
         <button
           type="button"
           class="btn-page-prev"
+          :class="{ disabled: !(nextCount > 0) }"
           title="이전"
-          @click="onclickPrevPage"
+          @click="onclickPrevPage(!(nextCount > 0))"
         />
       </template>
 
@@ -149,18 +152,20 @@
         @click="onclickPage(page)"
         >{{ page + 1 }}</a
       >
-      <template v-if="pages.length === 5">
+      <template>
         <button
           type="button"
           class="btn-page-next"
+          :class="{ disabled: pages.length !== 5 }"
           title="다음"
-          @click="onclickNextPage"
+          @click="onclickNextPage(pages.length !== 5)"
         />
         <button
           type="button"
           class="btn-page-last"
+          :class="{ disabled: pages.length !== 5 }"
           title="마지막으로"
-          @click="onclickEndPage"
+          @click="onclickEndPage(pages.length !== 5)"
         />
       </template>
     </div>
@@ -240,8 +245,8 @@ export default class MyForumList extends Vue {
       pages.push(i);
     }
 
-    console.log('totalSize :: ', totalSize);
-    console.log('pages :: ', pages);
+    // console.log('totalSize :: ', totalSize);
+    // console.log('pages :: ', pages);
 
     this.totalPages = pages;
     this.pages = this.totalPages.slice(0, 5);
@@ -327,11 +332,40 @@ export default class MyForumList extends Vue {
     this.actionGetPosts(skip);
   }
 
-  onclickFirstPage() {}
+  onclickFirstPage(isDisabled: boolean) {
+    if (isDisabled) return false;
 
-  onclickEndPage() {}
+    // 목록 하단 page number 설정
+    this.nextCount = 0;
+    this.pages = this.totalPages.slice(
+      5 * this.nextCount,
+      5 * (this.nextCount + 1)
+    );
 
-  onclickNextPage(): void {
+    // select first page
+    this.selectedPage = this.totalPages[0];
+    this.onclickPage(this.selectedPage);
+  }
+
+  onclickEndPage(isDisabled: boolean) {
+    if (isDisabled) return false;
+
+    // 목록 하단 page number 설정
+    this.nextCount = Math.floor(this.totalPages.length / 5);
+    this.pages = this.totalPages.slice(
+      5 * this.nextCount,
+      5 * (this.nextCount + 1)
+    );
+
+    // 마지막 페이지 선택
+    this.selectedPage = this.totalPages[this.totalPages.length - 1];
+    this.onclickPage(this.selectedPage);
+  }
+
+  onclickNextPage(isDisabled: boolean) {
+    if (isDisabled) return false;
+
+    // 목록 하단 page number 설정
     this.nextCount++;
     this.pages = this.totalPages.slice(
       5 * this.nextCount,
@@ -339,11 +373,13 @@ export default class MyForumList extends Vue {
     );
 
     this.selectedPage = this.pages[0];
-
-    console.log('onclickNextPage :: ', this.pages);
+    this.onclickPage(this.selectedPage);
   }
 
-  onclickPrevPage() {
+  onclickPrevPage(isDisabled: boolean) {
+    if (isDisabled) return false;
+
+    // 목록 하단 page number 설정
     this.nextCount--;
     this.pages = this.totalPages.slice(
       5 * this.nextCount,
@@ -351,10 +387,13 @@ export default class MyForumList extends Vue {
     );
 
     this.selectedPage = this.pages[0];
+    this.onclickPage(this.selectedPage);
   }
 
   removeMdFormat(contents: string): string {
-    return removeMd(contents);
+    return removeMd(contents)
+      .split('\n')
+      .join('<br/>');
   }
 
   convertDateFormat(time): string {

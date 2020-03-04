@@ -9,11 +9,13 @@ router.use(bodyParser.json());
 
 const services = new Gitlab({
   host: 'http://10.36.13.89',
-  token: '__5uUEPux-qreBuxsJt2',
+  token: '-x_eB2WV1oaC876jTPwP',
 });
 
 /*
 __5uUEPux-qreBuxsJt2 - 안예솔
+-x_eB2WV1oaC876jTPwP - 10.110.15.133 root
+Gyo5UfCbuVQugwB_ryTW - git.comet.duzon.net
  */
 
 router.get('/projects', projects);

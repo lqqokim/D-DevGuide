@@ -22,22 +22,6 @@
               </li>
             </ul>
           </li>
-          <!--<li class="selected"><a href="#">그리드</a></li>-->
-          <!--<li>-->
-          <!--<a href="#"><span>초기화 방법</span></a>-->
-          <!--<ul class="bul-round mgt-5">-->
-          <!--<li><a href="#">HTML 초기화</a></li>-->
-          <!--<li class="selected"><a href="#">스크립트 초기화</a></li>-->
-          <!--</ul>-->
-          <!--</li>-->
-          <!--<li>-->
-          <!--<a href="#"><span>사용방법</span></a>-->
-          <!--<ul class="bul-round mgt-5">-->
-          <!--<li><a href="#">HTML</a></li>-->
-          <!--<li><a href="#">Javascript</a></li>-->
-          <!--<li><a href="#">Result</a></li>-->
-          <!--</ul>-->
-          <!--</li>-->
         </ul>
       </div>
     </div>
@@ -45,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, namespace } from 'nuxt-property-decorator';
+import { Vue, Component } from 'nuxt-property-decorator';
 
 @Component
 export default class ProductRepositoryFileTOC extends Vue {

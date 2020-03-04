@@ -82,7 +82,10 @@
     <h1 class="tit-h1">문서</h1>
     <div class="view-top pdb-0">
       <div class="sorting-qna">
-        <div class="sorting-option">
+        <div
+          v-if="$store.state.document.products.length > 0"
+          class="sorting-option"
+        >
           <div
             v-for="product in $store.state.document.products"
             :key="product.productCode"
@@ -101,6 +104,7 @@
           </div>
         </div>
         <nuxt-link
+          v-if="$store.state.document.selectedProduct"
           :to="{
             name: 'docList',
             params: {
@@ -113,7 +117,10 @@
         >
       </div>
     </div>
-    <ul class="thumb-list mgt-20 mgb-60">
+    <ul
+      v-if="this.$store.state.document.products.length > 0"
+      class="thumb-list mgt-20 mgb-60"
+    >
       <li
         v-for="doc in selectedProduct.managedDocs"
         :key="doc._id"
@@ -152,6 +159,7 @@
                 _id: doc._id,
               },
             }"
+            class="title-dim"
             tag="dt"
           >
             <i v-if="isNew(doc.uploadDate)" class="icon-new">N</i

@@ -273,23 +273,25 @@ import ProductNoticeManage from '~/components/productNoticeManage/index.vue';
   components: {
     ProductNoticeManage,
   },
-  async fetch({ store, params }): Promise<any> {
+  fetch({ store, params }): any {
     try {
-      await store.dispatch('product/getProductList');
-
-      await store.dispatch('product/selectProduct', {
-        productCode: params.productCode,
-      });
-
-      await store.dispatch('notice/getNoticeList', {
-        productCode: params.productCode,
-      });
-
-      await store.dispatch('repository/getIndexMdFile', {
-        productCode: params.productCode,
-        ref: 'master',
-        refType: 'targetBranch',
-      });
+      // console.log(params);
+      // if (!store.state.user.user.gitlabToken) {
+      //   return;
+      // }
+      // await store.dispatch('notice/getNoticeList', {
+      //   productCode: params.productCode,
+      // });
+      // await store.dispatch('product/getProductList');
+      //
+      // await store.dispatch('product/selectProduct', {
+      //   productCode: params.productCode,
+      // });
+      // await store.dispatch('repository/getIndexMdFile', {
+      //   productCode: params.productCode,
+      //   ref: 'master',
+      //   refType: 'targetBranch',
+      // });
     } catch (e) {
       console.error(e);
     }

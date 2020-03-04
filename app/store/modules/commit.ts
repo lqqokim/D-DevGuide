@@ -1,5 +1,6 @@
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
+import { ALERT_TYPE } from '~/store/modules/common';
 
 interface CommitState {
   commit: Commit;
@@ -56,7 +57,6 @@ export const getters: GetterTree<CommitState, RootState> = {};
 
 export const mutations: MutationTree<CommitState> = {
   setCommitList(state, payload: Array<any>) {
-    // state.commitList.push(payload);
     state.commitList = payload;
   },
   setCommitDiff(state, payload: any) {
@@ -66,10 +66,25 @@ export const mutations: MutationTree<CommitState> = {
 
 export const actions: ActionTree<CommitState, RootState> = {
   async getCommitList(
-    { commit, state },
+    { commit, state, dispatch },
     payload: { productCode: string; branchName: string; gitlabToken: string }
   ): Promise<any> {
     try {
+      if (!payload.gitlabToken) {
+        return;
+      }
+
+      // Loading Alert
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.LOADING,
+          isShow: true,
+          msg: '변경 내역을 불러오는 중입니다.',
+        },
+        { root: true }
+      );
+
       const productData: Response = await this.$axios.get(
         'api/docs/product/getProjectId',
         {
@@ -125,45 +140,56 @@ export const actions: ActionTree<CommitState, RootState> = {
               : Math.floor(diffTime) + '시간전';
         }
 
-        const referenceData: Response = await this.$axios.get(
-          'api/docs/commit/getReference',
-          {
-            params: {
-              projectId: productData.data.projectId,
-              sha: commitData.data[i].short_id,
-              gitlabToken: payload.gitlabToken,
-            },
-          }
-        );
+        // const referenceData: Response = await this.$axios.get(
+        //   'api/docs/commit/getReference',
+        //   {
+        //     params: {
+        //       projectId: productData.data.projectId,
+        //       sha: commitData.data[i].short_id,
+        //       gitlabToken: payload.gitlabToken,
+        //     },
+        //   }
+        // );
       }
 
       commit('setCommitList', commitData.data);
-    } catch (err) {
-      console.error(err);
-    }
-  },
-  async getSingleCommit(
-    { commit, state },
-    payload: { projectId: number; sha: string; gitlabToken: string }
-  ): Promise<any> {
-    try {
-      const commitData: Response = await this.$axios.get(
-        'api/docs/commit/getSingleCommit',
+
+      // Loading Alert Close
+      dispatch(
+        'common/alert',
         {
-          params: {
-            projectId: payload.projectId,
-            sha: payload.sha,
-            gitlabToken: payload.gitlabToken,
-          },
-        }
+          type: ALERT_TYPE.LOADING,
+          isShow: false,
+          msg: '변경 내역을 불러오는 중입니다.',
+        },
+        { root: true }
       );
     } catch (err) {
       console.error(err);
     }
   },
+  // async getSingleCommit(
+  //   { commit, state },
+  //   payload: { projectId: string; sha: string; gitlabToken: string }
+  // ): Promise<any> {
+  //   try {
+  //     const commitData: Response = await this.$axios.get(
+  //       'api/docs/commit/getSingleCommit',
+  //       {
+  //         params: {
+  //           projectId: payload.projectId,
+  //           sha: payload.sha,
+  //           gitlabToken: payload.gitlabToken,
+  //         },
+  //       }
+  //     );
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // },
   async getCommitDiff(
     { commit, state },
-    payload: { projectId: number; sha: string; gitlabToken: string }
+    payload: { projectId: string; sha: string; gitlabToken: string }
   ): Promise<any> {
     try {
       const diffData: Response = await this.$axios.get(
@@ -181,8 +207,8 @@ export const actions: ActionTree<CommitState, RootState> = {
       console.error(err);
     }
   },
-  async createCommit(
-    { commit, state },
+  createCommit(
+    { commit, state, dispatch },
     payload: {
       productCode: string;
       branchName: string;
@@ -191,25 +217,42 @@ export const actions: ActionTree<CommitState, RootState> = {
       gitlabToken: string;
     }
   ): Promise<any> {
-    try {
-      const productData: Response = await this.$axios.get(
-        'api/docs/product/getProjectId',
-        {
-          params: {
-            productCode: payload.productCode,
-          },
-        }
-      );
+    return new Promise(async (resolve, reject) => {
+      try {
+        const productData: Response = await this.$axios.get(
+          'api/docs/product/getProjectId',
+          {
+            params: {
+              productCode: payload.productCode,
+            },
+          }
+        );
 
-      await this.$axios.post('api/docs/commit/createCommit', {
-        projectId: productData.data.projectId,
-        branchName: payload.branchName,
-        commitMessage: payload.commitMessage,
-        actions: payload.actions,
-        gitlabToken: payload.gitlabToken,
-      });
-    } catch (err) {
-      console.error(err);
-    }
+        const { data } = await this.$axios.post(
+          'api/docs/commit/createCommit',
+          {
+            projectId: productData.data.projectId,
+            branchName: payload.branchName,
+            commitMessage: payload.commitMessage,
+            actions: payload.actions,
+            gitlabToken: payload.gitlabToken,
+          }
+        );
+
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.CHECK,
+            isShow: true,
+            msg: '수정되었습니다.',
+          },
+          { root: true }
+        );
+
+        resolve(data);
+      } catch (err) {
+        reject(err);
+      }
+    });
   },
 };

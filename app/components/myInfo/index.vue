@@ -366,15 +366,21 @@
 <script lang="ts">
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { IUser } from '@/store/modules/user';
+import { IAlert } from '~/store/modules/common';
 
 const User = namespace('user');
+const Common = namespace('common');
 
 @Component
 export default class MyInfo extends Vue {
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @User.Action('createGitLabToken') createGitLabTokenAction!: (
     token: string
   ) => Promise<any>;
-  @User.Mutation('setGitLabToken') gitlabTokenMutation!: (string) => void;
+  @User.Action('checkGitlabToken') checkGitlabTokenAction!: (
+    gitlabToken: string
+  ) => Promise<any>;
+  @User.Mutation('SET_GITLAB_TOKEN') gitlabTokenMutation!: (string) => void;
 
   isEdit: boolean = false;
 
@@ -397,16 +403,20 @@ export default class MyInfo extends Vue {
   }
 
   onclickUpdateInfo(): void {
-    this.createGitLabTokenAction(this.gitlabToken)
-      .then((res) => {
-        if (res.success && res.data) {
-          alert('토큰 등록을 완료하였습니다.');
-          console.log('onclickUpdateInfo :: ', res);
+    this.checkGitlabTokenAction(this.gitlabToken)
+      .then((checkRes) => {
+        if (checkRes.success && checkRes.data) {
+          this.createGitLabTokenAction(this.gitlabToken).then(() => {});
         }
       })
       .catch((err) => {
-        alert('토큰 등록에 실패하였습니다.');
-        console.error(err);
+        if (err.response.status === 401) {
+          this.alertAction({
+            type: 'warning',
+            isShow: true,
+            msg: `[${err.response.status}] 유효하지 않은 Token 입니다.`,
+          }).then(() => {});
+        }
       });
   }
 }

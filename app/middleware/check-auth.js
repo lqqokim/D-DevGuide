@@ -3,7 +3,32 @@
 export default (context) => {
   //   // context.store.dispatch('user/initAuth', context);
   //
-  //   console.log('middleware 2:: ', context.store.state.user.user.loginId);
+  console.log('middleware :: ', context.store.state.user);
+
+  // Server-side
+  if (process.server) {
+    const { req, res, beforeNuxtRender } = context;
+    console.info('SERVER-SIDE ');
+  }
+
+  if (process.client) {
+    // const { from, nuxtState } = context;
+    const token = sessionStorage.getItem('KEY');
+
+    console.info('CLIENT-SIDE ', token);
+  }
+
+  // context.$axios.interceptors.request.use(
+  //   (config) => {
+  //     console.log('middleware interceptors.request ', config);
+  //     // Do something before request is sent
+  //     return config;
+  //   },
+  //   function(error) {
+  //     // Do something with request error
+  //     return Promise.reject(error);
+  //   }
+  // );
   //
   //   // let setup = false;
   //   // if (!setup) {

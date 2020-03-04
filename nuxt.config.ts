@@ -25,6 +25,7 @@ const DBS_PROXY = process.env.DBS_URL
 
 const config: Configuration = {
   mode: 'universal',
+  // mode: 'spa',
   srcDir: 'app/',
   server: {
     host: '0.0.0.0',
@@ -37,7 +38,7 @@ const config: Configuration = {
     baseUrl: process.env.BASE_URL || 'http://localhost:3000',
   },
   router: {
-    middleware: 'check-auth',
+    // middleware: 'check-auth',
   },
   /*
    ** Headers of the page
@@ -81,6 +82,8 @@ const config: Configuration = {
    */
   plugins: [
     '../plugins/vue-js-modal',
+    // { src: '../plugins/session', ssr: false },
+    // '../plugins/axios',
     // { src: '../.nuxt/tui/editor.client.js', ssr: false, mode: 'client' },
   ],
   /*

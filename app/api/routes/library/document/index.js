@@ -9,8 +9,6 @@ import {
   // eslint-disable-next-line import/named
   previewUpload,
 } from './../../../controllers/libraryDocumentFile';
-import { FileProductModel } from '~/api/models/download';
-import { VideoProductModel } from '~/api/models/video';
 const path = require('path');
 const fs = require('fs');
 const { Router } = require('express');
@@ -60,6 +58,7 @@ router.post('/product', (req, res) => {
  */
 router.get('/products', (req, res) => {
   DocProductModel.find()
+    .populate('managedDocs')
     .sort({ index: 1 })
     .then((products) => {
       res.status(200).send({ success: true, data: products });
@@ -138,18 +137,34 @@ router.post('/product/update/:_id', (req, res) => {
  * 문서 홈 화면 관리 제품 업데이트
  */
 router.post('/updateManagedDoc/:_id', (req, res) => {
+  const documents = req.body;
+
+  // documents.map((document, index) => {
+  //   document.index = index + 1;
+  // });
+
   DocProductModel.findOneAndUpdate(
     { _id: req.params._id },
-    { $set: { managedDocs: req.body } },
+    {
+      $set: {
+        managedDocs: documents,
+      },
+    },
     {
       new: true,
     }
   )
-    .then((doc) => {
-      res.status(200).send({ success: true, data: doc });
+    .then((product) => {
+      res.status(200).send({
+        success: true,
+        data: product,
+      });
     })
     .catch((err) => {
-      res.status(500).send({ success: false, msg: err.message });
+      res.status(500).send({
+        success: false,
+        msg: err.message,
+      });
     });
 });
 
@@ -259,6 +274,7 @@ router.post('/register', libraryDocumentFile.single('file'), (req, res) => {
   console.log('[Document 파일정보] ', file);
   console.log('[Document 데이터]', data);
 
+  // pdf 파일 thumbnail 추출
   const pdfImage = new PDFImage(file.path);
   pdfImage
     .convertPage(0)
@@ -266,42 +282,44 @@ router.post('/register', libraryDocumentFile.single('file'), (req, res) => {
       if (
         fs.existsSync(file.destination + file.filename.split('.')[0] + '-0.png')
       ) {
-        // console.log('[Thumbnail Complete !!] ', imagePath);
+        console.log('[Thumbnail Complete !!] ', imagePath);
       }
 
       // 파일을 변경한 경우
       if (data._id) {
-        data.updateDate = uploadDate;
-        data.originDocName = file.originalname;
-        data.docName = data._id + path.extname(file.originalname);
-        data.docPath = file.path;
-        data.size = file.size;
-        data.thumbnailPath = imagePath;
-        data.fileExt = path.extname(file.originalname).split('.')[1];
-
-        // TODO 수정시에 _id 관련 파일 정보는 어떻게?
-
-        // docModel.originDocName = file.originalname;
-        // // docModel.docName = file.filename;
-        // docModel.docName = docModel._id + path.extname(file.originalname); // _id 값을 파일명으로 한다.
-        // // docModel.docPath = file.path;
-        // docModel.docPath = file.destination + docModel.docName;
-        // docModel.size = file.size;
-        // docModel.thumbnailPath = imagePath;
-        // docModel.fileExt = path.extname(file.originalname).split('.')[1];
+        const changedDocData = {
+          ...data,
+          updateDate: uploadDate,
+          originDocName: file.originalname,
+          docName: file.filename,
+          docPath: file.destination + file.filename,
+          size: file.size,
+          thumbnailPath: imagePath,
+          fileExt: path.extname(file.filename).split('.')[1],
+        };
 
         DocModel.findOneAndUpdate(
-          { _id: data._id },
-          { $set: data },
+          { _id: changedDocData._id },
+          { $set: changedDocData },
           {
             new: true,
           }
         )
           .then((file) => {
-            /**
-             * TODO
-             * 기존에 존재하던 문서 삭제 로직 추가
-             */
+            // 파일 수정전 존재하던 파일
+            const files = [
+              `app/static/uploads/${data.docName}`,
+              `app/static/uploads/${data.docName.split('.')[0]}-0.png`,
+            ];
+
+            // temp 폴더에 있는 파일 및 썸네일 이미지 제거
+            removeFile(files, function(err) {
+              if (err) {
+                console.log(err);
+              } else {
+                // console.log('temp files removed');
+              }
+            });
 
             res.status(200).send({ success: true, data: file });
           })
@@ -342,35 +360,32 @@ router.post('/register', libraryDocumentFile.single('file'), (req, res) => {
         docModel
           .save()
           .then((file) => {
-            // temp 스키마에 있는 문서 제거
-            TempDocModel.deleteOne({ _id: docModel._id })
-              .then((result) => {
-                if (result.n === 0) {
-                  /**
-                   * TODO
-                   * 기존에 존재하던 임시 문서 삭제 로직 추가
-                   */
-                  // return res
-                  //   .status(404)
-                  //   .json({ success: false, msg: 'Document not found' });
-                } else {
-                  // return res.status(200).json({ success: true, data: result });
-                }
-              })
-              .catch((err) => {
-                console.log('err ', err);
-                // res.status(500).send({ success: false, msg: err.message });
-              });
-
             res.status(200).send({ success: true, data: file });
           })
           .catch((err) => {
             res.status(500).send({ success: false, msg: err.message });
           });
       }
+
+      // temp 폴더 내 파일 모두 삭제 (항상 제거하지 않고 등록시에만 비움)
+      fs.readdir('app/static/temp', (err, files) => {
+        if (err) throw err;
+
+        if (files.length > 0) {
+          for (const file of files) {
+            removeFile([path.join('app/static/temp', file)], function(err) {
+              if (err) {
+                console.log(err);
+              } else {
+                // console.log('files removed');
+              }
+            });
+          }
+        }
+      });
     })
     .catch((err) => {
-      console.error(err);
+      res.status(500).send({ success: false, msg: err.message });
     });
 });
 
@@ -415,32 +430,41 @@ router.post('/preview', previewUpload.single('file'), (req, res) => {
       // tempDocModel.deptPath = '';
       // tempDocModel.description = '';
       const tempDocModel = new TempDocModel();
-      tempDocModel._id = mongoose.Types.ObjectId(file.filename.split('.')[0]);
-      tempDocModel.uploadDate = uploadDate;
-      tempDocModel.updateDate = uploadDate;
-      // tempDocModel.viewCount = 0;
+      // tempDocModel._id = mongoose.Types.ObjectId(file.filename.split('.')[0]);
+      // tempDocModel.uploadDate = uploadDate;
+      // tempDocModel.updateDate = uploadDate;
+      // // tempDocModel.viewCount = 0;
+      //
+      // // multer 파일 정보
+      // tempDocModel.originDocName = file.originalname;
+      // tempDocModel.docName = tempDocModel._id + path.extname(file.originalname); // mongodb _id 를 파일명
+      // tempDocModel.docPath = file.destination + tempDocModel.docName;
+      // tempDocModel.size = file.size;
+      // tempDocModel.thumbnailPath = imagePath;
+      // tempDocModel.fileExt = path.extname(file.originalname).split('.')[1];
+      //
+      // console.log('tempDocModel :: ', tempDocModel);
 
-      // multer 파일 정보
-      tempDocModel.originDocName = file.originalname;
-      tempDocModel.docName = tempDocModel._id + path.extname(file.originalname); // mongodb _id 를 파일명
-      tempDocModel.docPath = file.destination + tempDocModel.docName;
-      tempDocModel.size = file.size;
-      tempDocModel.thumbnailPath = imagePath;
-      tempDocModel.fileExt = path.extname(file.originalname).split('.')[1];
+      const data = {
+        _id: '',
+        uploadDate,
+        updateDate: uploadDate,
+        originDocName: file.originalname,
+        docName: tempDocModel._id + path.extname(file.originalname),
+        docPath:
+          file.destination + tempDocModel._id + path.extname(file.originalname),
+        size: file.size,
+        thumbnailPath: imagePath,
+        fileExt: path.extname(file.originalname).split('.')[1],
+      };
 
-      console.log('tempDocModel :: ', tempDocModel);
-
-      tempDocModel
-        .save()
-        .then((file) => {
-          res.status(200).send({ success: true, data: file });
-        })
-        .catch((err) => {
-          res.status(500).send({ success: false, msg: err.message });
-        });
+      res.status(200).send({ success: true, data });
     })
     .catch((err) => {
-      console.error(err);
+      res.status(500).send({
+        success: false,
+        msg: err.message,
+      });
     });
 });
 
@@ -450,7 +474,7 @@ router.post('/preview', previewUpload.single('file'), (req, res) => {
 router.post('/update/:_id', (req, res) => {
   const { data } = req.body; // payload.data (사용자 입력 값)
   data.updateDate = Date.now();
-  console.log('문서 업데이트 :::: ', data);
+  // console.log('문서 업데이트 :::: ', data);
 
   DocModel.findOneAndUpdate(
     { _id: req.params._id },
@@ -470,23 +494,67 @@ router.post('/update/:_id', (req, res) => {
 /**
  * 문서 삭제
  */
-router.post('/remove/:_id', (req, res) => {
-  const { _id } = req.params;
-
+router.post('/remove/:docName', (req, res) => {
+  const { docName } = req.params;
+  const { productCode, _id } = req.body;
+  let data;
   // document _id로 document 삭제
   DocModel.deleteOne({ _id })
     .then((result) => {
+      data = result;
       if (result.n === 0) {
         return res
           .status(404)
           .json({ success: false, msg: 'Document not found' });
       } else {
-        return res.status(200).json({ success: true, data: result });
+        return DocProductModel.findOneAndUpdate(
+          { productCode },
+          {
+            $pull: {
+              managedDocs: {
+                _id,
+              },
+            },
+          }
+        );
       }
+    })
+    .then(() => {
+      // 폴더에 있는 파일 및 썸네일 이미지 제거
+      removeFile(
+        [
+          `app/static/uploads/${docName}`,
+          `app/static/uploads/${docName.split('.')[0]}-0.png`,
+        ],
+        function(err) {
+          if (err) {
+            console.log(err);
+          } else {
+            // console.log('all files removed');
+          }
+        }
+      );
+
+      res.status(200).json({ success: true, data });
     })
     .catch((err) => {
       res.status(500).send({ success: false, msg: err.message });
     });
 });
+
+const removeFile = (files, callback) => {
+  let i = files.length;
+  files.forEach((filepath) => {
+    fs.unlink(filepath, function(err) {
+      i--;
+      if (err) {
+        callback(err);
+        return false;
+      } else if (i <= 0) {
+        callback(null);
+      }
+    });
+  });
+};
 
 module.exports = router;

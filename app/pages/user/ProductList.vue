@@ -23,7 +23,6 @@
   <!--<button type="button" class="btn-search">search</button>-->
   <!--</div>-->
   <!--</div>-->
-  <product-list></product-list>
   <!--<div class="position-wrap">-->
   <!--<h1 class="tit-h1">제품</h1>-->
   <!--<div class="pst-rbtn">-->
@@ -197,12 +196,11 @@
   <!--</div>-->
   <!--</div>-->
   <!--</div>-->
+  <product-list></product-list>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
 import ProductList from '~/components/productList/index.vue';
-
-// import { GET_PROJECT_LIST } from '~/utils/storeTypes';
 
 @Component({
   layout: 'default',
@@ -217,9 +215,6 @@ import ProductList from '~/components/productList/index.vue';
         store.state.product.productList !== undefined &&
         store.state.product.productList.length > 0
       ) {
-        // await store.dispatch('product/selectProduct', {
-        //   productCode: store.state.product.productList[0].productCode,
-        // });
         await store.dispatch('notice/getNoticeList', {
           productCode: store.state.product.productList[0].productCode,
         });

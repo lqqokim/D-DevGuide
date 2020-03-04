@@ -39,10 +39,11 @@
                 ><dt>
                   <strong>{{ post.title }}</strong>
                 </dt>
-                <dd>
-                  {{ removeMdFormat(post.contents) }}
-                </dd></nuxt-link
-              >
+                <dd
+                  class="contents-dim"
+                  v-html="removeMdFormat(post.contents)"
+                />
+              </nuxt-link>
               <dd class="user-info mgt-15">
                 <i class="flag-qna">{{ post.boardCode }}</i
                 ><span>{{ convertDateFormat(post.regDate) }}</span
@@ -74,7 +75,9 @@ export default class NotCommentList extends Vue {
   }
 
   removeMdFormat(contents: string): string {
-    return removeMd(contents);
+    return removeMd(contents)
+      .split('\n')
+      .join('<br/>');
   }
 
   convertDateFormat(time): string {

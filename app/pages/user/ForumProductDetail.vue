@@ -157,7 +157,7 @@
     <!--              <div class="topic-wrap">-->
     <!--                <div class="topic-avatar">-->
     <!--                  <div class="avatar-circle qna-circle answer">A</div>-->
-    <!--                  <div class="avatar-circle result-circle progress">완료</div>-->
+    <!--                  <div class="avatar-circle result-circle progress">채택</div>-->
     <!--                </div>-->
     <!--                <div class="topic-body">-->
     <!--                  <dl>-->

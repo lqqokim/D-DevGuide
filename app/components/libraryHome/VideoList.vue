@@ -3,7 +3,10 @@
     <h1 class="tit-h1">동영상</h1>
     <div class="view-top pdb-0">
       <div class="sorting-qna">
-        <div class="sorting-option">
+        <div
+          v-if="$store.state.video.products.length > 0"
+          class="sorting-option"
+        >
           <div
             v-for="product in $store.state.video.products"
             :key="product.productCode"
@@ -22,6 +25,7 @@
           </div>
         </div>
         <nuxt-link
+          v-if="$store.state.video.selectedProduct"
           :to="{
             name: 'videoList',
             params: {
@@ -35,25 +39,21 @@
       </div>
     </div>
 
-    <ul class="thumb-list mgt-20 mgb-60">
+    <ul
+      v-if="this.$store.state.video.products.length > 0"
+      class="thumb-list mgt-20 mgb-60"
+    >
       <li
         v-for="video in selectedProduct.managedVideos"
         :key="video._id"
         class="main-video"
       >
         <div class="thumb" @click="onclickVideoDetail(video)">
-          <img
-            :src="
-              `https://img.youtube.com/vi/${
-                video.isSeries ? video.series[0].youtubeId : video.youtubeId
-              }/maxresdefault.jpg`
-            "
-            alt=""
-          />
+          <img :src="imagePath(video)" alt="" />
           <em v-if="video.playTime" class="btn-time">{{ video.playTime }}</em>
           <div v-if="video.isSeries" class="play">
             <span class="count">{{ video.series.length }}</span>
-            <em class="icon-playlist"></em>
+            <em class="icon-playlist" />
           </div>
         </div>
         <nuxt-link
@@ -68,8 +68,7 @@
           tag="dl"
           class="thumb-desc"
         >
-          <!-- TODO 두줄 이상인 경우 말줄임으로 나오게 해주세요 -->
-          <dt>
+          <dt class="title-dim">
             <i v-if="isNew(video.uploadDate)" class="icon-new">N</i
             >{{ !video.isSeries ? video.videoTitle : video.seriesTitle }}
           </dt>
@@ -223,9 +222,17 @@ export default class VideoList extends Vue {
   ) => void;
 
   selectedProduct!: IProduct;
+  managedVideos!: IVideo[];
+
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${
+      video.isSeries ? video.series[0].youtubeId : video.youtubeId
+    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
 
   created() {
     this.selectedProduct = this.$store.state.video.products[0];
+    // this.managedVideos = this.selectedProduct.managedVideos;
   }
 
   onclickProduct(product: IProduct): void {

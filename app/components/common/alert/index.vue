@@ -1,7 +1,11 @@
 <template>
   <div>
     <div ref="alertWrap" class="dbs-message-wrap" style="display: block;">
-      <div class="message-wrap">
+      <div v-if="info.type === 'loading'" class="loading-message-wrap">
+        <div class="loading"></div>
+        <p class="dbs-message-sub loading-msg">{{ info.msg }}</p>
+      </div>
+      <div v-else class="message-wrap">
         <a class="pst-closed" role="button" @click="onclickCancel">닫기</a>
         <div class="dbs-message-icon" :class="checkType">
           <p class="dbs-message-sub">{{ info.msg }}</p>

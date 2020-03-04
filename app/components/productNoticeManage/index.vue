@@ -8,7 +8,7 @@
     </div>
     <div class="gray-info-box mgt-20 mgb-60">
       <ul class="box-notice">
-        <li>
+        <li @mouseleave="mouseLeaveToOtherArea">
           <div class="ui-select w-170">
             <select ref="category" title="품목형태" class="off" tabindex="-1">
               <option value="NEW" :selected="selectedCategory === 'NEW'"
@@ -29,7 +29,6 @@
                 >SAMPLE</option
               >
             </select>
-            <!-- 드롭다운 버튼 부분 -->
             <button
               type="button"
               class="ui-select-btn"
@@ -39,8 +38,6 @@
             >
               {{ selectedCategory }}
             </button>
-            <!-- 셀렉트박스  선택시 ui-select-wrap에 on 추가하면 display block 됨 -->
-            <!-- ui-select-wrap 부분이 드롭다운 부분 -->
             <div class="ui-select-wrap" :class="{ on: categoryBtnClick }">
               <strong class="ui-select-tit" tabindex="0">품목 선택</strong>
               <div class="ui-select-options">
@@ -112,7 +109,6 @@
             style="width: 578px;"
             readonly
           />
-          <!-- 문서 선택할 수 있는 버튼 -->
           <button
             type="button"
             class="dbs-icon-button notice"
@@ -132,51 +128,58 @@
       공지사항
     </h3>
     <ul class="dbs-list drag-drop mgb-80">
-      <li
-        v-for="notice in $store.state.notice.noticeList"
-        :key="notice.writeTime"
-        class="list-row"
+      <draggable
+        v-model="localNoticeList"
+        group="category"
+        handle=".btn-dragdrop"
+        @change="draggableChange"
       >
-        <div class="project-detail">
-          <div class="btn-dragdrop"></div>
-          <div class="project-wrap">
-            <div class="project-title">
-              <p>
-                <i
-                  class="flag"
-                  :class="{
-                    patch: notice.category === 'PATCH',
-                    recommended: notice.category === 'RECOMMENDED',
-                    new: notice.category === 'NEW',
-                    sample: notice.category === 'SAMPLE',
-                    updated: notice.category === 'UPDATE',
-                  }"
-                  >{{ notice.category }}</i
-                >{{ notice.noticeTitle }}
-              </p>
-              <span class="info">{{ notice.noticeDescription }}</span>
+        <li
+          v-for="notice in localNoticeList"
+          :key="notice.writeTime"
+          class="list-row"
+        >
+          <div class="project-detail">
+            <div class="btn-dragdrop"></div>
+            <div class="project-wrap">
+              <div class="project-title">
+                <p>
+                  <i
+                    class="flag"
+                    :class="{
+                      patch: notice.category === 'PATCH',
+                      recommended: notice.category === 'RECOMMENDED',
+                      new: notice.category === 'NEW',
+                      sample: notice.category === 'SAMPLE',
+                      updated: notice.category === 'UPDATE',
+                    }"
+                    >{{ notice.category }}</i
+                  >{{ notice.noticeTitle }}
+                </p>
+                <span class="info">{{ notice.noticeDescription }}</span>
+              </div>
+              <div class="project-description">
+                <p class="dbs-icon-button ico-left ico-contents link">
+                  {{ notice.filePath }}
+                </p>
+              </div>
             </div>
-            <div class="project-description">
-              <p class="dbs-icon-button ico-left ico-contents link">
-                {{ notice.filePath }}
-              </p>
+            <div class="project-controls">
+              <div class="update-note">
+                <p>{{ notice.writeTime }}</p>
+                <p>{{ notice.writer }}</p>
+              </div>
+              <button
+                type="button"
+                class="dbs-icon-button ico-left small delete"
+                @click="noticeDelete(notice)"
+              >
+                삭제
+              </button>
             </div>
           </div>
-          <div class="project-controls">
-            <div class="update-note">
-              <p>{{ notice.writeTime }}</p>
-              <p>{{ notice.writer }}</p>
-            </div>
-            <button
-              type="button"
-              class="dbs-icon-button ico-left small delete"
-              @click="noticeDelete(notice)"
-            >
-              삭제
-            </button>
-          </div>
-        </div>
-      </li>
+        </li>
+      </draggable>
     </ul>
     <modal-component
       :modal-title="docPageSearchModalTitle"
@@ -193,17 +196,21 @@
   </div>
 </template>
 <script lang="ts">
+import draggable from 'vuedraggable';
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import ModalComponent from '@/components/common/modal/modalComponent.vue';
 import DocSearchModal from '@/components/productEdit/DocSearchModal.vue';
 import * as notice from '@/store/modules/notice';
+import * as repository from '@/store/modules/repository';
 import { IAlert } from '@/store/modules/common';
 
 const Notice = namespace('notice');
 const Common = namespace('common');
+const Repository = namespace('repository');
 
 @Component({
   components: {
+    draggable,
     DocSearchModal,
     ModalComponent,
   },
@@ -212,14 +219,18 @@ export default class ProductNoticeManage extends Vue {
   categoryBtnClick: boolean = false;
   selectedCategory: string = 'NEW';
   selectedPageTitle: string = '';
+  localNoticeList: any[] = [];
 
   docPageSearchModalTitle: string = '문서 탐색기';
   docPageSearchModalName: string = 'docPageSearchModal';
   docPageSearchModalHeight: string = '673px';
   docPageSearchModalWidth: string = '700px';
 
+  @Notice.Action('getNoticeList') getNoticeListAction;
   @Notice.Action('noticeRegister') noticeRegisterAction;
   @Notice.Action('noticeDelete') noticeDeleteAction;
+  @Notice.Action('updateNoticeIndex') updateNoticeIndexAction;
+  @Repository.Action('getIndexMdFile') getIndexMdFileAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   $refs!: {
@@ -231,13 +242,30 @@ export default class ProductNoticeManage extends Vue {
   };
   $modal!: any;
 
+  created() {
+    if (!this.$store.state.user.user.gitlabToken) {
+      return;
+    }
+    this.getIndexMdFileAction({
+      productCode: this.$route.params.productCode,
+      ref: 'master',
+      refType: 'targetBranch',
+    });
+    this.getNoticeListAction({
+      productCode: this.$route.params.productCode,
+    }).then(() => {
+      this.localNoticeList = this.$store.state.notice.noticeList.slice();
+    });
+  }
+
+  // 카테고리 변경
   clickCategory(categoryName) {
     this.selectedCategory = categoryName;
     this.categoryBtnClick = false;
   }
 
+  // 공지사항 등록
   noticeRegister() {
-    console.log(new Date());
     if (this.$refs.category.value === '') {
       this.alertAction({
         type: 'warning',
@@ -269,6 +297,24 @@ export default class ProductNoticeManage extends Vue {
         msg: '공지사항을 등록하시겠습니까?',
       }).then(async (result) => {
         if (result.ok) {
+          const currentTime: Date = new Date();
+          const formattedDate: string =
+            currentTime.getFullYear() +
+            '-' +
+            (currentTime.getMonth() + 1 > 9 ? '' : '0') +
+            (currentTime.getMonth() + 1) +
+            '-' +
+            (currentTime.getDate() > 9 ? '' : '0') +
+            currentTime.getDate() +
+            ' ' +
+            (currentTime.getHours() > 9 ? '' : '0') +
+            currentTime.getHours() +
+            ':' +
+            (currentTime.getMinutes() > 9 ? '' : '0') +
+            currentTime.getMinutes() +
+            ':' +
+            (currentTime.getSeconds() > 9 ? '' : '0') +
+            currentTime.getSeconds();
           await this.noticeRegisterAction({
             productCode: this.$store.state.product.product.productCode,
             category: this.$refs.category.value,
@@ -276,13 +322,14 @@ export default class ProductNoticeManage extends Vue {
             noticeDescription: this.$refs.noticeDescription.value,
             filePath: this.$refs.filePath.value,
             pageTitle: this.selectedPageTitle,
-            writeTime: new Date().toISOString(),
+            writeTime: formattedDate,
             writer:
               this.$store.state.user.user.name +
               '(' +
               this.$store.state.user.user.loginId +
               ')',
           });
+          this.localNoticeList = this.$store.state.notice.noticeList.slice();
           this.selectedCategory = 'NEW';
           this.$refs.noticeTitle.value = '';
           this.$refs.noticeDescription.value = '';
@@ -292,6 +339,7 @@ export default class ProductNoticeManage extends Vue {
     }
   }
 
+  // 공지사항 삭제
   noticeDelete(noticeData) {
     this.alertAction({
       type: 'question',
@@ -309,14 +357,17 @@ export default class ProductNoticeManage extends Vue {
           writeTime: noticeData.writeTime,
           writer: noticeData.writer,
         });
+        this.localNoticeList = this.$store.state.notice.noticeList.slice();
       }
     });
   }
 
+  // 연결문서 다이얼로그
   openDocPageSearchModal() {
     this.$modal.show(this.docPageSearchModalName);
   }
 
+  // 연결문서 선택
   docPageSearchModalConfirm(clickConfirmBtn) {
     const selectedPageData = this.$refs.docPageSearchModal.getData();
     if (clickConfirmBtn) {
@@ -333,6 +384,16 @@ export default class ProductNoticeManage extends Vue {
       }
     }
     this.$modal.hide(this.docPageSearchModalName);
+  }
+
+  // 순서 변경
+  draggableChange() {
+    this.updateNoticeIndexAction(this.localNoticeList);
+  }
+
+  // 마우스가 select box 를 벗어났을 때 select box 를 닫기 위한 함수
+  mouseLeaveToOtherArea() {
+    this.categoryBtnClick = false;
   }
 }
 </script>

@@ -8,11 +8,9 @@ const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
-// const services = new Gitlab({
-//   host: 'http://10.36.13.89',
-//   token: '__5uUEPux-qreBuxsJt2',
-// });
-
+/**
+ * 커밋 생성
+ */
 router.post('/createCommit', (req, res) => {
   const projectId = req.body.projectId;
   const branchName = req.body.branchName;
@@ -21,19 +19,24 @@ router.post('/createCommit', (req, res) => {
   const gitlabToken = req.body.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
   service.Commits.create(projectId, branchName, commitMessage, actions)
     .then((result) => {
-      res.json(result);
+      res.status(200).send({ success: true, data: result });
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res
+        .status(err.response.status)
+        .send({ success: false, msg: err.message });
     });
 });
 
+/**
+ * 커밋 목록 가져오기
+ */
 router.get('/getCommitList', (req, res) => {
   const projectId = req.query.projectId;
   const option = {
@@ -43,7 +46,7 @@ router.get('/getCommitList', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
@@ -56,29 +59,32 @@ router.get('/getCommitList', (req, res) => {
     });
 });
 
-router.get('/getSingleCommit', (req, res) => {
-  // const projectId = req.query.projectId;
-  const projectId = 5; // TODO 수정 필요
-  const sha = '191007';
-  // const options = {
-  //   recursive: true,
-  // };
-  const gitlabToken = req.query.gitlabToken;
+// router.get('/getSingleCommit', (req, res) => {
+//   // const projectId = req.query.projectId;
+//   const projectId = 5;
+//   const sha = '191007';
+//   // const options = {
+//   //   recursive: true,
+//   // };
+//   const gitlabToken = req.query.gitlabToken;
+//
+//   const service = new Gitlab({
+//     host: process.env.GITLAB_URL,
+//     token: gitlabToken,
+//   });
+//
+//   service.Commits.show(projectId, '1810417fdb4414f2a4a8e98018347afb07103c76')
+//     .then((result) => {
+//       res.json(result);
+//     })
+//     .catch((err) => {
+//       res.status(err.response.status).send({ error: err.description });
+//     });
+// });
 
-  const service = new Gitlab({
-    host: 'http://10.110.15.133',
-    token: gitlabToken,
-  });
-
-  service.Commits.show(projectId, '1810417fdb4414f2a4a8e98018347afb07103c76')
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
-    });
-});
-
+/**
+ * 변경된 커밋 데이터 가져오기
+ */
 router.get('/getCommitDiff', (req, res) => {
   const projectId = req.query.projectId;
   const sha = req.query.sha;
@@ -86,7 +92,7 @@ router.get('/getCommitDiff', (req, res) => {
   const gitlabToken = req.query.gitlabToken;
 
   const service = new Gitlab({
-    host: 'http://10.110.15.133',
+    host: process.env.GITLAB_URL,
     token: gitlabToken,
   });
 
@@ -99,24 +105,24 @@ router.get('/getCommitDiff', (req, res) => {
     });
 });
 
-router.get('/getReference', (req, res) => {
-  const projectId = req.query.projectId;
-  const sha = req.query.sha;
-
-  const gitlabToken = req.query.gitlabToken;
-
-  const service = new Gitlab({
-    host: 'http://10.110.15.133',
-    token: gitlabToken,
-  });
-
-  service.Commits.references(projectId, sha)
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
-    });
-});
+// router.get('/getReference', (req, res) => {
+//   const projectId = req.query.projectId;
+//   const sha = req.query.sha;
+//
+//   const gitlabToken = req.query.gitlabToken;
+//
+//   const service = new Gitlab({
+//     host: process.env.GITLAB_URL,
+//     token: gitlabToken,
+//   });
+//
+//   service.Commits.references(projectId, sha)
+//     .then((result) => {
+//       res.json(result);
+//     })
+//     .catch((err) => {
+//       res.status(err.response.status).send({ error: err.description });
+//     });
+// });
 
 module.exports = router;
