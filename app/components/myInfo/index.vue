@@ -414,7 +414,7 @@ export default class MyInfo extends Vue {
           this.alertAction({
             type: 'warning',
             isShow: true,
-            msg: '유효하지 않은 Token 입니다.',
+            msg: `[${err.response.status}] 유효하지 않은 Token 입니다.`,
           }).then(() => {});
         }
       });

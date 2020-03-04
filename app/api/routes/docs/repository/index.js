@@ -54,9 +54,7 @@ router.get('/getRepositoryFileData', (req, res, next) => {
       res.json(result);
     })
     .catch((err) => {
-      console.log('catch :: ', err, err.response);
-      // res.status(err.response.status).send({ error: err.description });
-      next(err);
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 

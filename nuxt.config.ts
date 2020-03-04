@@ -83,7 +83,7 @@ const config: Configuration = {
   plugins: [
     '../plugins/vue-js-modal',
     // { src: '../plugins/session', ssr: false },
-    '../plugins/axios',
+    // '../plugins/axios',
     // { src: '../.nuxt/tui/editor.client.js', ssr: false, mode: 'client' },
   ],
   /*

@@ -322,7 +322,7 @@ export const actions: ActionTree<DownloadState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -379,7 +379,7 @@ export const actions: ActionTree<DownloadState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -436,7 +436,7 @@ export const actions: ActionTree<DownloadState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -492,7 +492,7 @@ export const actions: ActionTree<DownloadState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -639,7 +639,7 @@ export const actions: ActionTree<DownloadState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -712,7 +712,7 @@ export const actions: ActionTree<DownloadState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -791,14 +791,14 @@ export const actions: ActionTree<DownloadState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
     }
   },
 
-  async fileDetailById({ commit }, payload: string): Promise<any> {
+  async fileDetailById({ commit, dispatch }, payload: string): Promise<any> {
     try {
       const { data } = await this.$axios.post('/api/download/file/' + payload);
 
@@ -808,7 +808,15 @@ export const actions: ActionTree<DownloadState, RootState> = {
         await commit('selectedFile', data.data as IFile);
       }
     } catch (e) {
-      console.error(e);
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
     }
   },
 };

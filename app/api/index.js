@@ -1,4 +1,5 @@
 // const path = require('path');
+const createError = require('http-errors');
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
@@ -40,6 +41,15 @@ connectDB();
 /********************************************************
                   Error Handler
  ********************************************************/
+// 등록되지 않은 path로 요청이 왔으면 404 페이지를 만들어야함.
+// http-errors 모듈로 error 객체 생성 후 에러 처리 핸들러로 넘김
+app.use(function(req, res, next) {
+  // error 생성 후 next
+  // next(createError(404));
+  res.status(404);
+  res.send({ msg: '존재하지 않는 API 입니다.' });
+});
+
 app.use(function(err, req, res, next) {
   // Do logging and user-friendly error message display
   // console.error(err.stack);

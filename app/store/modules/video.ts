@@ -313,7 +313,7 @@ export const actions: ActionTree<VideoState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -370,7 +370,7 @@ export const actions: ActionTree<VideoState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -427,7 +427,7 @@ export const actions: ActionTree<VideoState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -483,7 +483,7 @@ export const actions: ActionTree<VideoState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -724,7 +724,7 @@ export const actions: ActionTree<VideoState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -778,7 +778,7 @@ export const actions: ActionTree<VideoState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );
@@ -840,7 +840,7 @@ export const actions: ActionTree<VideoState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         { root: true }
       );

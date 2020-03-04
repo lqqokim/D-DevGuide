@@ -1,4 +1,5 @@
 import { UserModel } from './../../../models/user';
+const ereateError = require('http-errors');
 
 const { Router } = require('express');
 const router = Router();
@@ -14,13 +15,11 @@ router.get('/:loginId', (req, res) => {
     }
     // console.log('mongodb user :: ', user);
     if (user.length) {
-      res.send({ success: true, data: user });
+      res.status(200).send({ success: true, data: user });
     } else {
-      res.send({
-        success: true,
-        data: user,
-        msg: 'DB에 해당 직원이 존재하지 않습니다.',
-      });
+      res
+        .status(404)
+        .send({ msg: 'MongoDB 에 해당 유저가 존재하지 않습니다.' });
     }
   });
 });

@@ -232,6 +232,8 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         }
       );
 
+      console.log('fileData :: ', fileData);
+
       const mdDatas = fileData.data.split(/\r\n|\n|\r/);
 
       const pageRegexp = /^([ ]*)- \[([^]+)\]\(([^)]+)\)\s*$/;
@@ -305,7 +307,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         commit('setTreeData', treeData);
       }
     } catch (err) {
-      console.error(err);
+      console.error('스토어 에러 :: ', err);
     }
   },
 

@@ -162,8 +162,6 @@ export const actions: ActionTree<UserState, RootState> = {
           const mongoUser: IUser = data.data[0];
           await commit('SET_USER_INFO', mongoUser);
 
-          // resolve(mongoUser.name + '님 반갑습니다.');
-
           this.$router.push({
             path: '/',
           });
@@ -171,7 +169,7 @@ export const actions: ActionTree<UserState, RootState> = {
           await dispatch(
             'common/alert',
             {
-              type: 'warning',
+              type: ALERT_TYPE.WARN,
               isShow: true,
               msg: data.msg,
             },
@@ -184,7 +182,7 @@ export const actions: ActionTree<UserState, RootState> = {
         await dispatch(
           'common/alert',
           {
-            type: 'warning',
+            type: ALERT_TYPE.WARN,
             isShow: true,
             msg: loginData.msg,
           },
@@ -197,9 +195,9 @@ export const actions: ActionTree<UserState, RootState> = {
       await dispatch(
         'common/alert',
         {
-          type: 'error',
+          type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: e.response.data.msg,
         },
         {
           root: true,
@@ -257,9 +255,7 @@ export const actions: ActionTree<UserState, RootState> = {
         // console.info('[ mongodb 조회 Fail ]', userByToken);
         await commit('SET_USER_INFO', userInfo);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   },
   // 깃랩 토큰 등록
   async createGitLabToken({ state, commit, dispatch }, payload): Promise<any> {
@@ -299,7 +295,7 @@ export const actions: ActionTree<UserState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e,
+          msg: `[${e.response.status}]` + e.response.data.msg,
         },
         { root: true }
       );
