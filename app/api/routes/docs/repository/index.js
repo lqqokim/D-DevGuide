@@ -4,7 +4,6 @@ import {
   // eslint-disable-next-line import/named
   gitUpload,
 } from './../../../controllers/upload';
-const createError = require('http-errors');
 
 const { Router } = require('express');
 const router = Router();
@@ -15,7 +14,7 @@ router.use(bodyParser.json());
 
 const services = new Gitlab({
   host: process.env.GITLAB_URL,
-  token: '-x_eB2WV1oaC876jTPwP',
+  token: process.env.ADMIN_GITLAB_TOKEN,
 });
 
 /**
@@ -31,17 +30,17 @@ router.get('/getRepositoryTree', (req, res) => {
 
   services.Repositories.tree(projectId, option)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
 /**
  * 프로젝트 repository 에 있는 file 데이터 가져오기
  */
-router.get('/getRepositoryFileData', (req, res, next) => {
+router.get('/getRepositoryFileData', (req, res) => {
   const projectId = req.query.projectId;
   const filePath = req.query.filePath;
   let ref = req.query.ref;
@@ -51,7 +50,7 @@ router.get('/getRepositoryFileData', (req, res, next) => {
   }
   services.RepositoryFiles.showRaw(projectId, filePath, ref)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
       res.status(err.response.status).send({ msg: err.description });
@@ -74,10 +73,10 @@ router.get('/getBranchChangesData', (req, res) => {
 
   service.Repositories.compare(projectId, from, to)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -91,10 +90,10 @@ router.get('/getFileSize', (req, res) => {
 
   services.RepositoryFiles.show(projectId, filePath, ref)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -125,10 +124,10 @@ router.post('/upload', gitUpload.single('file'), (req, res) => {
     opt
   )
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -144,8 +143,7 @@ router.post('/createFile', (req, res) => {
     .then((fileResult) => {
       res.status(200).send({ success: true, data: fileResult });
     })
-    .catch((err) => {
-      console.error('not found index.md file :: ', err);
+    .catch(() => {
       services.RepositoryFiles.create(
         projectId,
         filePath,
@@ -157,7 +155,7 @@ router.post('/createFile', (req, res) => {
           res.status(200).send({ success: true, data: result });
         })
         .catch((err) => {
-          res.status(err.response.status).send({ error: err.description });
+          res.status(err.response.status).send({ msg: err.description });
         });
     });
 });

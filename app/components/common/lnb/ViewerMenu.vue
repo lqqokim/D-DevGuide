@@ -192,7 +192,7 @@
         >
       </ul>
       <div class="line mgt-15"></div>
-      <ul>
+      <ul v-if="viewerMenuTreeData.length > 0">
         <product-repository-file-tree
           v-for="(item, index) in viewerMenuTreeData"
           :key="index"
@@ -208,21 +208,25 @@
 import { Vue, Component, namespace, Watch } from 'nuxt-property-decorator';
 import ProductRepositoryFileTree from '@/components/productDocView/ProductRepositoryFileTree.vue';
 import EventBus from '@/store/modules/repository.ts';
+import * as version from '@/store/modules/version.ts';
 
 const Repository = namespace('repository');
+const Version = namespace('version');
 
 @Component({
   components: { ProductRepositoryFileTree },
 })
 export default class ViewerMenu extends Vue {
   @Repository.Action('getIndexMdFile') getIndexMdFileAction;
+  @Repository.Action('getRepositorySampleFile') getRepositorySampleFileAction;
+  @Version.Action('getVersionList') getVersionListAction;
+  @Repository.Mutation('setEmptyTreeData') setEmptyTreeDataMutation;
+  @Repository.Mutation('setCurrentRef') setCurrentRefMutation;
 
   displayVersionList: boolean = false;
   viewerMenuTreeData: Array<any> = [];
 
-  created() {
-    this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
-
+  mounted() {
     EventBus.$on('toggle', (folderData) => {
       if (folderData.type === 'page') {
         for (const key in this.viewerMenuTreeData) {
@@ -233,9 +237,109 @@ export default class ViewerMenu extends Vue {
         folderData.option.expanded = !folderData.option.expanded;
       }
       folderData.option.selected = folderData.type === 'page';
+
+      // Sample Page 일 경우 새 창을 띄워줌
+      if (folderData.type === 'samplePage') {
+        this.getRepositorySampleFileAction({
+          productCode: this.$route.params.productCode,
+          ref: this.$store.state.repository.currentRef,
+          refType: this.$store.state.repository.refType,
+          filePath: folderData.option.path,
+          pageTitle: folderData.title,
+        }).then((result) => {
+          const win = window.open('');
+          // 새 창이 제대로 열리지 않으면 null 이 반환됨
+          if (win !== null) {
+            win.document.write(result);
+          }
+        });
+      }
     });
   }
 
+  created() {
+    // 트리 클릭 시 확장, 포커스 설정
+    if (
+      this.$route.params.branchName !== undefined &&
+      !this.$store.state.user.user.gitlabToken
+    ) {
+      return;
+    }
+    this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
+    // const differenceProduct =
+    //   this.$store.state.product.product.productCode ===
+    //   this.$route.params.productCode;
+    //
+    // await this.$store.dispatch('product/selectProduct', {
+    //   productCode: this.$route.params.productCode,
+    // });
+    //
+    // let refName: string = '';
+    // let currentRefType: string = 'targetBranch';
+    // if (this.$route.params.branchName !== undefined) {
+    //   refName = this.$route.params.branchName;
+    //   currentRefType = 'branch';
+    // } else if (this.$route.params.versionName !== undefined) {
+    //   refName = 'DOC_' + this.$route.params.versionName;
+    //   currentRefType = 'version';
+    // } else {
+    //   refName = this.$store.state.product.product.targetBranch;
+    //   currentRefType = 'targetBranch';
+    // }
+    //
+    // await this.setCurrentRefMutation([refName, currentRefType]);
+    //
+    // if (
+    //   this.$store.state.repository.treeData === undefined ||
+    //   this.$store.state.repository.treeData.length === 0 ||
+    //   !differenceProduct ||
+    //   this.$route.name === 'detail' ||
+    //   this.$route.name === 'branchDocViewInit'
+    // ) {
+    //   console.log('come in');
+    //   await this.getIndexMdFileAction({
+    //     productCode: this.$route.params.productCode,
+    //     pageType: this.$route.params.pageType,
+    //     ref: refName,
+    //     refType: currentRefType,
+    //     filePath: this.$route.params.pageId,
+    //     pageTitle: this.$route.params.pageTitle,
+    //   });
+    // }
+    //
+    // if (
+    //   this.$route.params.branchName !== undefined &&
+    //   (this.$store.state.repository.treeData === undefined ||
+    //     this.$store.state.repository.treeData.length === 0 ||
+    //     !differenceProduct ||
+    //     this.$route.name === 'branchDocViewInit')
+    // ) {
+    //   await this.getIndexMdFileAction({
+    //     productCode: this.$route.params.productCode,
+    //     pageType: this.$route.params.pageType,
+    //     ref: refName,
+    //     refType: currentRefType,
+    //     filePath: this.$route.params.pageId,
+    //     pageTitle: this.$route.params.pageTitle,
+    //   });
+    // }
+    //
+    // if (this.$route.params.pageId) {
+    //   await this.getRepositoryFileAction({
+    //     productCode: this.$route.params.productCode,
+    //     filePath: this.$route.params.pageId + '.md',
+    //     ref: refName,
+    //     refType: currentRefType,
+    //     pageTitle: this.$route.params.pageTitle,
+    //   });
+    // }
+    //
+    // await this.getVersionListAction({
+    //   productCode: this.$route.params.productCode,
+    // });
+    // console.log(this.$store.state.repository.treeData);
+  }
+  // 현재 선택되지 않은 li 의 selected 속성 없애주기
   removeSelectedOption(treeData): void {
     if (treeData.option.selected && treeData.type === 'page') {
       treeData.option.selected = false;
@@ -247,15 +351,18 @@ export default class ViewerMenu extends Vue {
     }
   }
 
+  // pageType 이 변경되었을 때
   @Watch('$route.params.pageType')
-  onChangePageType(value, oldValue) {
+  onChangePageType(value) {
     if (value === undefined) {
       return;
     }
     if (
+      // targetBranch 의 최신 버전
       this.$route.params.branchName === undefined &&
       this.$route.params.versionName === undefined
     ) {
+      this.setEmptyTreeDataMutation();
       this.getIndexMdFileAction({
         productCode: this.$route.params.productCode,
         pageType: value,
@@ -265,9 +372,11 @@ export default class ViewerMenu extends Vue {
         this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
       });
     } else if (
+      // 선택된 version
       this.$route.params.branchName !== undefined &&
       this.$route.params.versionName === undefined
     ) {
+      this.setEmptyTreeDataMutation();
       this.getIndexMdFileAction({
         productCode: this.$route.params.productCode,
         pageType: value,
@@ -277,13 +386,15 @@ export default class ViewerMenu extends Vue {
         this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
       });
     } else if (
+      // 작성 중인 branch
       this.$route.params.branchName === undefined &&
       this.$route.params.versionName !== undefined
     ) {
+      this.setEmptyTreeDataMutation();
       this.getIndexMdFileAction({
         productCode: this.$route.params.productCode,
         pageType: value,
-        ref: this.$route.params.versionName,
+        ref: 'DOC_' + this.$route.params.versionName,
         refType: 'version',
       }).then((res) => {
         this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
@@ -291,30 +402,60 @@ export default class ViewerMenu extends Vue {
     }
   }
 
-  @Watch('$route.name')
-  onChangeVersion(value, oldValue) {
-    if (
-      (value === 'detail' &&
-        (oldValue === 'versionDocViewInit' || oldValue === 'versionDocView')) ||
-      (value === 'detail' && (oldValue === 'detail' || oldValue === 'docView'))
-    ) {
+  // @Watch('$route.name')
+  // onChangeVersion(fromRouteName, toRouteName) {
+  // if (
+  //   (fromRouteName === 'detail' &&
+  //     (toRouteName === 'versionDocViewInit' ||
+  //       toRouteName === 'versionDocView')) ||
+  //   (fromRouteName === 'detail' &&
+  //     (toRouteName === 'detail' || toRouteName === 'docView'))
+  // ) {
+  //   this.getIndexMdFileAction({
+  //     productCode: this.$store.state.product.product.productCode,
+  //     pageType: this.$route.params.pageType,
+  //     ref: this.$store.state.product.product.targetBranch,
+  //     refType: 'targetBranch',
+  //   }).then((res) => {
+  //     this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
+  //   });
+  // } else if (
+  //   (fromRouteName === 'versionDocViewInit' &&
+  //     (toRouteName === 'detail' || toRouteName === 'docView')) ||
+  //   (fromRouteName === 'versionDocViewInit' &&
+  //     (toRouteName === 'versionDocViewInit' ||
+  //       toRouteName === 'versionDocView'))
+  // ) {
+  //   this.getIndexMdFileAction({
+  //     productCode: this.$route.params.productCode,
+  //     pageType: this.$route.params.pageType,
+  //     ref: 'DOC_' + this.$route.params.versionName,
+  //     refType: 'version',
+  //   }).then((res) => {
+  //     this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
+  //   });
+  // }
+  // this.displayVersionList = false;
+  // }
+
+  // version 선택 시
+  @Watch('$route.params.versionName')
+  onChangeVersion(toVersion, fromVersion) {
+    // 최신버전
+    if (toVersion === undefined) {
       this.getIndexMdFileAction({
         productCode: this.$store.state.product.product.productCode,
-        pageType: 'Document',
+        pageType: this.$route.params.pageType,
         ref: this.$store.state.product.product.targetBranch,
         refType: 'targetBranch',
       }).then((res) => {
         this.viewerMenuTreeData = this.$store.state.repository.treeData.slice();
       });
-    } else if (
-      (value === 'versionDocViewInit' &&
-        (oldValue === 'detail' || oldValue === 'docView')) ||
-      (value === 'versionDocViewInit' &&
-        (oldValue === 'versionDocViewInit' || oldValue === 'versionDocView'))
-    ) {
+    } else {
+      // version 선택 시
       this.getIndexMdFileAction({
         productCode: this.$route.params.productCode,
-        pageType: 'Document',
+        pageType: this.$route.params.pageType,
         ref: 'DOC_' + this.$route.params.versionName,
         refType: 'version',
       }).then((res) => {
@@ -326,28 +467,31 @@ export default class ViewerMenu extends Vue {
 
   // 뒤로가기, 앞으로가기 했을 때 좌측 메뉴 트리 포커스 문제 때문에 추가한 코드
   @Watch('$route.params.pageTitle')
-  onChangePageTitle(value, oldValue) {
-    setTimeout(() => {
-      if (
-        document.querySelectorAll('li.nav-item.page.selected').length === 0 ||
-        document.querySelectorAll('li.nav-item.page.selected').length > 1
-      ) {
-        let selectedPage;
-        for (let idx = 0; idx < this.viewerMenuTreeData.length; idx++) {
-          selectedPage = this.findSelectedPage(
-            this.viewerMenuTreeData[idx],
-            this.$route.params.pageTitle,
-            this.$route.params.pageId + '.md'
-          );
-          if (selectedPage !== undefined) {
-            EventBus.$emit('toggle', selectedPage);
-            break;
+  onChangePageTitle() {
+    if (document) {
+      setTimeout(() => {
+        if (
+          document.querySelectorAll('li.nav-item.page.selected').length === 0 ||
+          document.querySelectorAll('li.nav-item.page.selected').length > 1
+        ) {
+          let selectedPage;
+          for (let idx = 0; idx < this.viewerMenuTreeData.length; idx++) {
+            selectedPage = this.findSelectedPage(
+              this.viewerMenuTreeData[idx],
+              this.$route.params.pageTitle,
+              this.$route.params.pageId + '.md'
+            );
+            if (selectedPage !== undefined) {
+              EventBus.$emit('toggle', selectedPage);
+              break;
+            }
           }
         }
-      }
-    });
+      });
+    }
   }
 
+  // 현재 선택되어 있는 페이지를 찾음
   findSelectedPage(parent, pageTitle, filePath): any {
     if (pageTitle === parent.title && filePath === parent.option.path) {
       parent.option.selected = true;
@@ -368,6 +512,7 @@ export default class ViewerMenu extends Vue {
     }
   }
 
+  // 버전 리스트 select box 출력 후 마우스가 select box 밖으로 나가면 닫힘
   mouseLeaveToOtherArea() {
     this.displayVersionList = false;
   }

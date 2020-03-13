@@ -1,7 +1,7 @@
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
-import * as common from '~/store/modules/common';
-import { ALERT_TYPE } from '~/store/modules/common';
+import * as common from '@/store/modules/common';
+import { ALERT_TYPE } from '@/store/modules/common';
 import { IUser } from '~/store/modules/user';
 
 export interface ForumState {

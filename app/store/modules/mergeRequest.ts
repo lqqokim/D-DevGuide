@@ -60,7 +60,7 @@ export const mutations: MutationTree<MergeRequestState> = {
 
 export const actions: ActionTree<MergeRequestState, RootState> = {
   async getMergeRequestList(
-    { commit, state },
+    { commit, state, dispatch },
     payload: { productCode: string; gitlabToken: string }
   ): Promise<any> {
     try {
@@ -94,8 +94,17 @@ export const actions: ActionTree<MergeRequestState, RootState> = {
       });
 
       commit('setMergeRequestList', docMergeRequest);
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      throw new Error(e.response.data.msg);
     }
   },
   async createMergeRequest(
@@ -148,8 +157,17 @@ export const actions: ActionTree<MergeRequestState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      throw new Error(e.response.data.msg);
     }
   },
   async removeMergeRequest(
@@ -196,8 +214,17 @@ export const actions: ActionTree<MergeRequestState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      throw new Error(e.response.data.msg);
     }
   },
   acceptMergeRequest(
@@ -249,8 +276,23 @@ export const actions: ActionTree<MergeRequestState, RootState> = {
           { root: true }
         );
         resolve(data);
-      } catch (err) {
-        reject(err);
+      } catch (e) {
+        let errMsg = e.response.data.msg;
+        if (e.response.status === 405) {
+          errMsg = '병합 중 충돌이 발생했습니다.';
+        }
+        await dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.ERROR,
+            isShow: true,
+            msg: `[${e.response.status}] ${errMsg}`,
+          },
+          { root: true }
+        );
+        // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+        throw new Error(e.response.data.msg);
+        // reject(err);
       }
     });
   },
@@ -309,8 +351,16 @@ export const actions: ActionTree<MergeRequestState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
     }
   },
 };

@@ -3,7 +3,7 @@
     <div class="gnb-header">
       <div class="aside">
         <p class="notification">
-          <template v-if="token">
+          <template v-if="isLogin">
             <span class="noti">
               {{ $store.state.user.user.name }} 님 반갑습니다.
             </span>
@@ -127,8 +127,9 @@ export default class HeaderComp extends Vue {
     bar: HTMLFormElement;
   };
 
-  get token() {
-    return this.$store.state.user.user.authToken;
+  get isLogin() {
+    console.log('isLogin :: ', this.$store.state.user.user);
+    return this.$store.state.user.user._id;
   }
 
   created() {
@@ -136,40 +137,8 @@ export default class HeaderComp extends Vue {
   }
 
   mounted() {
-    //  configuration for dbs initialize
-    this.$axios.post('/ei8n001i5t');
-
-    // const instance = this.$axios.create({
-    //   baseURL: process.env.BASE_URL,
-    //   timeout: 10000,
-    //   params: {}, // do not remove this, its added to add params later in the config
-    // });
-
-    // // Add a request interceptor
-    // this.$axios.interceptors.request.use(
-    //   (config) => {
-    //     console.info('interceptors.request :: ', config);
-    //     // config.headers.genericKey = 'someGenericValue';
-    //     return config;
-    //   },
-    //   (error) => {
-    //     console.error(error);
-    //     return Promise.reject(error);
-    //   }
-    // );
-    //
-    // // Add a response interceptor
-    // this.$axios.interceptors.response.use(
-    //   (response) => {
-    //     /** In dev, intercepts request and logs it into console for dev */
-    //     console.info('interceptors.response :: ', response);
-    //     return response;
-    //   },
-    //   (error) => {
-    //     console.error(error);
-    //     return Promise.reject(error);
-    //   }
-    // );
+    // dbs initialize
+    // this.$axios.post('/ei8n001i5t');
   }
 
   onclickMyInfo(): void {

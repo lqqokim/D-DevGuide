@@ -88,7 +88,6 @@ export default class ProductRepositoryFileViewer extends Vue {
   }
 
   onClickSearch(e) {
-    // 애니메이션 효과 후에 페이지 이동하는 거 수정 필요할 듯
     if (
       this.$refs.searchWordInput.value !== '' &&
       ((e.type === 'keydown' && e.keyCode === 13) || e.type === 'click')
@@ -136,42 +135,6 @@ export default class ProductRepositoryFileViewer extends Vue {
     }
   }
 
-  // replaceImageText(convertImageArr, markdown) {
-  //   console.log(str);
-  //   for
-  //   const splitStr = str.split('](');
-  //
-  //   const uploadFilePath = splitStr[1].split(')')[0];
-  //   const fileType = uploadFilePath.split('.');
-  //   console.log(fileType[fileType.length - 1]);
-  //   if (
-  //           fileType[fileType.length - 1] === 'JPG' ||
-  //           fileType[fileType.length - 1] === 'PNG' ||
-  //           fileType[fileType.length - 1] === 'png' ||
-  //           fileType[fileType.length - 1] === 'jpg'
-  //   ) {
-  //     console.log('들어와');
-  //     const altStr = splitStr[0].split('[')[1];
-  //
-  //     await convertImagePathAction({
-  //       productCode: currentProductCode,
-  //       ref: refName,
-  //       filePath: uploadFilePath.slice(1),
-  //     }).then((res) => {
-  //       const replaceText =
-  //               '![' +
-  //               altStr +
-  //               '](data:image/jpeg' +
-  //               ';base64,' +
-  //               res.content +
-  //               ')';
-  //       console.log(replaceText);
-  //       markdown = markdown.replace(str, replaceText);
-  //     });
-  //     console.log(markdown);
-  //   }
-  // }
-
   onViewerLoad() {
     const toastUIViewer = this.$refs.tuiViewer;
     const viewerArea = this.$refs.viewerArea;
@@ -179,7 +142,13 @@ export default class ProductRepositoryFileViewer extends Vue {
     const convertImagePathAction = this.convertImagePathAction;
     const currentProductCode = this.$store.state.product.product.productCode;
     const refName = this.$store.state.repository.currentRef;
+    const alertAction = this.alertAction;
     setTimeout(function() {
+      alertAction({
+        type: 'loading',
+        isShow: true,
+        msg: '문서 정보를 불러오는 중입니다.',
+      }).then(() => {});
       const editor = toastUIViewer.editor;
       editor.preview.refresh = async function(markdown) {
         // git 에서 받아온 이미지를 화면에 보여지도록 변환하는 코드
@@ -358,6 +327,11 @@ export default class ProductRepositoryFileViewer extends Vue {
         }
       };
       editor.setMarkdown(viewerText);
+      alertAction({
+        type: 'loading',
+        isShow: false,
+        msg: '문서 정보를 불러오는 중입니다.',
+      }).then(() => {});
     });
   }
 }

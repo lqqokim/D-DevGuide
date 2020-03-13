@@ -6,11 +6,6 @@ const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
-const services = new Gitlab({
-  host: process.env.GITLAB_URL,
-  token: '-x_eB2WV1oaC876jTPwP',
-});
-
 /**
  * MongoDB 에서 version 리스트 가져오기
  */
@@ -91,10 +86,10 @@ router.get('/removeVersion', (req, res) => {
 
   service.Tags.remove(projectId, tagName)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -136,6 +131,24 @@ router.put('/updateVersionIndex', (req, res) => {
   Promise.all(promises)
     .then((versions) => {
       res.status(200).send({ success: true, data: versions });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 제품의 productCode 가 바뀌었을 때 MongoDB 에서 version productCode 도 변경
+ */
+router.post('/updateVersion', (req, res) => {
+  const { prevProductCode, changingProductCode } = req.body;
+
+  VersionModel.updateMany(
+    { productCode: prevProductCode },
+    { productCode: changingProductCode }
+  )
+    .then(() => {
+      res.status(200).send({ success: true });
     })
     .catch((err) => {
       res.status(500).send({ success: false, msg: err.message });

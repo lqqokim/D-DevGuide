@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
+import { ALERT_TYPE } from '~/store/modules/common';
 
 interface SearchState {
   searchDataArray: Array<any>;
@@ -199,8 +200,18 @@ export const actions: ActionTree<SearchState, RootState> = {
 
         await commit('setSearchData', filteredDatas);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
   async indexSearch(
@@ -277,8 +288,18 @@ export const actions: ActionTree<SearchState, RootState> = {
         productName: productData.data.productName,
         resultData: indexSearchResults,
       });
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
 };

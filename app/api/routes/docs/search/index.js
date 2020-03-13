@@ -8,7 +8,7 @@ router.use(bodyParser.json());
 
 const services = new Gitlab({
   host: process.env.GITLAB_URL,
-  token: '-x_eB2WV1oaC876jTPwP',
+  token: process.env.ADMIN_GITLAB_TOKEN,
 });
 
 // __5uUEPux-qreBuxsJt2 - 안예솔
@@ -24,10 +24,10 @@ router.get('/devDocSearch', (req, res) => {
 
   services.Search.all('blobs', contents, projectId)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 

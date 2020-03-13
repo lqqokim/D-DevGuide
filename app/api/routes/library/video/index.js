@@ -4,7 +4,6 @@ const request = require('request-promise-native');
 
 const { Router } = require('express');
 const router = Router();
-const API_KEY = 'AIzaSyCrI0kwNS07VIBB006Rhu5WuI-9hZPoYD4';
 
 /**
  * 제품에 대한 모든 동영상 목록 조회
@@ -110,25 +109,76 @@ router.post('/product', (req, res) => {
     });
 });
 
+// router.post('/updateNotice', (req, res) => {
+//   const { prevProductCode, changingProductCode } = req.body;
+//
+//   NoticeModel.updateMany(
+//     { productCode: prevProductCode },
+//     { productCode: changingProductCode }
+//   )
+//     .then(() => {
+//       res.status(200).send({ success: true });
+//     })
+//     .catch((err) => {
+//       res.status(500).send({ success: false, msg: err.message });
+//     });
+// });
+
 /**
  * 동영상 제품 업데이트
  */
 router.post('/product/update/:_id', (req, res) => {
-  VideoProductModel.findOneAndUpdate(
-    { _id: req.params._id },
-    { $set: req.body },
-    {
-      new: true,
-    }
-  )
-    .then((video) => {
-      res.status(200).send({ success: true, data: video });
+  // let originProduct = {};
+  let originProduct;
+
+  // _id로 수정항 제품 조회
+  VideoProductModel.findOne({ _id: req.params._id })
+    .then((product) => {
+      originProduct = product;
+
+      // 제품 정보 수정
+      return VideoProductModel.findOneAndUpdate(
+        { _id: req.params._id },
+        { $set: req.body },
+        {
+          new: true,
+        }
+      );
+    })
+    .then((newProduct) => {
+      // 제품 코드가 변경됐을 경우, 해당 제품내 모든 동영상의 제품코드 변경
+      if (originProduct.productCode !== newProduct.productCode) {
+        VideoModel.updateMany(
+          { productCode: originProduct.productCode },
+          { productCode: newProduct.productCode },
+          {
+            new: true,
+          }
+        ).then((videos) => {
+          // console.log('1. 동영상 :: ', videos);
+        });
+      }
+
+      // 제품명이 변경됐을 경우, 해당 제품내 모든 동영상의 제품명 변경
+      // eslint-disable-next-line no-self-compare
+      if (originProduct.productName !== newProduct.productName) {
+        VideoModel.updateMany(
+          { productName: originProduct.productName },
+          { productName: newProduct.productName },
+          {
+            new: true,
+          }
+        ).then((videos) => {
+          // console.log('2. 동영상 :: ', videos);
+        });
+      }
+
+      res.status(200).send({ success: true, data: newProduct });
     })
     .catch((err) => {
       res.status(500).send({ success: false, msg: err.message });
     });
 });
-
 /**
  * 동영상 제품 조회
  */
@@ -341,9 +391,6 @@ router.post('/register', (req, res) => {
       video.isSeries = data.isSeries;
       video.seriesTitle = data.seriesTitle;
       video.description = data.description;
-      // getPlayTime(video.youtubeId, (playTime) => {
-      //   video.playTime = playTime;
-      // });
     });
 
   videoModel.videoTitle = data.videoTitle;
@@ -372,20 +419,6 @@ router.post('/register', (req, res) => {
     });
 });
 
-function getPlayTime(youtubeId, cb) {
-  request({
-    url: `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=contentDetails&key=${API_KEY}`,
-  })
-    .then((res) => {
-      return YTDurationToSeconds(
-        JSON.parse(res).items[0].contentDetails.duration
-      );
-    })
-    .then((playTime) => {
-      cb(playTime);
-    });
-}
-
 /**
  * 동영상 업데이트
  */
@@ -410,9 +443,6 @@ router.post('/update/:_id', (req, res) => {
         item.empName = video.empName;
         item.deptPath = video.deptPath;
         item.seriesTitle = video.videoTitle;
-        // getPlayTime(item.youtubeId, (playTime) => {
-        //   item.playTime = playTime;
-        // });
       }
     });
 

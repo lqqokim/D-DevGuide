@@ -249,6 +249,29 @@ export const actions: ActionTree<DocState, RootState> = {
         { root: true }
       );
 
+      const currentProductData = await this.$axios.get(
+        'api/library/document/getCurrentProductData',
+        {
+          params: {
+            _id: payload._id,
+          },
+        }
+      );
+
+      if (currentProductData.data.productCode !== payload.productCode) {
+        await this.$axios.post('api/library/document/updateDocProductCode', {
+          prevProductCode: currentProductData.data.productCode,
+          changingProductCode: payload.productCode,
+        });
+      }
+
+      if (currentProductData.data.productName !== payload.productName) {
+        await this.$axios.post('api/library/document/updateDocProductName', {
+          prevProductName: currentProductData.data.productName,
+          changingProductName: payload.productName,
+        });
+      }
+
       const { data } = await this.$axios.post(
         'api/library/document/product/update/' + payload._id,
         payload
@@ -836,7 +859,7 @@ export const actions: ActionTree<DocState, RootState> = {
 
 const DOC_DEFAULT_PARAMS = (): ListParams => {
   return {
-    limit: 5,
+    limit: 8,
     skip: 0,
     sort: '-uploadDate',
   };

@@ -371,31 +371,6 @@ import ProductBranchManage from '~/components/productBranchManage/index.vue';
   components: {
     ProductBranchManage,
   },
-  fetch({ store, params }): any {
-    try {
-      // await store.dispatch('product/getProductList');
-      // await store.dispatch('branch/getBranchList', {
-      //   productCode: params.productCode,
-      //   gitlabToken: store.state.user.user.gitlabToken,
-      // });
-      // await store.dispatch('product/selectProduct', {
-      //   productCode: params.productCode,
-      // });
-      // await store.dispatch('mergeRequest/getMergeRequestList', {
-      //   productCode: params.productCode,
-      //   gitlabToken: store.state.user.user.gitlabToken,
-      // });
-      // store.state.branch.branchList.forEach((branch) => {
-      //   store.state.mergeRequest.mergeRequestList.forEach((mergeRequest) => {
-      //     if (mergeRequest.source_branch === branch.name) {
-      //       branch.can_push = false;
-      //     }
-      //   });
-      // });
-    } catch (e) {
-      console.error(e);
-    }
-  },
 })
 export default class extends Vue {}
 </script>

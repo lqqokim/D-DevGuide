@@ -209,6 +209,11 @@ import ProductDocView from '~/components/productDocView/index.vue';
   },
   async fetch({ store, params, route }): Promise<any> {
     try {
+      // console.log('gitlab token');
+      // console.log(store.state.user.user.gitlabToken);
+      // if (params.branchName !== undefined) {
+      //   return;
+      // }
       const differenceProduct =
         store.state.product.product.productCode === params.productCode;
 
@@ -216,12 +221,12 @@ import ProductDocView from '~/components/productDocView/index.vue';
         productCode: params.productCode,
       });
 
-      if (
-        params.branchName !== undefined &&
-        !store.state.user.user.gitlabToken
-      ) {
-        return;
-      }
+      // if (
+      //   params.branchName !== undefined &&
+      //   !store.state.user.user.gitlabToken
+      // ) {
+      //   return;
+      // }
 
       let refName: string = '';
       let currentRefType: string = 'targetBranch';
@@ -264,10 +269,11 @@ import ProductDocView from '~/components/productDocView/index.vue';
         });
       }
 
-      await store.dispatch('version/getVersionList', {
-        productCode: params.productCode,
-      });
+      // await store.dispatch('version/getVersionList', {
+      //   productCode: params.productCode,
+      // });
     } catch (e) {
+      await store.commit('repository/setInitialization');
       console.error(e);
     }
   },

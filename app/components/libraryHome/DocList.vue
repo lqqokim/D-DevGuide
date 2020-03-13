@@ -262,11 +262,15 @@ export default class DocList extends Vue {
   @Doc.Action('getDocsByProduct') docsByProductAction!: (payload: {
     data: IProduct;
   }) => void;
+  @Doc.Mutation('selectedProduct') selectedProductMutation!: (
+    data: IProduct
+  ) => void;
 
   selectedProduct!: IProduct;
 
   created() {
     this.selectedProduct = this.$store.state.document.products[0];
+    this.selectedProductMutation(this.selectedProduct);
   }
 
   docType(doc: IDocument): string[] {

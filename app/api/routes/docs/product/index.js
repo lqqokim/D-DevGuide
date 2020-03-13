@@ -3,6 +3,7 @@ const { Router } = require('express');
 const router = Router();
 const Gitlab = require('gitlab').Gitlab;
 const bodyParser = require('body-parser');
+const createError = require('http-errors');
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
 
@@ -43,6 +44,21 @@ router.post('/productRegister', (req, res) => {
         errMsg = '이미 존재하는 제품의 프로젝트 ID 입니다.';
       }
       res.status(500).send({ success: false, msg: errMsg });
+    });
+});
+
+/**
+ * 개발자문서 _id 로 제품 조회
+ */
+router.get('/getCurrentProductData', (req, res) => {
+  ProductModel.findOne({
+    _id: req.query._id,
+  })
+    .then((product) => {
+      res.status(200).send(product);
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
     });
 });
 
@@ -109,7 +125,7 @@ router.delete('/productRemove/:_id', (req, res) => {
       if (result.n === 0) {
         return res
           .status(404)
-          .json({ success: false, msg: 'Product not found' });
+          .send({ success: false, msg: 'Product not found' });
       } else {
         ProductModel.find()
           .then((products) => {
@@ -133,10 +149,17 @@ router.get('/productSelect', (req, res) => {
     projectId: req.query.selectedProjectId,
   };
 
-  ProductModel.find(selectedProjectId, (err, product) => {
-    if (err) console.error(err);
-    res.json(product);
-  });
+  ProductModel.find(selectedProjectId)
+    .then((product) => {
+      if (product.length === 0) {
+        throw createError(404, 'Product Not Found');
+      } else {
+        res.status(200).send(product);
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ msg: err.message });
+    });
 });
 
 /**
@@ -147,10 +170,17 @@ router.get('/getProjectId', (req, res) => {
     productCode: req.query.productCode,
   };
 
-  ProductModel.find(params, (err, product) => {
-    if (err) console.error(err);
-    res.json(product[0]);
-  });
+  ProductModel.find(params)
+    .then((product) => {
+      if (product.length === 0) {
+        throw createError(404, 'Product Not Found');
+      } else {
+        res.status(200).send(product[0]);
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ error: err, msg: err.message });
+    });
 });
 
 // router.get('/getProjectIdList', (req, res) => {

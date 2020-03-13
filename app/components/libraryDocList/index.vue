@@ -243,7 +243,7 @@ export default class LibraryDocList extends Vue {
     params: ListParams;
   }) => void;
 
-  private readonly LIMIT: number = 5;
+  private readonly LIMIT: number = 8;
 
   get localDocsByProduct(): IDocument[] {
     return this.docsByProduct;
@@ -326,7 +326,7 @@ export default class LibraryDocList extends Vue {
 
     const params: ListParams = {
       skip: this.localDocsByProduct.length,
-      limit: 5,
+      limit: 8,
       sort: '-uploadDate',
     };
 

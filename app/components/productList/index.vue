@@ -22,20 +22,7 @@ import SearchBar from '@/components/common/search/searchBar.vue';
     ProductNoticeList,
   },
 })
-export default class ProductList extends Vue {
-  mounted() {
-    // this.$axios
-    //   .post('/api/token', {
-    //     token: this.$store.state.user.user.authToken,
-    //   })
-    //   .then((res) => {
-    //     // console.log(res);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
-  }
-}
+export default class ProductList extends Vue {}
 </script>
 
 <style scoped></style>

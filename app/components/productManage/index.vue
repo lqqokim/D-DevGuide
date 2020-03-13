@@ -120,9 +120,6 @@ export default class ProductManage extends Vue
 
   async created() {
     await this.getProductListAction();
-    // await this.selectProductAction({
-    //   productCode: this.$route.params.productCode,
-    // });
 
     const products: product.Product[] = this.$store.state.product.productList;
 
@@ -203,7 +200,7 @@ export default class ProductManage extends Vue
 
     this.selectedProductIdx = value.index;
 
-    // 200210 제품 없을 때 오류나는 문제 때문에 추가한 코드
+    // 제품 없을 때 오류나는 문제 때문에 추가한 코드
     if (this.products.length > 0) {
       // init prev product input value
       const prevIdx = value.prevIndex;
@@ -218,63 +215,25 @@ export default class ProductManage extends Vue
     }
   }
 
-  onclickSave() {
-    if (this.isClickAdd) {
-      this.isClickAdd = false;
-    }
-
+  async onclickSave() {
     const product = this.$refs.productInfoComp.getProduct();
     product[0].staffs = this.$refs.productStaffComp.getStaffs();
-    // const productIdx: number = this.products.findIndex(
-    //   (item: product.Product) => {
-    //     return item.productCode === product[0].productCode;
-    //   }
-    // );
 
+    // product[1] 은 project id 유효성 체크하는 값
     if (!this.validator(product[0], product[1])) {
       return;
     }
 
     if (product[0]._id) {
-      this.updateProductAction(product[0])
-        .then((res) => {
-          if (res.success && res.data) {
-            this.alertAction({
-              type: 'check',
-              isShow: true,
-              msg: '제품정보가 수정되었습니다.',
-            });
-          }
-        })
-        .catch((err) => {
-          if (err.response.status === 500) {
-            this.alertAction({
-              type: 'error',
-              isShow: true,
-              msg: err.response.data.msg,
-            }).then(() => {});
-          }
-        });
+      await this.updateProductAction(product[0]);
     } else {
-      this.registerProductAction(product[0])
-        .then((res) => {
-          if (res.success && res.data) {
-            this.alertAction({
-              type: 'check',
-              isShow: true,
-              msg: '제품이 등록되었습니다.',
-            });
-          }
-        })
-        .catch((err) => {
-          if (err.response.status === 500) {
-            this.alertAction({
-              type: 'error',
-              isShow: true,
-              msg: err.response.data.msg,
-            }).then(() => {});
-          }
-        });
+      await this.registerProductAction(product[0]);
+    }
+    // 등록 후 첫번째 제품 선택
+    this.selectedProduct = this.products[0];
+
+    if (this.isClickAdd) {
+      this.isClickAdd = false;
     }
   }
 
@@ -285,8 +244,12 @@ export default class ProductManage extends Vue
       msg: '제품을 삭제하시겠습니까?',
     }).then(async (result) => {
       if (result.ok) {
-        await this.removeProductAction(this.selectedProduct);
-        this.selectedProduct = this.products[0];
+        try {
+          await this.removeProductAction(this.selectedProduct);
+          this.selectedProduct = this.products[0];
+        } catch (e) {
+          console.error(e);
+        }
       }
     });
   }
@@ -305,13 +268,6 @@ export default class ProductManage extends Vue
 
   validator(product: product.Product, isExistProjectIdFlag: boolean): boolean {
     let result: boolean = true;
-
-    // if (product.projectId !== '') {
-    //   const data = this.checkProjectInfoAction({
-    //     gitlabToken: this.$store.state.user.user.gitlabToken,
-    //   });
-    //   console.log(data);
-    // }
 
     if (!product.productName) {
       this.alertAction({
@@ -369,8 +325,4 @@ export default class ProductManage extends Vue
 }
 </script>
 
-<style scoped>
-.productListItem {
-  height: 100px;
-}
-</style>
+<style scoped></style>

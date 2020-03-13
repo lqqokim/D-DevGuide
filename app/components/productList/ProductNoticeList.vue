@@ -16,20 +16,11 @@
       <div class="ui-tab-pnls">
         <section class="ui-tab-pnl active" role="tabpanel">
           <ul class="dbs-list-basic">
-            <nuxt-link
+            <li
               v-for="notice in $store.state.notice.noticeList"
               :key="notice.writeTime"
-              :to="{
-                name: 'docView',
-                params: {
-                  productCode: notice.productCode,
-                  pageType: 'Document',
-                  pageTitle: notice.pageTitle,
-                  pageId: notice.filePath,
-                },
-              }"
-              tag="li"
-              @click.native="removeExpandedOption"
+              style="cursor: pointer;"
+              @click="removeExpandedOption(notice)"
             >
               <dl>
                 <dd class="category">{{ notice.noticeTitle }}</dd>
@@ -49,7 +40,7 @@
                 </dd>
                 <dd class="date">{{ notice.writeTime }}</dd>
               </dl>
-            </nuxt-link>
+            </li>
           </ul>
         </section>
       </div>
@@ -85,7 +76,7 @@ export default class ProductCardList extends Vue {
     });
   }
 
-  removeExpandedOption() {
+  removeExpandedOption(notice) {
     for (
       let idx = 0;
       idx < this.$store.state.repository.treeData.length;
@@ -93,6 +84,15 @@ export default class ProductCardList extends Vue {
     ) {
       this.removeOption(this.$store.state.repository.treeData[idx]);
     }
+    this.$router.push({
+      name: 'docView',
+      params: {
+        productCode: notice.productCode,
+        pageType: 'Document',
+        pageTitle: notice.pageTitle,
+        pageId: notice.filePath,
+      },
+    });
   }
   removeOption(treeData): void {
     treeData.option.expanded = false;

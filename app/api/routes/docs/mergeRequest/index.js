@@ -29,10 +29,10 @@ router.get('/getMergeRequestList', (req, res) => {
 
   service.MergeRequests.all(params)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -90,10 +90,10 @@ router.get('/removeMergeRequest', (req, res) => {
     state_event: 'close',
   })
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -139,10 +139,10 @@ router.get('/getChangesData', (req, res) => {
 
   service.MergeRequests.changes(projectId, mergeRequestIId)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 module.exports = router;

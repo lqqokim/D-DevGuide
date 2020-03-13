@@ -35,8 +35,8 @@ export interface Actions<S, R> extends ActionTree<S, R> {
 
 export const actions: Actions<State, RootState> = {
   // @ts-ignore
-  async nuxtServerInit({ commit, dispatch }, { app, req }) {
-    // console.log('nuxtServerInit ');
+  nuxtServerInit({ commit, dispatch }, { app, req }) {
+    console.log('nuxtServerInit ');
     // // console.log(app.$cookies.getAll());
     // let userToken;
     //

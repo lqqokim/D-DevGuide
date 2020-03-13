@@ -4,7 +4,7 @@
     class="nav-item"
     :class="[
       {
-        page: treeData.type === 'page',
+        page: treeData.type === 'page' || treeData.type === 'samplePage',
         folder: treeData.type === 'folder',
         selected: treeData.option.selected,
       },
@@ -13,6 +13,13 @@
   >
     <a
       v-if="treeData.type === 'folder'"
+      class="nav-text"
+      @click="toggle(treeData)"
+    >
+      {{ treeData.title }}
+    </a>
+    <a
+      v-if="treeData.type === 'samplePage'"
       class="nav-text"
       @click="toggle(treeData)"
     >

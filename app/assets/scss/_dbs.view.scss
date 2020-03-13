@@ -165,6 +165,7 @@
               font-size: 15px;
               line-height: 20px;
               vertical-align: middle;
+              cursor: pointer;
               a{
                 @include ellipsis;
                 display: block;

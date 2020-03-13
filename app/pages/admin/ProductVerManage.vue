@@ -283,23 +283,6 @@ import ProductVerManage from '~/components/productVerManage/index.vue';
   components: {
     ProductVerManage,
   },
-  fetch({ store, params }): any {
-    try {
-      // await store.dispatch('product/getProductList');
-      //
-      // await store.dispatch('product/selectProduct', {
-      //   productCode: params.productCode,
-      // });
-      // await store.dispatch('version/getVersionList', {
-      //   productCode: params.productCode,
-      // });
-      // if (!store.state.user.user.gitlabToken) {
-      //   return;
-      // }
-    } catch (e) {
-      console.error(e);
-    }
-  },
 })
 export default class extends Vue {}
 </script>

@@ -4,8 +4,6 @@ import {
   ForumPostModel,
   ForumProductModel,
 } from './../../../api/models/forum';
-import { DocProductModel } from '~/api/models/document';
-import { VideoProductModel } from '~/api/models/video';
 const mongoose = require('mongoose');
 const { Router } = require('express');
 const router = Router();
@@ -267,31 +265,62 @@ router.put('/products', (req, res) => {
 router.post('/product/update/:_id', (req, res) => {
   const date = Date.now();
 
-  ForumProductModel.findOneAndUpdate(
-    { _id: req.params._id },
-    { $set: req.body },
-    {
-      new: true,
-    }
-  )
+  let originProduct;
+  let newProduct;
+
+  // _id로 수정할 제품 조회
+  ForumProductModel.findOne({ _id: req.params._id })
     .then((product) => {
+      originProduct = product;
+
+      // 제품 수정
+      return ForumProductModel.findOneAndUpdate(
+        { _id: req.params._id },
+        { $set: req.body },
+        {
+          new: true,
+        }
+      );
+    })
+    .then((product) => {
+      newProduct = product;
+
+      // 제품 코드가 변경됐을 경우, 해당 제품내 모든 post 제품코드 변경
+      if (originProduct.productCode !== newProduct.productCode) {
+        ForumPostModel.updateMany(
+          { boardCode: originProduct.productCode },
+          { boardCode: newProduct.productCode },
+          {
+            new: true,
+          }
+        ).then((posts) => {});
+      }
+
+      // 제품명이 변경됐을 경우, 해당 제품내 모든 post 제품명 변경
+      // eslint-disable-next-line no-self-compare
+      if (originProduct.productName !== newProduct.productName) {
+        ForumPostModel.updateMany(
+          { boardName: originProduct.productName },
+          { boardName: newProduct.productName },
+          {
+            new: true,
+          }
+        ).then((posts) => {});
+      }
+
       ForumBoardModel.findOneAndUpdate(
         {
-          boardCode: product.productCode,
+          boardCode: originProduct.productCode,
         },
         {
-          boardName: product.productName,
-          boardCode: product.productCode,
+          boardName: newProduct.productName,
+          boardCode: newProduct.productCode,
           editDate: date,
         },
         { returnOriginal: false, upsert: true }
-      )
-        .then((result) => {
-          res.status(200).send({ success: true, data: result });
-        })
-        .catch((err) => {
-          res.status(500).send({ success: false, msg: err.message });
-        });
+      ).then((board) => {});
+
+      res.status(200).send({ success: true, data: newProduct });
     })
     .catch((err) => {
       res.status(500).send({ success: false, msg: err.message });

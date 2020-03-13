@@ -22,7 +22,6 @@ if (process.env.NODE_ENV !== 'production') app.use(cors());
                 Router Path Settings
  ********************************************************/
 app.use(require('./routes'));
-app.use(require('./routes/product'));
 
 /********************************************************
                   Connect MongoDB
@@ -52,19 +51,11 @@ app.use(function(req, res, next) {
 
 app.use(function(err, req, res, next) {
   // Do logging and user-friendly error message display
-  // console.error(err.stack);
-  // res
-  //   .status(500)
-  //   .send({ status: 500, message: 'internal error', type: 'internal' });
-  // res.locals.msg = err;
-
-  console.log('err => ', err);
-
   res.locals.error =
     req.app.get('env') === 'development'
       ? err
       : '서버에러가 발생했습니다. 관리자에게 문의해주세요.';
-  console.log('res.locals ', res.locals, res.locals.error, err);
+  // console.log('res.locals ', res.locals, res.locals.error, err);
 
   // render the error page
   res.status(err.status || 500);
@@ -72,11 +63,6 @@ app.use(function(err, req, res, next) {
     success: false,
     msg: res.locals.error,
   });
-  // res.render('error'); // express render가 아닌 vue에서 render 한다.
-  // res.send({
-  //   success: false,
-  //   msg: res.locals.message,
-  // });
 });
 
 function connectDB() {

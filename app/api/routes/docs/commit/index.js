@@ -52,10 +52,10 @@ router.get('/getCommitList', (req, res) => {
 
   service.Commits.all(projectId, option)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -98,10 +98,10 @@ router.get('/getCommitDiff', (req, res) => {
 
   service.Commits.diff(projectId, sha)
     .then((result) => {
-      res.json(result);
+      res.status(200).send(result);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -121,7 +121,7 @@ router.get('/getCommitDiff', (req, res) => {
 //       res.json(result);
 //     })
 //     .catch((err) => {
-//       res.status(err.response.status).send({ error: err.description });
+//       res.status(err.response.status).send({ msg: err.description });
 //     });
 // });
 

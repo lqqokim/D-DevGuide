@@ -1,3 +1,4 @@
+import VuexPersistence from 'vuex-persist';
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
 import { actions as CommonActions, ALERT_TYPE } from '@/store/modules/common';
@@ -106,6 +107,7 @@ export const mutations: MutationTree<UserState> = {
     }
 
     state.user.authToken = state.userToken;
+    console.log('user ::: ', state.user);
   },
   SET_GITLAB_TOKEN(state, payload: string): void {
     state.user.gitlabToken = payload;
@@ -197,7 +199,7 @@ export const actions: ActionTree<UserState, RootState> = {
         {
           type: ALERT_TYPE.ERROR,
           isShow: true,
-          msg: e.response.data.msg,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
         },
         {
           root: true,
@@ -206,9 +208,9 @@ export const actions: ActionTree<UserState, RootState> = {
     }
   },
 
-  async encryptToken({ commit, state }, token: string): Promise<any> {
+  async encryptToken({ commit, state, dispatch }, token: string): Promise<any> {
     try {
-      await commit('SET_USER_TOKEN', token);
+      commit('SET_USER_TOKEN', token);
 
       // [1] 토큰에서 유저 정보 획득
       const { data } = await this.$axios.post('api/auth/token', {
@@ -245,7 +247,7 @@ export const actions: ActionTree<UserState, RootState> = {
          */
         const user: IUser = userData.data[0];
         // console.info('[ mongodb 조회 Success ]', user);
-        await commit('SET_USER_INFO', user);
+        commit('SET_USER_INFO', user);
       } else {
         /**
          * dbs 에서 생성한 토큰 : 토큰 정보에 담겨진 정보 store 저장
@@ -253,9 +255,19 @@ export const actions: ActionTree<UserState, RootState> = {
          * 2) dbs -> 개발자 사이트 이동
          */
         // console.info('[ mongodb 조회 Fail ]', userByToken);
-        await commit('SET_USER_INFO', userInfo);
+        commit('SET_USER_INFO', userInfo);
       }
-    } catch (e) {}
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}]` + e.response.data.msg,
+        },
+        { root: true }
+      );
+    }
   },
   // 깃랩 토큰 등록
   async createGitLabToken({ state, commit, dispatch }, payload): Promise<any> {

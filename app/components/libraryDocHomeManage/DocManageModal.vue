@@ -90,7 +90,7 @@ export default class DocManageModal extends Vue {
 
     const params: ListParams = {
       skip: this.localDocsByProduct.length,
-      limit: 4,
+      limit: 8,
       sort: '-uploadDate',
     };
 
@@ -104,9 +104,12 @@ export default class DocManageModal extends Vue {
     );
 
     // 마지막 페이지일 경우 더보기 버튼 hide
-    if (Math.ceil(this.total / this.LIMIT) === this.countMore) {
+    if (this.total - this.localDocsByProduct.length <= 0) {
       this.isViewMore = false;
     }
+    // if (Math.ceil(this.total / this.LIMIT) === this.countMore) {
+    //   this.isViewMore = false;
+    // }
   }
 
   checkManagedDoc(id) {

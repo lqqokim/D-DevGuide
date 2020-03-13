@@ -398,13 +398,6 @@ import ProductManage from '~/components/productManage/index.vue';
   components: {
     ProductManage,
   },
-  fetch({ store }): any {
-    try {
-      // await store.dispatch('product/getProductList');
-    } catch (err) {
-      console.error(err);
-    }
-  },
 })
 export default class extends Vue {}
 </script>

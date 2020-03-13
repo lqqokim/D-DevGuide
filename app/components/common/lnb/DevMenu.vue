@@ -141,6 +141,7 @@ export default class DevMenu extends Vue {
       return;
     }
     await this.getProductListAction();
+    this.productList = [];
     if (
       this.$store.state.user.user.authority === 'S' ||
       this.$store.state.user.user.authority === 'A'
@@ -174,6 +175,7 @@ export default class DevMenu extends Vue {
 
   @Watch('$store.state.product.productList')
   onChangeProductList() {
+    this.productList = [];
     if (
       this.$store.state.user.user.authority === 'S' ||
       this.$store.state.user.user.authority === 'A'

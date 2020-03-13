@@ -24,8 +24,8 @@ const DBS_PROXY = process.env.DBS_URL
   : [];
 
 const config: Configuration = {
-  mode: 'universal',
-  // mode: 'spa',
+  // mode: 'universal',
+  mode: 'spa',
   srcDir: 'app/',
   server: {
     host: '0.0.0.0',
@@ -104,14 +104,27 @@ const config: Configuration = {
     // '@nuxtjs/style-resources',
     '@nuxtjs/proxy',
     '@tui-nuxt/editor',
-    'cookie-universal-nuxt',
+    // 'cookie-universal-nuxt',
   ],
   // styleResources: {
   //   scss: ['./assets/scss/*.scss'],
   // },
   axios: {
     // baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    credentials: true,
     proxy: true,
+    // debug: true,
+    retry: {
+      retries: 3,
+    },
+    // requestInterceptor: (config, { store }) => {
+    //   config.headers.common.Authorization = '';
+    //   // config.headers.common['Content-Type'] =
+    //   //   'application/x-www-form-urlencoded;application/json';
+    //
+    //   console.log('assdasda :: ', store.state.user.user);
+    //   return config;
+    // },
   },
   proxy: DBS_PROXY,
   /*

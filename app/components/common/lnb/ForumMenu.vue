@@ -203,9 +203,10 @@ export default class ForumMenu extends Vue {
   }
 
   async created() {
-    if (!this.$store.state.forum.products.length) {
-      await this.forumProductsAction();
-    }
+    // production mode 에서 새로고침했을 때 this.$store.state.forum.products 가 존재하여 if 문에 걸려서 product 가져오는 action 을 수행하지 못 함
+    await this.forumProductsAction();
+    // if (!this.$store.state.forum.products.length) {
+    // }
 
     // const products = this.$store.state.forum.products.slice();
     // products.unshift({

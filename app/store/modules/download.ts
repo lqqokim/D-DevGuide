@@ -343,6 +343,29 @@ export const actions: ActionTree<DownloadState, RootState> = {
         { root: true }
       );
 
+      const currentProductData = await this.$axios.get(
+        'api/library/download/getCurrentProductData',
+        {
+          params: {
+            _id: payload._id,
+          },
+        }
+      );
+
+      if (currentProductData.data.productCode !== payload.productCode) {
+        await this.$axios.post('api/library/download/updateFileProductCode', {
+          prevProductCode: currentProductData.data.productCode,
+          changingProductCode: payload.productCode,
+        });
+      }
+
+      if (currentProductData.data.productName !== payload.productName) {
+        await this.$axios.post('api/library/download/updateFileProductName', {
+          prevProductName: currentProductData.data.productName,
+          changingProductName: payload.productName,
+        });
+      }
+
       const { data } = await this.$axios.post(
         'api/library/download/product/update/' + payload._id,
         payload

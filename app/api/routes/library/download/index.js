@@ -15,6 +15,57 @@ const { Router } = require('express');
 const router = Router();
 
 /**
+ * _id 로 product data 조회
+ */
+router.get('/getCurrentProductData', (req, res) => {
+  FileProductModel.findOne({
+    _id: req.query._id,
+  })
+    .then((product) => {
+      res.status(200).send(product);
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 파일의 productCode 변경
+ */
+router.post('/updateFileProductCode', (req, res) => {
+  const { prevProductCode, changingProductCode } = req.body;
+
+  FileModel.updateMany(
+    { productCode: prevProductCode },
+    { productCode: changingProductCode }
+  )
+    .then(() => {
+      res.status(200).send({ success: true });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 파일의 productName 변경
+ */
+router.post('/updateFileProductName', (req, res) => {
+  const { prevProductName, changingProductName } = req.body;
+
+  FileModel.updateMany(
+    { productName: prevProductName },
+    { productName: changingProductName }
+  )
+    .then(() => {
+      res.status(200).send({ success: true });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
  * 모든 파일 목록 조회
  */
 router.get('/searchDownloads', (req, res) => {

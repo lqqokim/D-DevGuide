@@ -56,9 +56,10 @@
                     <div class="mail-wrap">
                       <input
                         id="token"
-                        v-model="gitlabToken"
+                        :value="user.gitlabToken"
                         type="text"
                         class="inp-base h-40"
+                        @change="onchangeGitlabToken"
                       />
                       <button
                         type="button"
@@ -67,6 +68,13 @@
                       >
                         토큰등록
                       </button>
+                      <!--                      <button-->
+                      <!--                        type="button"-->
+                      <!--                        class="dbs-icon-button text"-->
+                      <!--                        @click="onclickUpdateInfo"-->
+                      <!--                      >-->
+                      <!--                        삭제-->
+                      <!--                      </button>-->
                     </div>
                     <p class="txt-alert">
                       개발자 문서를 편집하시기 위해서는 프로젝트 깃랩에서
@@ -380,29 +388,40 @@ export default class MyInfo extends Vue {
   @User.Action('checkGitlabToken') checkGitlabTokenAction!: (
     gitlabToken: string
   ) => Promise<any>;
-  @User.Mutation('SET_GITLAB_TOKEN') gitlabTokenMutation!: (string) => void;
-
-  isEdit: boolean = false;
 
   get user(): IUser {
     return this.$store.state.user.user;
   }
 
-  token: string = '';
+  gitlabToken!: string;
 
-  get gitlabToken(): string {
-    return this.token;
-  }
-
-  set gitlabToken(token: string) {
-    this.token = token;
-  }
+  // get gitlabToken(): string {
+  //   return this.token;
+  // }
+  //
+  // set gitlabToken(token: string) {
+  //   this.token = token;
+  // }
 
   created() {
-    this.token = this.user.gitlabToken;
+    this.gitlabToken = this.$store.state.user.user.gitlabToken;
+  }
+
+  onchangeGitlabToken(e): void {
+    this.gitlabToken = e.target.value;
   }
 
   onclickUpdateInfo(): void {
+    if (!this.gitlabToken) {
+      this.alertAction({
+        type: 'warning',
+        isShow: true,
+        msg: '등록할 GitLab Token 이 존재하지 않습니다.',
+      });
+
+      return;
+    }
+
     this.checkGitlabTokenAction(this.gitlabToken)
       .then((checkRes) => {
         if (checkRes.success && checkRes.data) {
@@ -414,7 +433,7 @@ export default class MyInfo extends Vue {
           this.alertAction({
             type: 'warning',
             isShow: true,
-            msg: `[${err.response.status}] 유효하지 않은 Token 입니다.`,
+            msg: `[${err.response.status}] 유효하지 않은 GitLab Token 입니다.`,
           }).then(() => {});
         }
       });

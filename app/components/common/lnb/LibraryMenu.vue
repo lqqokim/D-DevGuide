@@ -187,17 +187,18 @@ export default class extends Vue {
     this.path = this.$route.path;
     this.selectedProductCode = this.$route.params.productCode;
 
-    if (!this.$store.state.video.products.length) {
-      await this.videoProductsAction();
-    }
+    // production mode 에서 새로고침했을 때 this.$store.state.video.products 가 존재하여 if 문에 걸려서 product 가져오는 action 을 수행하지 못 함
+    await this.videoProductsAction();
+    // if (!this.$store.state.video.products.length) {
+    // }
 
-    if (!this.$store.state.download.products.length) {
-      await this.fileProductsAction();
-    }
+    await this.fileProductsAction();
+    // if (!this.$store.state.download.products.length) {
+    // }
 
-    if (!this.$store.state.document.products.length) {
-      await this.docProductsAction();
-    }
+    await this.docProductsAction();
+    // if (!this.$store.state.document.products.length) {
+    // }
   }
 
   onclickMenuProduct(product, categoryName): void {

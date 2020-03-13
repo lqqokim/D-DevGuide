@@ -269,9 +269,9 @@ pre.ui-tab-pnl{
   }
 }
 
-/* 코드 블럭 영역 색상이 흐릿해서 배경 색상 잠시 바꿈, pre 태그에 강제 줄바꿈 적용 */
+/* 코드 블럭 영역 배경 색상 잠시 바꿈, pre 태그에 강제 줄바꿈 적용 */
 .tui-editor-contents pre{
-  background-color: #d5d5d5;
+  background-color: #eef1f5;
   word-wrap: break-word;
   white-space: pre-wrap;
   white-space: -moz-pre-wrap;

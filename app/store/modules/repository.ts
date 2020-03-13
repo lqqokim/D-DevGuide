@@ -30,7 +30,7 @@ interface RepositoryState {
 }
 
 export interface Repository {
-  id: string;
+  id?: string;
   name: string;
   type: string;
   path: string;
@@ -131,6 +131,7 @@ export const mutations: MutationTree<RepositoryState> = {
   },
   setViewerText(state, payload: string) {
     state.viewerText = payload;
+    // state.editingViewerText = payload;
   },
   setEditingViewerText(state, payload: string) {
     state.editingViewerText = payload;
@@ -221,6 +222,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         path = path.slice(1);
       }
 
+      // index.md 파일 로드
       const fileData: Response = await this.$axios.get(
         'api/docs/repository/getRepositoryFileData',
         {
@@ -232,39 +234,59 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         }
       );
 
-      console.log('fileData :: ', fileData);
-
+      // 줄바꿈 단위로 index.md 내용을 자름
       const mdDatas = fileData.data.split(/\r\n|\n|\r/);
 
+      // page 인지 판단
       const pageRegexp = /^([ ]*)- \[([^]+)\]\(([^)]+)\)\s*$/;
+      // folder 인지 판단
       const folderRegexp = /^([ ]*)- (.+)/;
       const spaceRegexp = /\s$/gi;
-      //
+
       const treeData: Array<any> = [];
       let obj: object = {};
 
+      // 줄바꿈 단위로 자른 데이터로 트리 만듦
       mdDatas.forEach((mdData, mdIdx) => {
         if (spaceRegexp.exec(mdData) === null && mdData !== '') {
           const pageRegStr = pageRegexp.exec(mdData);
           const folderRegStr = folderRegexp.exec(mdData);
           let parentObj: object = {};
+          // page 일 때
           if (pageRegStr !== null) {
-            parentObj = appendChild(
-              pageRegStr[1].length,
-              obj,
-              {
-                title: pageRegStr[2],
-                // path: pageRegStr[3],
-                option: {
-                  expanded: false,
-                  path: pageRegStr[3],
-                  selected: false,
+            if (pageRegStr[3].includes('.md')) {
+              parentObj = appendChild(
+                pageRegStr[1].length,
+                obj,
+                {
+                  title: pageRegStr[2],
+                  option: {
+                    expanded: false,
+                    path: pageRegStr[3],
+                    selected: false,
+                  },
+                  type: 'page',
                 },
-                type: 'page',
-              },
-              treeData
-            );
+                treeData
+              );
+            } else if (pageRegStr[3].includes('.html')) {
+              parentObj = appendChild(
+                pageRegStr[1].length,
+                obj,
+                {
+                  title: pageRegStr[2],
+                  option: {
+                    expanded: false,
+                    path: pageRegStr[3],
+                    selected: false,
+                  },
+                  type: 'samplePage',
+                },
+                treeData
+              );
+            }
           } else if (folderRegStr !== null) {
+            // folder 일 때
             parentObj = appendChild(
               folderRegStr[1].length,
               obj,
@@ -275,7 +297,6 @@ export const actions: ActionTree<RepositoryState, RootState> = {
                   path: undefined,
                   selected: false,
                 },
-                // open: false,
                 type: 'folder',
               },
               treeData
@@ -283,14 +304,17 @@ export const actions: ActionTree<RepositoryState, RootState> = {
           }
           obj = parentObj !== undefined ? parentObj : obj;
         }
+        // index.md 파일이 비어있지 않으면 treeData 에 넣어줌
         if (mdIdx === mdDatas.length - 1 && mdDatas[0] !== '')
           treeData.push(obj);
       });
+      // 특정 문서를 로드하는게 아닐 경우 (this.$route.params.pageId 가 없는 경우)
       if (
         payload.filePath === undefined &&
         treeData[0] !== undefined &&
         treeData[0].type !== undefined
       ) {
+        // 제일 상단에 있는 페이지에 대한 정보를 가져오고 focus
         const firstPage: any = findFirstPage(treeData[0]);
         await dispatch('getRepositoryFile', {
           productCode: payload.productCode,
@@ -301,16 +325,28 @@ export const actions: ActionTree<RepositoryState, RootState> = {
           search: payload.search,
         });
       }
+      // treeData 가 비어있으면 문서 관련 store 를 비워줌
       if (treeData.length === 0) {
         commit('setInitialization');
       } else {
         commit('setTreeData', treeData);
       }
-    } catch (err) {
-      console.error('스토어 에러 :: ', err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
 
+  // liquor tree 용 tree data
   async getRepository(
     { commit, state, dispatch },
     payload: {
@@ -336,8 +372,10 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         );
 
         if (payload.useDocPath && payload.pageType === 'Document') {
+          // pageType 이 Document 일 때 문서 기본 경로
           repositoryPath = productData.data.manualDocPath;
         } else if (payload.useDocPath && payload.pageType === 'API') {
+          // pageType 이 API 일 때 API 기본 경로
           repositoryPath = productData.data.APIDocPath;
         }
 
@@ -360,7 +398,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         }
       );
 
-      const jsonMenuTree: Repository[] = [];
+      let jsonMenuTree: Array<any> = [];
 
       if (repositoryTree.data.length > 0) {
         for (let i = 0; i < repositoryTree.data.length; i++) {
@@ -403,19 +441,66 @@ export const actions: ActionTree<RepositoryState, RootState> = {
             jsonMenuTree.push(row);
           }
         }
+
+        if (repositoryPath !== '') {
+          jsonMenuTree = [
+            {
+              name: repositoryPath.split('/')[
+                repositoryPath.split('/').length - 1
+              ],
+              type: 'tree',
+              path: repositoryPath,
+              data: {
+                type: 'tree',
+                path: repositoryPath,
+                expanded: true,
+                selected: true,
+              },
+              children: jsonMenuTree,
+            },
+          ];
+        } else {
+          jsonMenuTree = [
+            {
+              name: selectedProjectId,
+              type: 'tree',
+              path: '',
+              data: {
+                type: 'tree',
+                path: '',
+                expanded: true,
+                selected: true,
+              },
+              children: jsonMenuTree,
+            },
+          ];
+        }
       }
+      // 문서 기본 경로 사용 여부에 따라 다른 store 에 담아줌
       payload.useDocPath
         ? commit('setRepositoryDocPathData', jsonMenuTree)
         : commit('setRepositoryData', jsonMenuTree);
-    } catch (err) {
-      if (err.response.status === 404) {
+    } catch (e) {
+      if (e.response.status === 404) {
         payload.useDocPath
           ? commit('setRepositoryDocPathData', [])
           : commit('setRepositoryData', []);
       }
-      console.error(err);
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
+
+  // git 의 파일 정보를 가져옴
   async getRepositoryFile(
     { commit, state, dispatch },
     payload: {
@@ -461,6 +546,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         }
       );
 
+      // 현재 선택되어 있는 파일을 treeData 에서 찾아서 포커스를 줌
       for (let idx = 0; idx < state.treeData.length; idx++) {
         const selectedPage = findSelectedPage(
           state.treeData[idx],
@@ -477,6 +563,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       commit('setFilePath', payload.filePath);
       commit('setCurrentRef', [payload.ref, payload.refType]);
 
+      // TOC 만들기
       const tocArray = makeTOC(state.viewerText);
       commit('setTocArray', tocArray);
 
@@ -492,10 +579,100 @@ export const actions: ActionTree<RepositoryState, RootState> = {
           { root: true }
         );
       }
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
+
+  // Sample Page 의 데이터는 store 에 담을 필요가 없으므로 새로운 API 를 이용하여 데이터를 가져옴
+  getRepositorySampleFile(
+    { commit, state, dispatch },
+    payload: {
+      productCode: string;
+      filePath: string;
+      ref: string;
+      refType: string;
+      pageTitle: string;
+      search: boolean;
+    }
+  ): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!payload.search) {
+          // Loading Alert
+          dispatch(
+            'common/alert',
+            {
+              type: ALERT_TYPE.LOADING,
+              isShow: true,
+              msg: '문서 정보를 불러오는 중입니다.',
+            },
+            { root: true }
+          );
+        }
+
+        const productData: Response = await this.$axios.get(
+          'api/docs/product/getProjectId',
+          {
+            params: {
+              productCode: payload.productCode,
+            },
+          }
+        );
+
+        const sampleFileData: Response = await this.$axios.get(
+          'api/docs/repository/getRepositoryFileData',
+          {
+            params: {
+              projectId: productData.data.projectId,
+              filePath: payload.filePath,
+              ref: payload.ref,
+            },
+          }
+        );
+
+        if (!payload.search) {
+          // Loading Alert Close
+          dispatch(
+            'common/alert',
+            {
+              type: ALERT_TYPE.LOADING,
+              isShow: false,
+              msg: '문서 정보를 불러오는 중입니다.',
+            },
+            { root: true }
+          );
+        }
+
+        resolve(sampleFileData.data);
+      } catch (e) {
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.ERROR,
+            isShow: true,
+            msg: `[${e.response.status}] ${e.response.data.msg}`,
+          },
+          { root: true }
+        );
+        // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+        reject(e);
+        // throw new Error(e.response.data.msg);
+      }
+    });
+  },
+
+  // 수정할 파일 데이터를 가져옴
   async getFileContent(
     { commit, state, dispatch },
     payload: {
@@ -536,6 +713,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         }
       );
 
+      // 수정할 문서의 내용을 store 에 담음
       commit('setEditingViewerText', fileData.data);
 
       // Loading Alert Close
@@ -548,12 +726,24 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
+
+  // 파일 생성 시 파일 이름이 겹치지 않게 하기위해 store 에 파일 이름을 담음
   async getFileNameList(
-    { commit, state },
+    { commit, state, dispatch },
     payload: {
       projectId: string;
       branchName: string;
@@ -582,10 +772,22 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       }
 
       commit('setFileNameList', fileNameList);
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
+
+  // 파일의 용량을 가져옴
   async getFileSize(
     { commit, state, dispatch },
     payload: {
@@ -611,6 +813,7 @@ export const actions: ActionTree<RepositoryState, RootState> = {
       setFileSize(payload.repositoryData, blobArr);
       const promiseArr: Array<any> = [];
 
+      // 폴더가 아닌 파일은 모두 용량을 가져옴
       if (blobArr.length > 0) {
         blobArr.forEach(async (blobData) => {
           promiseArr.push(
@@ -640,10 +843,22 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
+
+  // 문서 수정 페이지에서 파일 업로드 후 파일 용량을 가져옴
   getBlobFileSize(
     { commit, state, dispatch },
     payload: {
@@ -690,11 +905,24 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         );
 
         resolve(data);
-      } catch (err) {
-        reject(err);
+      } catch (e) {
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.ERROR,
+            isShow: true,
+            msg: `[${e.response.status}] ${e.response.data.msg}`,
+          },
+          { root: true }
+        );
+        // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+        throw new Error(e.response.data.msg);
+        // reject(e);
       }
     });
   },
+
+  // git 에 local 에 있는 파일 업로드
   uploadFile(
     { commit, state, dispatch },
     payload: {
@@ -750,10 +978,23 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         );
         resolve(data);
       } catch (e) {
-        reject(e);
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.ERROR,
+            isShow: true,
+            msg: `[${e.response.status}] ${e.response.data.msg}`,
+          },
+          { root: true }
+        );
+        // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+        throw new Error(e.response.data.msg);
+        // reject(e);
       }
     });
   },
+
+  // gitlab 프로젝트 정보 가져오기
   getProjectInfo(
     { commit, state, dispatch },
     payload: {
@@ -778,10 +1019,23 @@ export const actions: ActionTree<RepositoryState, RootState> = {
         );
         resolve(data);
       } catch (e) {
-        reject(e);
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.ERROR,
+            isShow: true,
+            msg: `[${e.response.status}] ${e.response.data.msg}`,
+          },
+          { root: true }
+        );
+        // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+        throw new Error(e.response.data.msg);
+        // reject(e);
       }
     });
   },
+
+  // 문서 수정 페이지에서 이미지 첨부 시 대괄호 속에 들어가는 이미지의 경로를 사용자가 보기 편하도록 변경
   convertImagePath(
     { commit, state, dispatch },
     payload: {
@@ -813,12 +1067,24 @@ export const actions: ActionTree<RepositoryState, RootState> = {
 
         resolve(rawData.data);
       } catch (e) {
-        reject(e);
+        dispatch(
+          'common/alert',
+          {
+            type: ALERT_TYPE.ERROR,
+            isShow: true,
+            msg: `[${e.response.status}] ${e.response.data.msg}`,
+          },
+          { root: true }
+        );
+        // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+        throw new Error(e.response.data.msg);
+        // reject(e);
       }
     });
   },
 };
 
+// 파일일 경우에만 배열에 넣어줌
 function setFileSize(treeData, blobArr: Array<any>) {
   if (treeData.length > 0) {
     treeData.forEach((data) => {
@@ -832,6 +1098,7 @@ function setFileSize(treeData, blobArr: Array<any>) {
   }
 }
 
+// 상위 노드가 있는지 확인
 function nodeSearch(treeNodes, searchID): any {
   if (typeof treeNodes !== 'undefined') {
     for (let nodeIdx = 0; nodeIdx <= treeNodes.length - 1; nodeIdx++) {
@@ -852,6 +1119,7 @@ function nodeSearch(treeNodes, searchID): any {
   return false;
 }
 
+// TOC 만드는 함수
 function makeTOC(content) {
   const tocArray: Array<any> = [];
   const removeMd = require('remove-markdown');
@@ -880,6 +1148,7 @@ function makeTOC(content) {
   return tocArray;
 }
 
+// 하위 요소로 데이터 넣기
 function appendChild(spaceLength, parent, childData, treeData) {
   if (spaceLength - 2 > 0) {
     // 2 depth 이상일 때 재귀함수
@@ -911,8 +1180,9 @@ function appendChild(spaceLength, parent, childData, treeData) {
   }
 }
 
+// 가장 첫 번째 페이지 찾기
 function findFirstPage(parent): any {
-  if (parent.type === 'folder') {
+  if (parent.type === 'folder' || parent.type === 'samplePage') {
     parent.option.expanded = true;
 
     if (parent.children.length > 0) {
@@ -926,6 +1196,7 @@ function findFirstPage(parent): any {
   }
 }
 
+// 선택된 페이지 찾기
 function findSelectedPage(parent, pageTitle, filePath): any {
   if (parent.option.selected) {
     parent.option.selected = false;

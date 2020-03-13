@@ -22,11 +22,11 @@ router.get('/getBranchList', (req, res) => {
   });
 
   service.Branches.all(projectId)
-    .then((result) => {
-      res.json(result);
+    .then((branches) => {
+      res.status(200).send(branches);
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 
@@ -39,7 +39,7 @@ router.get('/getBranchList', (req, res) => {
 //       res.status(200).send({ success: true, data: result });
 //     })
 //     .catch((err) => {
-//       res.status(err.response.status).send({ error: err.description });
+//       res.status(err.response.status).send({ msg: err.description });
 //     });
 // });
 
@@ -62,7 +62,7 @@ router.post('/createBranch', (req, res) => {
       res.status(200).send({ success: true, data: result });
     })
     .catch((err) => {
-      res.status(err.response.status).send({ error: err.description });
+      res.status(err.response.status).send({ msg: err.description });
     });
 });
 

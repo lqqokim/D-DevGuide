@@ -99,59 +99,6 @@ import ProductEdit from '~/components/productEdit/index.vue';
   components: {
     ProductEdit,
   },
-  fetch({ store, params }): any {
-    try {
-      // await store.dispatch('product/selectProduct', {
-      //   productCode: params.productCode,
-      // });
-      //
-      // if (!store.state.user.user.gitlabToken) {
-      //   return;
-      // }
-      //
-      // if (
-      //   store.state.repository.treeData === undefined ||
-      //   store.state.repository.treeData.length === 0 ||
-      //   (params.branchName !== undefined && params.pageId === undefined)
-      // ) {
-      //   await store.dispatch('repository/getIndexMdFile', {
-      //     productCode: params.productCode,
-      //     pageType: params.pageType,
-      //     ref: params.branchName,
-      //     refType: 'branch',
-      //     filePath: params.pageId,
-      //     pageTitle: params.pageTitle,
-      //     gitlabToken: store.state.user.user.gitlabToken,
-      //   });
-      // }
-      // if (params.pageId) {
-      //   await store.dispatch('repository/getRepositoryFile', {
-      //     productCode: params.productCode,
-      //     filePath: params.pageId + '.md',
-      //     ref: params.branchName,
-      //     refType: 'branch',
-      //     pageTitle: params.pageTitle,
-      //     gitlabToken: store.state.user.user.gitlabToken,
-      //   });
-      // }
-      //
-      // await store.dispatch('repository/getRepository', {
-      //   productCode: params.productCode,
-      //   ref: params.branchName,
-      //   gitlabToken: store.state.user.user.gitlabToken,
-      // });
-      //
-      // await store.dispatch('repository/getRepository', {
-      //   productCode: params.productCode,
-      //   ref: params.branchName,
-      //   useDocPath: true,
-      //   gitlabToken: store.state.user.user.gitlabToken,
-      //   pageType: params.pageType,
-      // });
-    } catch (err) {
-      console.error(err);
-    }
-  },
 })
 export default class extends Vue {}
 </script>

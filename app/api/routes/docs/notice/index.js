@@ -88,4 +88,22 @@ router.get('/noticeDelete', (req, res) => {
     });
 });
 
+/**
+ * 제품의 productCode 가 바뀌었을 때 공지사항의 productCode 도 변경
+ */
+router.post('/updateNotice', (req, res) => {
+  const { prevProductCode, changingProductCode } = req.body;
+
+  NoticeModel.updateMany(
+    { productCode: prevProductCode },
+    { productCode: changingProductCode }
+  )
+    .then(() => {
+      res.status(200).send({ success: true });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
 module.exports = router;

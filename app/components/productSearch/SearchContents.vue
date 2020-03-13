@@ -45,118 +45,12 @@
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';
-// import * as product from '@/store/modules/product';
-// import * as search from '@/store/modules/search';
-// import * as repository from '@/store/modules/repository';
-// import { IAlert } from '~/store/modules/common';
-//
-// const Product = namespace('product');
-// const Search = namespace('search');
-// const Repository = namespace('repository');
-// const Common = namespace('common');
 
 @Component
 export default class SearchContents extends Vue {
-  // @Product.Action('getProductList') getProductListAction;
-  // @Search.Action('devDocSearch') devDocSearchAction;
-  // @Search.Action('indexSearch') indexSearchAction;
-  // @Search.Mutation('setEmptySearchResult') setEmptySearchResultMutation;
-  // @Search.Mutation('setEmptySearchData') setEmptySearchDataMutation;
-  // @Search.Mutation('searchDevDocTitle') searchDevDocTitleMutation;
-  // @Repository.Action('getIndexMdFile') getIndexMdFileAction;
-  // @Repository.Mutation('setEmptyTreeData') setEmptyTreeDataMutation;
-  // @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
-
   totalSearchDataLength: number = 0;
 
   created() {
-    // await this.getProductListAction();
-    //
-    // console.log(this.setEmptySearchResultMutation);
-    // console.log(this.$store.state.product.productList);
-    // await this.setEmptySearchResultMutation();
-    // await this.setEmptySearchDataMutation();
-    //
-    // const productList = this.$store.state.product.productList;
-    //
-    // this.alertAction({
-    //   type: 'loading',
-    //   isShow: true,
-    //   msg: '검색 중입니다.',
-    // }).then(() => {});
-    //
-    // for (let idx = 0; idx < productList.length; idx++) {
-    //   console.log('for start');
-    //   this.searching = true;
-    //   await this.devDocSearchAction({
-    //     content: this.$route.params.searchWord,
-    //     projectId: productList[idx].projectId,
-    //   });
-    //
-    //   console.log('index md file');
-    //   await this.getIndexMdFileAction({
-    //     productCode: productList[idx].productCode,
-    //     pageType: 'Document',
-    //     ref: productList[idx].targetBranch,
-    //     refType: 'targetBranch',
-    //     search: true,
-    //   });
-    //
-    //   await this.searchDevDocTitleMutation({
-    //     searchDataArray: this.$store.state.search.searchDataArray,
-    //     treeData: this.$store.state.repository.treeData,
-    //     pageType: 'Document',
-    //     productName: productList[idx].productName,
-    //     productCode: productList[idx].productCode,
-    //     searchWord: this.$route.params.searchWord,
-    //   });
-    //
-    //   await this.indexSearchAction({
-    //     treeData: this.$store.state.repository.treeData,
-    //     searchWord: this.$route.params.searchWord,
-    //     pageType: 'Document',
-    //     ref: productList[idx].targetBranch, // targetBranch
-    //     projectId: productList[idx].projectId,
-    //     productCode: productList[idx].productCode,
-    //   });
-    //
-    //   await this.setEmptyTreeDataMutation();
-    //
-    //   if (productList[idx].apiUse) {
-    //     await this.getIndexMdFileAction({
-    //       productCode: productList[idx].productCode,
-    //       pageType: 'API',
-    //       ref: productList[idx].targetBranch,
-    //       refType: 'targetBranch',
-    //       search: true,
-    //     });
-    //     await this.searchDevDocTitleMutation({
-    //       searchDataArray: this.$store.state.search.searchDataArray,
-    //       treeData: this.$store.state.repository.treeData,
-    //       pageType: 'API',
-    //       productName: productList[idx].productName,
-    //       productCode: productList[idx].productCode,
-    //       searchWord: this.$route.params.searchWord,
-    //     });
-    //
-    //     await this.indexSearchAction({
-    //       treeData: this.$store.state.repository.treeData,
-    //       searchWord: this.$route.params.searchWord,
-    //       pageType: 'API',
-    //       ref: productList[idx].targetBranch,
-    //       projectId: productList[idx].projectId,
-    //       productCode: productList[idx].productCode,
-    //     });
-    //   }
-    //   await this.setEmptyTreeDataMutation();
-    // }
-    // this.searching = false;
-    //
-    // this.alertAction({
-    //   type: 'loading',
-    //   isShow: false,
-    //   msg: '검색 중입니다.',
-    // }).then(() => {});
     if (this.$store.state.search.searchResult.length > 0) {
       this.$store.state.search.searchResult.forEach((result) => {
         this.totalSearchDataLength += result.resultData.length;

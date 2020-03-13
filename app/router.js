@@ -86,7 +86,7 @@ Vue.use(Router);
 //
 // console.log('instance :: ', instance);
 //
-// instance.interceptors.request.use(
+// this.$axios.interceptors.request.use(
 //   (config) => {
 //     config.headers.Authorization = 'asdasd';
 //     alert('test');
@@ -237,6 +237,37 @@ const LNB_LIB = 'Library';
 const LNB_FORUM = 'Forum';
 
 /********************************************************
+ 공통화면 관련 라우터 정의
+ ********************************************************/
+const commonRoute = [
+  {
+    path: '/',
+    component: ProjectMainPage,
+  },
+  {
+    path: '/browser',
+    name: 'browserNotice',
+    component: BrowserNoticePage,
+  },
+  // {
+  //   // 공통_메세지박스  페이지
+  //   path: '/common/dialog',
+  //   component: DialogPage,
+  // },
+  {
+    // 정책 및 약관
+    path: '/clause',
+    name: 'clause',
+    component: ClausePage,
+  },
+  {
+    // 개인정보처리방침
+    path: '/policy',
+    name: 'policy',
+    component: ClausePage,
+  },
+];
+/********************************************************
                   인증관련 라우터 정의
  ********************************************************/
 const authRoute = [
@@ -253,44 +284,6 @@ const authRoute = [
     },
   },
 ];
-
-/********************************************************
-                공통화면 관련 라우터 정의  
- ********************************************************/
-const commonRoute = [
-  {
-    path: '/',
-    component: ProjectMainPage,
-  },
-  {
-    path: '/browser',
-    name: 'browserNotice',
-    component: BrowserNoticePage,
-  },
-  {
-    // 공통_메세지박스  페이지
-    path: '/common/dialog',
-    component: DialogPage,
-  },
-  {
-    // 정책 및 약관
-    path: '/clause',
-    name: 'clause',
-    component: ClausePage,
-  },
-  {
-    // 개인정보처리방침
-    path: '/policy',
-    name: 'policy',
-    component: ClausePage,
-  },
-  {
-    path: '*',
-    name: 'error',
-    component: NotFoundPage,
-  },
-];
-
 /********************************************************
                 개발자 문서 관련 라우터 정의
  ********************************************************/
@@ -313,11 +306,11 @@ const docsRoute = [
     },
     component: ProductSearchPage,
   },
-  {
-    // 다이얼로그 페이지
-    path: '/docs/dialog',
-    component: ProductDetailPage,
-  },
+  // {
+  //   // 다이얼로그 페이지
+  //   path: '/docs/dialog',
+  //   component: ProductDetailPage,
+  // },
   {
     // 개발자 문서 > 제품관리
     path: '/docs/manage/product',
@@ -489,6 +482,20 @@ const docsRoute = [
     // 제품 문서 뷰 편집 페이지
     path: '/docs/:productCode/:pageType/edit/:branchName/:pageTitle/:pageId*',
     name: 'editDoc',
+    meta: {
+      useLeftMenu: true,
+      pageType: PAGE_DEV,
+      lnbType: LNB_EDITING,
+      authRequired: true,
+      gitlabTokenRequired: true,
+    },
+    component: ProductEditPage,
+  },
+  {
+    // 제품 문서 뷰 편집 페이지
+    path:
+      '/docs/:productCode/:pageType/editSample/:branchName/:pageTitle/:pageId*',
+    name: 'editSampleDoc',
     meta: {
       useLeftMenu: true,
       pageType: PAGE_DEV,
@@ -846,47 +853,67 @@ const libraryRoute = [
  ********************************************************/
 const router = new Router({
   mode: 'history',
-  // base: 'DBS',
+  base: decodeURI('/'),
   routes: [
+    ...commonRoute,
     ...authRoute,
     ...docsRoute,
     ...forumRoute,
     ...libraryRoute,
-    ...commonRoute,
+    {
+      path: '*',
+      name: 'error',
+      component: NotFoundPage,
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     return { x: 0, y: 0 };
   },
+  // fallback: false,
 });
 
 /********************************************************
-  인증관련 페이지 Navigation Guard
+  인증관련 페이지 Navigation Guard [vue persist 사용]
  ********************************************************/
-let isSSR = false;
-
 router.beforeEach(async (to, from, next) => {
-  const user = $store.state.user;
-  const userToken = user.userToken; // store 에 저장된 token
-  let sessionToken = null; // sessionStorage 에 저장된 token
-  // console.log('userToken ', userToken);
+  let userState = $store.state.user.user;
+  const sessionToken = sessionStorage.getItem('KEY');
+  console.log('sessionToken :: ', sessionToken);
+  const sessionState = sessionStorage.getItem('vuex');
+  console.log('sessionState :: ', sessionState);
 
-  if (process.client) {
-    console.info('CRS');
-    sessionToken = sessionStorage.getItem('KEY');
-    // console.log('sessionToken ', sessionToken);
-    if (sessionToken && !userToken) {
-      await $store.dispatch('user/encryptToken', sessionToken);
-      // console.log('stateToken ', $store.state.user.userToken);
+  console.log(axios);
+
+  if (sessionToken && !userState._id) {
+    try {
+      const { data } = await axios.post('api/auth/token', {
+        token: sessionToken,
+      });
+
+      if (data.res) {
+        next();
+      }
+      console.log('datadata :: ', data);
+
+      $store.commit('user/SET_USER_INFO', data.data);
+    } catch (e) {
+      console.log('ff :: ', e);
     }
   }
 
-  // ssr 일때 !sessionToken 에 대한 케이스 타지않기위한 flag
-  if (process.server) {
-    isSSR = true;
+  // sessionStates 존재하지만, store 에 유저정보가 없는 경우
+  if (sessionState && !userState._id) {
+    console.log('in :: ', JSON.parse(sessionStorage.getItem('vuex')).user.user);
+    await $store.commit(
+      'user/SET_USER_INFO',
+      JSON.parse(sessionStorage.getItem('vuex')).user.user
+    );
+
+    userState = $store.state.user.user;
   }
 
   // 인증 요구되는 페이지이지만 사용자 토큰이 존재하지 않는 경우
-  if (!isSSR && !sessionToken && to.meta.authRequired) {
+  if (!sessionToken && to.meta.authRequired) {
     $store
       .dispatch('common/alert', {
         type: 'warning',
@@ -905,11 +932,7 @@ router.beforeEach(async (to, from, next) => {
       });
   }
   // 깃랩토큰이 필요한 페이지이지만 깃랩토큰이 존재하지 않는 경우
-  else if (
-    !isSSR &&
-    to.meta.gitlabTokenRequired &&
-    (user.user.gitlabToken === '' || user.user.gitlabToken === undefined)
-  ) {
+  else if (to.meta.gitlabTokenRequired && !userState.gitlabToken) {
     $store
       .dispatch('common/alert', {
         type: 'warning',
@@ -936,16 +959,106 @@ router.beforeEach(async (to, from, next) => {
   if (to.fullPath.includes('.md')) {
     nextParams = to.fullPath.replace('.md', '');
   }
+  if (to.fullPath.includes('.html')) {
+    nextParams = to.fullPath.replace('.html', '');
+  }
   if (nextParams) {
     next(nextParams);
-  } else {
-    next();
   }
+
+  return next();
 });
 
 export function createRouter() {
   return router;
 }
+
+/********************************************************
+ 인증관련 페이지 Navigation Guard [기존 방식]
+ ********************************************************/
+// let isSSR = false; // ssr 일때 !sessionToken 에 대한 케이스 타지않기위한 flag
+//
+// router.beforeEach(async (to, from, next) => {
+//   let user = $store.state.user;
+//   const userToken = user.userToken; // store 에 저장된 token
+//   let sessionToken = null; // sessionStorage 에 저장된 token
+//   // console.log('userToken ', userToken);
+//
+//   if (process.client) {
+//     console.info('CSR');
+//     sessionToken = sessionStorage.getItem('KEY');
+//     // console.log('sessionToken ', sessionToken);
+//     if (sessionToken && !userToken) {
+//       await $store.dispatch('user/encryptToken', sessionToken);
+//       // console.log('stateToken ', $store.state.user.userToken);
+//       user = $store.state.user;
+//     }
+//   }
+//
+//   if (process.server) {
+//     isSSR = true;
+//   }
+//
+//   // 인증 요구되는 페이지이지만 사용자 토큰이 존재하지 않는 경우
+//   if (!isSSR && !sessionToken && to.meta.authRequired) {
+//     $store
+//       .dispatch('common/alert', {
+//         type: 'warning',
+//         isShow: true,
+//         msg: '로그인이 필요한 페이지입니다.',
+//       })
+//       .then((result) => {
+//         if (result.ok) {
+//           // DBS 고객 로그인 화면으로 이동
+//           location.href = '/html/Login.html';
+//         } else {
+//           next({
+//             path: from.path,
+//           });
+//         }
+//       });
+//   }
+//   // 깃랩토큰이 필요한 페이지이지만 깃랩토큰이 존재하지 않는 경우
+//   else if (
+//     !isSSR &&
+//     to.meta.gitlabTokenRequired &&
+//     (user.user.gitlabToken === '' || user.user.gitlabToken === undefined)
+//   ) {
+//     $store
+//       .dispatch('common/alert', {
+//         type: 'warning',
+//         isShow: true,
+//         msg: 'Gitlab Token 이 필요한 페이지입니다.',
+//       })
+//       .then((result) => {
+//         if (result.ok) {
+//           next({
+//             path: '/myInfo',
+//           });
+//         } else {
+//           next({
+//             path: from.path,
+//           });
+//         }
+//       });
+//   }
+//
+//   let nextParams;
+//   if (to.fullPath.includes('%2F')) {
+//     nextParams = to.fullPath.replace('%2F', '/');
+//   }
+//   if (to.fullPath.includes('.md')) {
+//     nextParams = to.fullPath.replace('.md', '');
+//   }
+//   if (to.fullPath.includes('.html')) {
+//     nextParams = to.fullPath.replace('.html', '');
+//   }
+//   if (nextParams) {
+//     next(nextParams);
+//   } else {
+//     next();
+//   }
+// });
 
 /**
  * vue-router

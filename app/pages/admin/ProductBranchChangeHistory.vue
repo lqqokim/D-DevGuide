@@ -169,23 +169,6 @@ import ProductBranchChangeHistory from '~/components/productBranchChangeHistory/
   components: {
     ProductBranchChangeHistory,
   },
-  fetch({ store, params }): any {
-    try {
-      // await store.dispatch('product/getProductList');
-      //
-      // await store.dispatch('product/selectProduct', {
-      //   productCode: params.productCode,
-      // });
-      //
-      // await store.dispatch('commit/getCommitList', {
-      //   productCode: params.productCode,
-      //   branchName: params.branchName,
-      //   gitlabToken: store.state.user.user.gitlabToken,
-      // });
-    } catch (e) {
-      console.error(e);
-    }
-  },
 })
 export default class extends Vue {}
 </script>

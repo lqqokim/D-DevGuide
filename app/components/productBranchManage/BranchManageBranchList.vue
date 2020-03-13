@@ -205,51 +205,55 @@ export default class BranchManageBranchList extends Vue {
   isAuthoredStaff: boolean = false;
 
   async created() {
-    if (!this.$store.state.user.user.gitlabToken) {
-      return;
-    }
+    try {
+      if (!this.$store.state.user.user.gitlabToken) {
+        return;
+      }
 
-    await this.selectProductAction({
-      productCode: this.$route.params.productCode,
-    });
-    await this.getBranchListAction({
-      productCode: this.$route.params.productCode,
-      gitlabToken: this.$store.state.user.user.gitlabToken,
-    });
-
-    await this.getMergeRequestListAction({
-      productCode: this.$route.params.productCode,
-      gitlabToken: this.$store.state.user.user.gitlabToken,
-    });
-
-    this.$store.state.branch.branchList.forEach((branch) => {
-      this.$store.state.mergeRequest.mergeRequestList.forEach(
-        (mergeRequest) => {
-          if (mergeRequest.source_branch === branch.name) {
-            branch.can_push = false;
-          }
-        }
-      );
-    });
-
-    if (
-      this.$store.state.user.user.authority !== 'M' &&
-      this.$store.state.product.product.staffs.length > 0
-    ) {
-      this.$store.state.product.product.staffs.forEach((staff) => {
-        if (
-          staff.empId === this.$store.state.user.user.loginId &&
-          staff.writeAuthority
-        ) {
-          this.isAuthoredStaff = true;
-        }
+      await this.selectProductAction({
+        productCode: this.$route.params.productCode,
       });
+      await this.getBranchListAction({
+        productCode: this.$route.params.productCode,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
+      });
+
+      await this.getMergeRequestListAction({
+        productCode: this.$route.params.productCode,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
+      });
+
+      this.$store.state.branch.branchList.forEach((branch) => {
+        this.$store.state.mergeRequest.mergeRequestList.forEach(
+          (mergeRequest) => {
+            if (mergeRequest.source_branch === branch.name) {
+              branch.can_push = false;
+            }
+          }
+        );
+      });
+
+      if (
+        this.$store.state.user.user.authority !== 'M' &&
+        this.$store.state.product.product.staffs.length > 0
+      ) {
+        this.$store.state.product.product.staffs.forEach((staff) => {
+          if (
+            staff.empId === this.$store.state.user.user.loginId &&
+            staff.writeAuthority
+          ) {
+            this.isAuthoredStaff = true;
+          }
+        });
+      }
+      if (
+        this.$store.state.user.user.authority === 'A' ||
+        this.$store.state.user.user.authority === 'S'
+      )
+        this.isAuthoredStaff = true;
+    } catch (e) {
+      console.error(e);
     }
-    if (
-      this.$store.state.user.user.authority === 'A' ||
-      this.$store.state.user.user.authority === 'S'
-    )
-      this.isAuthoredStaff = true;
   }
 
   // 신규 브랜치 생성
@@ -304,7 +308,7 @@ export default class BranchManageBranchList extends Vue {
     });
   }
 
-  mergeRequestModalConfirm(clickConfirmBtn) {
+  async mergeRequestModalConfirm(clickConfirmBtn) {
     const mergeRequestData = this.$refs.mergeRequestModal.getData();
     if (clickConfirmBtn) {
       if (mergeRequestData[0] === '') {
@@ -323,17 +327,22 @@ export default class BranchManageBranchList extends Vue {
         }).then(() => {});
         return;
       }
-      this.selectedBranch.can_push = false;
-      this.createMergeRequestAction({
-        projectId: this.$store.state.product.product.projectId,
-        productCode: this.$store.state.product.product.productCode,
-        sourceBranch: this.selectedBranch.name,
-        targetBranch: this.$store.state.product.product.targetBranch,
-        title: mergeRequestData[0],
-        description: mergeRequestData[1],
-        gitlabToken: this.$store.state.user.user.gitlabToken,
-      });
-      this.$modal.hide(this.mergeRequestModalName);
+      try {
+        await this.createMergeRequestAction({
+          projectId: this.$store.state.product.product.projectId,
+          productCode: this.$store.state.product.product.productCode,
+          sourceBranch: this.selectedBranch.name,
+          targetBranch: this.$store.state.product.product.targetBranch,
+          title: mergeRequestData[0],
+          description: mergeRequestData[1],
+          gitlabToken: this.$store.state.user.user.gitlabToken,
+        });
+
+        this.selectedBranch.can_push = false;
+        this.$modal.hide(this.mergeRequestModalName);
+      } catch (e) {
+        console.error(e);
+      }
     } else {
       this.$modal.hide(this.mergeRequestModalName);
     }

@@ -179,13 +179,17 @@ export default class CreatePageModal extends Vue {
   }
 
   created() {
-    this.getFileNameListAction({
-      projectId: this.$store.state.product.product.projectId,
-      branchName: this.$store.state.repository.currentRef,
-      path: '',
-    });
-    if (!this.newPage) {
-      this.usePage = 'existingPage';
+    try {
+      this.getFileNameListAction({
+        projectId: this.$store.state.product.product.projectId,
+        branchName: this.$store.state.repository.currentRef,
+        path: '',
+      });
+      if (!this.newPage) {
+        this.usePage = 'existingPage';
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -211,13 +215,17 @@ export default class CreatePageModal extends Vue {
   }
 
   setFolderPath(folderPath) {
-    this.duplicatedFileName = false;
-    this.getFileNameListAction({
-      projectId: this.$store.state.product.product.projectId,
-      branchName: this.$store.state.repository.currentRef,
-      path: folderPath,
-    });
-    this.$refs.newPagePath.value = folderPath;
+    try {
+      this.duplicatedFileName = false;
+      this.getFileNameListAction({
+        projectId: this.$store.state.product.product.projectId,
+        branchName: this.$store.state.repository.currentRef,
+        path: folderPath,
+      });
+      this.$refs.newPagePath.value = folderPath;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   setFilePath(filePath) {

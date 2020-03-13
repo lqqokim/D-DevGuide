@@ -3,7 +3,7 @@ import { RootState } from '@/store';
 import { IAlert, ALERT_TYPE } from '~/store/modules/common';
 
 export const namespaced: boolean = true;
-const API_KEY = 'AIzaSyCrI0kwNS07VIBB006Rhu5WuI-9hZPoYD4';
+const YOUTUBE_API_KEY = 'AIzaSyCd-5yreak1q_wu-vaLhrp9eD2pE46OaFs';
 
 export interface VideoState {
   videosByProduct: Array<IVideo>; // 자료실 메인화면 제품에 대한 동영상 목록
@@ -899,7 +899,7 @@ export const actions: ActionTree<VideoState, RootState> = {
 
 const playTime = function(youtubeId): Promise<any> {
   return fetch(
-    `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=contentDetails&key=${API_KEY}`
+    `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=contentDetails&key=${YOUTUBE_API_KEY}`
   )
     .then((res) => res.json())
     .then((res) => {
@@ -994,7 +994,7 @@ const SELECTED_PRODUCT = (): IProduct => {
 
 const VIDE0_DEFAULT_PARAMS = (): ListParams => {
   return {
-    limit: 5,
+    limit: 8,
     skip: 0,
     sort: '-uploadDate',
   };

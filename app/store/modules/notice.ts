@@ -43,7 +43,7 @@ export const mutations: MutationTree<NoticeState> = {
 
 export const actions: ActionTree<NoticeState, RootState> = {
   async getNoticeList(
-    { commit, state },
+    { commit, state, dispatch },
     payload: {
       productCode: string;
     }
@@ -56,8 +56,18 @@ export const actions: ActionTree<NoticeState, RootState> = {
       if (data.success && data.data) {
         commit('setNoticeList', data.data);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
   async noticeRegister(
@@ -93,8 +103,18 @@ export const actions: ActionTree<NoticeState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
 
@@ -112,7 +132,19 @@ export const actions: ActionTree<NoticeState, RootState> = {
       if (data.success && data.data) {
         commit('setNoticeList', data.data);
       }
-    } catch (e) {}
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
+    }
   },
 
   async noticeDelete(
@@ -160,8 +192,18 @@ export const actions: ActionTree<NoticeState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
 };

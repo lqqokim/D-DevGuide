@@ -151,7 +151,7 @@ export default class LibraryVideoList extends Vue {
   ) => Promise<any>;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
-  private readonly LIMIT: number = 5;
+  private readonly LIMIT: number = 8;
 
   get localVideosByProduct(): IVideo[] {
     return this.videosByProduct;
@@ -255,7 +255,7 @@ export default class LibraryVideoList extends Vue {
 
     const params: ListParams = {
       skip: this.localVideosByProduct.length,
-      limit: 5,
+      limit: 8,
       sort: '-uploadDate',
     };
 

@@ -114,6 +114,7 @@
                 <div
                   class="ui-select-wrap"
                   :class="{ on: isClickedTargetBranch }"
+                  @mouseleave="mouseLeaveToOtherArea"
                 >
                   <strong class="ui-select-tit" tabindex="0">품목 선택</strong>
                   <div class="ui-select-options">
@@ -309,8 +310,7 @@ export default class ProductInfo extends Vue {
       gitlabToken: this.$store.state.user.user.gitlabToken,
       projectId: this.localProduct.projectId,
     })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         this.currentProjectId = this.localProduct.projectId;
         this.isExistProjectIdFlag = true;
         this.getBranchNameListAction({
@@ -318,14 +318,10 @@ export default class ProductInfo extends Vue {
           gitlabToken: this.$store.state.user.user.gitlabToken,
         });
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         this.isExistProjectIdFlag = false;
         this.setBranchNameListEmpty([]);
       });
-    // if (this.currentProjectId !== this.localProduct.projectId) {
-    //
-    // }
   }
 
   // @ts-ignore
@@ -386,13 +382,17 @@ export default class ProductInfo extends Vue {
       }).then(() => {});
       return;
     }
-    await this.getRepositoryAction({
-      projectId: this.localProduct.projectId,
-      filePath: '',
-      ref: this.localProduct.targetBranch,
-      useDocPath: false,
-    });
-    this.$modal.show(this.selectDocPathModalName);
+    try {
+      await this.getRepositoryAction({
+        projectId: this.localProduct.projectId,
+        filePath: '',
+        ref: this.localProduct.targetBranch,
+        useDocPath: false,
+      });
+      this.$modal.show(this.selectDocPathModalName);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async openSelectAPIPathModal() {
@@ -443,6 +443,10 @@ export default class ProductInfo extends Vue {
       this.localProduct.APIDocPath = folderPath.states.path;
     }
     this.$modal.hide(this.selectAPIPathModalName);
+  }
+
+  mouseLeaveToOtherArea() {
+    this.isClickedTargetBranch = false;
   }
 }
 </script>

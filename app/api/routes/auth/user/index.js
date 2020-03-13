@@ -14,13 +14,8 @@ router.get('/:loginId', (req, res) => {
       return;
     }
     // console.log('mongodb user :: ', user);
-    if (user.length) {
-      res.status(200).send({ success: true, data: user });
-    } else {
-      res
-        .status(404)
-        .send({ msg: 'MongoDB 에 해당 유저가 존재하지 않습니다.' });
-    }
+
+    res.status(200).send({ success: true, data: user });
   });
 });
 

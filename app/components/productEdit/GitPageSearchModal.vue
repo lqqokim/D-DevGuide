@@ -69,7 +69,8 @@
                 <td
                   v-if="
                     child.states.type === 'blob' &&
-                      child.text.slice(-3) === '.md'
+                      (child.text.includes('.md') ||
+                        child.text.includes('.html'))
                   "
                   class="txt-left"
                   @click="selectFile(child)"
@@ -93,7 +94,8 @@
                 <td
                   v-if="
                     child.states.type === 'blob' &&
-                      child.text.slice(-3) === '.md'
+                      (child.text.includes('.md') ||
+                        child.text.includes('.html'))
                   "
                   class="txt-data"
                 >
@@ -189,8 +191,15 @@ export default class GitPageSearchModal extends Vue {
       repositoryData: this.repositoryDocPathData,
     }).then(() => {
       this.$refs.repositoryTree.tree.setModel(this.repositoryDocPathData);
-      this.selectedNode.children = this.$refs.repositoryTree.tree.model.slice();
+      if (this.$refs.repositoryTree.selected()[0]) {
+        this.selectedNode = this.$refs.repositoryTree.selected()[0];
+      } else {
+        this.selectedNode = this.$refs.repositoryTree.tree.model[0];
+      }
       return this.repositoryDocPathData;
+      // this.$refs.repositoryTree.tree.setModel(this.repositoryDocPathData);
+      // this.selectedNode.children = this.$refs.repositoryTree.tree.model.slice();
+      // return this.repositoryDocPathData;
     });
   }
 

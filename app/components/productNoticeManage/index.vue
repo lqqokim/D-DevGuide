@@ -243,19 +243,23 @@ export default class ProductNoticeManage extends Vue {
   $modal!: any;
 
   created() {
-    if (!this.$store.state.user.user.gitlabToken) {
-      return;
+    try {
+      if (!this.$store.state.user.user.gitlabToken) {
+        return;
+      }
+      this.getIndexMdFileAction({
+        productCode: this.$route.params.productCode,
+        ref: 'master',
+        refType: 'targetBranch',
+      });
+      this.getNoticeListAction({
+        productCode: this.$route.params.productCode,
+      }).then(() => {
+        this.localNoticeList = this.$store.state.notice.noticeList.slice();
+      });
+    } catch (e) {
+      console.error(e);
     }
-    this.getIndexMdFileAction({
-      productCode: this.$route.params.productCode,
-      ref: 'master',
-      refType: 'targetBranch',
-    });
-    this.getNoticeListAction({
-      productCode: this.$route.params.productCode,
-    }).then(() => {
-      this.localNoticeList = this.$store.state.notice.noticeList.slice();
-    });
   }
 
   // 카테고리 변경
@@ -315,25 +319,29 @@ export default class ProductNoticeManage extends Vue {
             ':' +
             (currentTime.getSeconds() > 9 ? '' : '0') +
             currentTime.getSeconds();
-          await this.noticeRegisterAction({
-            productCode: this.$store.state.product.product.productCode,
-            category: this.$refs.category.value,
-            noticeTitle: this.$refs.noticeTitle.value,
-            noticeDescription: this.$refs.noticeDescription.value,
-            filePath: this.$refs.filePath.value,
-            pageTitle: this.selectedPageTitle,
-            writeTime: formattedDate,
-            writer:
-              this.$store.state.user.user.name +
-              '(' +
-              this.$store.state.user.user.loginId +
-              ')',
-          });
-          this.localNoticeList = this.$store.state.notice.noticeList.slice();
-          this.selectedCategory = 'NEW';
-          this.$refs.noticeTitle.value = '';
-          this.$refs.noticeDescription.value = '';
-          this.$refs.filePath.value = '';
+          try {
+            await this.noticeRegisterAction({
+              productCode: this.$store.state.product.product.productCode,
+              category: this.$refs.category.value,
+              noticeTitle: this.$refs.noticeTitle.value,
+              noticeDescription: this.$refs.noticeDescription.value,
+              filePath: this.$refs.filePath.value,
+              pageTitle: this.selectedPageTitle,
+              writeTime: formattedDate,
+              writer:
+                this.$store.state.user.user.name +
+                '(' +
+                this.$store.state.user.user.loginId +
+                ')',
+            });
+            this.localNoticeList = this.$store.state.notice.noticeList.slice();
+            this.selectedCategory = 'NEW';
+            this.$refs.noticeTitle.value = '';
+            this.$refs.noticeDescription.value = '';
+            this.$refs.filePath.value = '';
+          } catch (e) {
+            console.error(e);
+          }
         }
       });
     }
@@ -347,17 +355,21 @@ export default class ProductNoticeManage extends Vue {
       msg: '공지사항을 삭제하시겠습니까?',
     }).then(async (result) => {
       if (result.ok) {
-        await this.noticeDeleteAction({
-          productCode: this.$store.state.product.product.productCode,
-          category: noticeData.category,
-          noticeTitle: noticeData.noticeTitle,
-          noticeDescription: noticeData.noticeDescription,
-          filePath: noticeData.filePath,
-          pageTitle: noticeData.pageTitle,
-          writeTime: noticeData.writeTime,
-          writer: noticeData.writer,
-        });
-        this.localNoticeList = this.$store.state.notice.noticeList.slice();
+        try {
+          await this.noticeDeleteAction({
+            productCode: this.$store.state.product.product.productCode,
+            category: noticeData.category,
+            noticeTitle: noticeData.noticeTitle,
+            noticeDescription: noticeData.noticeDescription,
+            filePath: noticeData.filePath,
+            pageTitle: noticeData.pageTitle,
+            writeTime: noticeData.writeTime,
+            writer: noticeData.writer,
+          });
+          this.localNoticeList = this.$store.state.notice.noticeList.slice();
+        } catch (e) {
+          console.error(e);
+        }
       }
     });
   }

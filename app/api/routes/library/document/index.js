@@ -18,6 +18,57 @@ const router = Router();
 const PDFImage = require('pdf-image').PDFImage;
 
 /**
+ * _id 로 product data 조회
+ */
+router.get('/getCurrentProductData', (req, res) => {
+  DocProductModel.findOne({
+    _id: req.query._id,
+  })
+    .then((product) => {
+      res.status(200).send(product);
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 문서의 productCode 변경
+ */
+router.post('/updateDocProductCode', (req, res) => {
+  const { prevProductCode, changingProductCode } = req.body;
+
+  DocModel.updateMany(
+    { productCode: prevProductCode },
+    { productCode: changingProductCode }
+  )
+    .then(() => {
+      res.status(200).send({ success: true });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
+ * 문서의 productName 변경
+ */
+router.post('/updateDocProductName', (req, res) => {
+  const { prevProductName, changingProductName } = req.body;
+
+  DocModel.updateMany(
+    { productName: prevProductName },
+    { productName: changingProductName }
+  )
+    .then(() => {
+      res.status(200).send({ success: true });
+    })
+    .catch((err) => {
+      res.status(500).send({ success: false, msg: err.message });
+    });
+});
+
+/**
  * 문서 검색
  */
 router.get('/searchDocs', (req, res) => {

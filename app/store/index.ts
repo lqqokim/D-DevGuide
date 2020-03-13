@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import VuexPersistence from 'vuex-persist';
 import * as root from './root';
 import * as common from './modules/common';
 
@@ -20,11 +21,18 @@ import * as searchGWUser from './modules/searchGWUser';
 
 export type RootState = root.State;
 Vue.use(Vuex);
+
+const vuexLocal = new VuexPersistence({
+  storage: window.sessionStorage,
+});
+
 export const store = new Vuex.Store({
   state: root.state(),
   getters: root.getters,
   mutations: root.mutations,
   actions: root.actions,
+  // @ts-ignore
+  plugins: [vuexLocal.plugin],
   modules: {
     common,
     user,

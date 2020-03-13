@@ -6,7 +6,7 @@
           v-if="$route.name === 'list' || $route.name === 'devDocSearch'"
           type="search"
           class="m-srch-bar"
-          placeholder="모든 제품에 대한 사용법, API, 질문 등을 검색하세요"
+          placeholder="모든 제품에 대한 사용법, API 등을 검색하세요"
           :value="$route.params.searchWord"
           @input="inputWord"
           @keydown="searchRequest"

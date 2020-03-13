@@ -25,7 +25,7 @@
       <TuiEditor
         ref="editorArea"
         :option="editorOptions"
-        :value="this.$store.state.repository.editingViewerText"
+        :value="$store.state.repository.editingViewerText"
         height="500px"
         mode="wysiwyg"
         @load="onEditorLoad"
@@ -95,6 +95,7 @@ export default class ProductEdit extends Vue {
   @Repository.Action('getRepository') getRepositoryAction;
   @Repository.Action('getProjectInfo') getProjectInfoAction;
   @Repository.Action('convertImagePath') convertImagePathAction;
+  @Repository.Action('getRepositorySampleFile') getRepositorySampleFileAction;
   @Repository.Mutation('setEditingPageTitle') setEditingPageTitle;
   @Repository.Mutation('setEditingFilePath') setEditingFilePath;
   @Repository.Mutation('setEditingViewerText') setEditingViewerText;
@@ -150,6 +151,7 @@ export default class ProductEdit extends Vue {
   fileUploadModalName: string = 'fileUploadModal';
   fileUploadModalHeight: string = '673px';
   fileUploadModalWidth: string = '700px';
+  createdFlag: boolean = false;
 
   fileUploadModalConfirm(clickConfirmBtn) {
     const fileUploadModalData = this.$refs.fileUploadModal.getData();
@@ -200,67 +202,75 @@ export default class ProductEdit extends Vue {
     if (!this.$store.state.user.user.gitlabToken) {
       return;
     }
-
-    this.selectProductAction({
-      productCode: this.$route.params.productCode,
-    });
-
-    if (
-      this.$store.state.repository.treeData === undefined ||
-      this.$store.state.repository.treeData.length === 0 ||
-      (this.$route.params.branchName !== undefined &&
-        this.$route.params.pageId === undefined)
-    ) {
-      this.getIndexMdFileAction({
+    this.createdFlag = true;
+    try {
+      this.selectProductAction({
         productCode: this.$route.params.productCode,
+      });
+
+      if (
+        this.$store.state.repository.treeData === undefined ||
+        this.$store.state.repository.treeData.length === 0 ||
+        (this.$route.params.branchName !== undefined &&
+          this.$route.params.pageId === undefined)
+      ) {
+        this.getIndexMdFileAction({
+          productCode: this.$route.params.productCode,
+          pageType: this.$route.params.pageType,
+          ref: this.$route.params.branchName,
+          refType: 'branch',
+          filePath: this.$route.params.pageId,
+          pageTitle: this.$route.params.pageTitle,
+          gitlabToken: this.$store.state.user.user.gitlabToken,
+        }).then(() => {
+          this.viewerText = this.$store.state.repository.viewerText;
+          this.setEditingViewerText(this.$store.state.repository.viewerText);
+          this.setEditingPageTitle(this.$store.state.repository.pageTitle);
+          this.setEditingFilePath(this.$store.state.repository.filePath);
+          if (this.$store.state.repository.editStatus !== 'cancel') {
+            this.setEditStatus('init');
+          }
+        });
+      }
+      if (this.$route.params.pageId) {
+        const pageId =
+          this.$route.name === 'editDoc'
+            ? this.$route.params.pageId + '.md'
+            : this.$route.params.pageId + '.html';
+        this.getRepositoryFileAction({
+          productCode: this.$route.params.productCode,
+          filePath: pageId,
+          ref: this.$route.params.branchName,
+          refType: 'branch',
+          pageTitle: this.$route.params.pageTitle,
+          gitlabToken: this.$store.state.user.user.gitlabToken,
+        }).then(() => {
+          this.viewerText = this.$store.state.repository.viewerText;
+          this.setEditingViewerText(this.$store.state.repository.viewerText);
+          this.setEditingPageTitle(this.$store.state.repository.pageTitle);
+          this.setEditingFilePath(this.$store.state.repository.filePath);
+          if (this.$store.state.repository.editStatus !== 'cancel') {
+            this.setEditStatus('init');
+          }
+        });
+      }
+
+      this.getRepositoryAction({
+        productCode: this.$route.params.productCode,
+        ref: this.$route.params.branchName,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
+      });
+
+      this.getRepositoryAction({
+        productCode: this.$route.params.productCode,
+        ref: this.$route.params.branchName,
+        useDocPath: true,
+        gitlabToken: this.$store.state.user.user.gitlabToken,
         pageType: this.$route.params.pageType,
-        ref: this.$route.params.branchName,
-        refType: 'branch',
-        filePath: this.$route.params.pageId,
-        pageTitle: this.$route.params.pageTitle,
-        gitlabToken: this.$store.state.user.user.gitlabToken,
-      }).then(() => {
-        this.viewerText = this.$store.state.repository.viewerText;
-        this.setEditingViewerText(this.$store.state.repository.viewerText);
-        this.setEditingPageTitle(this.$store.state.repository.pageTitle);
-        this.setEditingFilePath(this.$store.state.repository.filePath);
-        if (this.$store.state.repository.editStatus !== 'cancel') {
-          this.setEditStatus('init');
-        }
       });
+    } catch (e) {
+      console.error(e);
     }
-    if (this.$route.params.pageId) {
-      this.getRepositoryFileAction({
-        productCode: this.$route.params.productCode,
-        filePath: this.$route.params.pageId + '.md',
-        ref: this.$route.params.branchName,
-        refType: 'branch',
-        pageTitle: this.$route.params.pageTitle,
-        gitlabToken: this.$store.state.user.user.gitlabToken,
-      }).then(() => {
-        this.viewerText = this.$store.state.repository.viewerText;
-        this.setEditingViewerText(this.$store.state.repository.viewerText);
-        this.setEditingPageTitle(this.$store.state.repository.pageTitle);
-        this.setEditingFilePath(this.$store.state.repository.filePath);
-        if (this.$store.state.repository.editStatus !== 'cancel') {
-          this.setEditStatus('init');
-        }
-      });
-    }
-
-    this.getRepositoryAction({
-      productCode: this.$route.params.productCode,
-      ref: this.$route.params.branchName,
-      gitlabToken: this.$store.state.user.user.gitlabToken,
-    });
-
-    this.getRepositoryAction({
-      productCode: this.$route.params.productCode,
-      ref: this.$route.params.branchName,
-      useDocPath: true,
-      gitlabToken: this.$store.state.user.user.gitlabToken,
-      pageType: this.$route.params.pageType,
-    });
 
     // this.viewerText = this.$store.state.repository.viewerText;
     // this.setEditingViewerText(this.$store.state.repository.viewerText);
@@ -280,107 +290,152 @@ export default class ProductEdit extends Vue {
           type: 'question',
           isShow: true,
           msg: '수정중이던 내용을 commit 하시겠습니까?',
-        }).then(async (result) => {
-          if (result.ok) {
-            const actionArr: Array<any> = [];
-            if (!changeEditingMenu) {
-              actionArr.push({
-                action: this.$store.state.repository.editStatus,
-                file_path: this.$store.state.repository.editingFilePath,
-                content: this.$store.state.repository.editingViewerText,
+        })
+          .then(async (result) => {
+            if (result.ok) {
+              const actionArr: Array<any> = [];
+              // changeEditingMenu 가 true 일 때에는 트리만 수정된 경우
+              if (
+                !changeEditingMenu &&
+                this.$store.state.repository.editingFilePath !== ''
+              ) {
+                actionArr.push({
+                  action: this.$store.state.repository.editStatus,
+                  file_path: this.$store.state.repository.editingFilePath,
+                  content: this.$store.state.repository.editingViewerText,
+                });
+              }
+              // 문서명 또는 마크다운 경로를 수정한 경우 (index.md 파일도 함께 commit 되어야함)
+              if (
+                this.$store.state.repository.editingMenuTreeToJson !==
+                  undefined &&
+                this.$store.state.repository.editingMenuTreeToJson.length === 1
+              ) {
+                const indexPath: string =
+                  this.$route.params.pageType === 'Document'
+                    ? this.$store.state.product.product.manualDocPath
+                    : this.$store.state.product.product.APIDocPath;
+
+                const editedMenuTree = this.$store.state.repository
+                  .editingMenuTreeToJson[0].children;
+
+                editedMenuTree.forEach((editedData) => {
+                  this.jsonToMd(editedData, 1);
+                });
+                actionArr.push({
+                  action: 'update',
+                  file_path: indexPath + '/index.md',
+                  content: this.mdData,
+                });
+              }
+
+              await this.createCommitAction({
+                productCode: this.$route.params.productCode,
+                branchName: this.$route.params.branchName,
+                commitMessage: 'commit',
+                gitlabToken: this.$store.state.user.user.gitlabToken,
+                actions: actionArr,
               });
-            }
-            // 문서명 또는 마크다운 경로를 수정한 경우 (index.md 파일도 함께 commit 되어야함)
-            if (
-              this.$store.state.repository.editingMenuTreeToJson !==
-                undefined &&
-              this.$store.state.repository.editingMenuTreeToJson.length === 1
-            ) {
-              const indexPath: string =
-                this.$route.params.pageType === 'Document'
-                  ? this.$store.state.product.product.manualDocPath
-                  : this.$store.state.product.product.APIDocPath;
 
-              const editedMenuTree = this.$store.state.repository
-                .editingMenuTreeToJson[0].children;
-
-              editedMenuTree.forEach((editedData) => {
-                this.jsonToMd(editedData, 1);
+              await this.getIndexMdFileAction({
+                productCode: this.$route.params.productCode,
+                pageType: this.$route.params.pageType,
+                ref: this.$route.params.branchName,
+                refType: 'branch',
+                filePath: pageTitleParam,
+                pageTitle: filePathParam,
               });
-              actionArr.push({
-                action: 'update',
-                file_path: indexPath + '/index.md',
-                content: this.mdData,
-              });
-            }
 
-            await this.createCommitAction({
-              productCode: this.$route.params.productCode,
-              branchName: this.$route.params.branchName,
-              commitMessage: 'commit',
-              gitlabToken: this.$store.state.user.user.gitlabToken,
-              actions: actionArr,
-            });
-
-            await this.getIndexMdFileAction({
-              productCode: this.$route.params.productCode,
-              pageType: this.$route.params.pageType,
-              ref: this.$route.params.branchName,
-              refType: 'branch',
-              filePath: pageTitleParam,
-              pageTitle: filePathParam,
-            });
-
-            const editingMenuTree = [
-              {
-                title: this.$store.state.product.product.productName,
-                option: {
-                  expanded: true,
-                  selected: false,
-                  path: undefined,
+              const editingMenuTree = [
+                {
+                  title: this.$store.state.product.product.productName,
+                  option: {
+                    expanded: true,
+                    selected: false,
+                    path: undefined,
+                  },
+                  type: 'folder',
+                  children: this.$store.state.repository.treeData.slice(),
                 },
-                type: 'folder',
-                children: this.$store.state.repository.treeData.slice(),
-              },
-            ];
+              ];
 
-            if (editingMenuTree.length > 0) {
-              editingMenuTree.forEach((data) => {
-                expandAll(data);
-              });
+              if (editingMenuTree.length > 0) {
+                editingMenuTree.forEach((data) => {
+                  expandAll(data);
+                });
+              }
+              this.setEditingMenuTree(editingMenuTree);
+
+              this.setFilePath(this.$store.state.repository.editingFilePath);
+              this.setPageTitle(this.$store.state.repository.editingPageTitle);
+              this.setViewerText(
+                this.$store.state.repository.editingViewerText
+              );
+              this.setEditStatus('init');
+              await this.setEditingMenuTreeToJson([]);
+              this.mdData = '';
+              if (pageTitleParam !== '' && filePathParam !== '') {
+                const routerName = filePathParam.includes('.md')
+                  ? 'editDoc'
+                  : 'editSampleDoc';
+                await this.$router.push({
+                  name: routerName,
+                  params: {
+                    productCode: this.$route.params.productCode,
+                    pageType: this.$route.params.pageType,
+                    branchName: this.$route.params.branchName,
+                    pageTitle: pageTitleParam,
+                    pageId: filePathParam,
+                  },
+                });
+              }
+            } else {
+              await this.setEditStatus('cancel');
+              await this.setEditingMenuTreeToJson([]);
+
+              // 다른 페이지 클릭하고 수정 취소 시 클릭한 페이지로 이동
+              if (
+                pageTitleParam !== '' &&
+                filePathParam !== '' &&
+                pageTitleParam !== this.$store.state.repository.pageTitle &&
+                filePathParam !== this.$store.state.repository.filePath
+              ) {
+                // 파일이 존재하면 해당 파일로 경로 이동, 존재하지 않으면 직전 데이터로 설정
+                await this.getRepositorySampleFileAction({
+                  productCode: this.$route.params.productCode,
+                  ref: this.$route.params.branchName,
+                  refType: 'branch',
+                  filePath: filePathParam,
+                  pageTitle: pageTitleParam,
+                })
+                  .then(async () => {
+                    const routerName = filePathParam.includes('.md')
+                      ? 'editDoc'
+                      : 'editSampleDoc';
+                    await this.$router.push({
+                      name: routerName,
+                      params: {
+                        productCode: this.$route.params.productCode,
+                        pageType: this.$route.params.pageType,
+                        branchName: this.$route.params.branchName,
+                        pageTitle: pageTitleParam,
+                        pageId: filePathParam,
+                      },
+                    });
+                  })
+                  .catch(() => {
+                    this.alertAction({ type: 'error', isShow: false, msg: '' });
+
+                    this.setPrevData();
+                  });
+              } else {
+                this.setPrevData();
+              }
             }
-            this.setEditingMenuTree(editingMenuTree);
-
-            this.setFilePath(this.$store.state.repository.editingFilePath);
-            this.setPageTitle(this.$store.state.repository.editingPageTitle);
-            this.setViewerText(this.$store.state.repository.editingViewerText);
-            this.setEditStatus('init');
-            await this.setEditingMenuTreeToJson([]);
-          } else {
-            await this.setEditStatus('cancel');
-            this.$refs.editorArea.invoke(
-              'setMarkdown',
-              this.$store.state.repository.viewerText
-            );
-            this.$refs.editorArea.editor.moveCursorToStart();
-            this.setEditingViewerText(this.$store.state.repository.viewerText);
-            this.setEditingPageTitle(this.$store.state.repository.pageTitle);
-            this.setEditingFilePath(this.$store.state.repository.filePath);
-            await this.setEditingMenuTreeToJson([]);
-          }
-          await this.setEditingMenuTreeToJson([]);
-          this.mdData = '';
-          await this.$router.push({
-            name: 'editDoc',
-            params: {
-              productCode: this.$route.params.productCode,
-              pageType: this.$route.params.pageType,
-              branchName: this.$route.params.branchName,
-              pageTitle: pageTitleParam,
-              pageId: filePathParam,
-            },
+          })
+          .catch((err) => {
+            console.error(err);
           });
-        });
       }
     );
 
@@ -412,6 +467,18 @@ export default class ProductEdit extends Vue {
     });
   }
 
+  // 수정 취소 시 직전 데이터로 설정
+  setPrevData() {
+    this.$refs.editorArea.invoke(
+      'setMarkdown',
+      this.$store.state.repository.viewerText
+    );
+    this.setEditingViewerText(this.$store.state.repository.viewerText);
+    this.setEditingPageTitle(this.$store.state.repository.pageTitle);
+    this.setEditingFilePath(this.$store.state.repository.filePath);
+    this.mdData = '';
+  }
+
   beforeDestroy() {
     EventBus.$off('commitFiles');
   }
@@ -438,6 +505,7 @@ export default class ProductEdit extends Vue {
 
   // 확인 버튼 클릭 시
   createCommit() {
+    // 내용 수정이 있을 때
     if (
       this.$store.state.repository.editStatus === 'update' ||
       this.$store.state.repository.editStatus === 'create'
@@ -451,6 +519,7 @@ export default class ProductEdit extends Vue {
     } else if (
       this.$store.state.repository.editingMenuTreeToJson.length === 1
     ) {
+      // 트리 내용만 수정했을 때
       EventBus.$emit(
         'commitFiles',
         this.$store.state.repository.editingPageTitle,
@@ -513,7 +582,19 @@ export default class ProductEdit extends Vue {
     ) {
       this.setEditStatus('update');
     }
-    this.setEditingViewerText(this.$refs.editorArea.invoke('getMarkdown'));
+    // 문서 수정 페이지에서 간헐적으로 직전 데이터가 화면에 출력되는 문제떄문에 추가한 코드
+    if (this.createdFlag) {
+      this.createdFlag = false;
+      // editStatus 가 create 이면 새로운 페이지가 생성된 것이므로 TuiEditor 의 텍스트 값을 비워줌
+      const setMarkdownText =
+        this.$store.state.repository.editStatus !== 'create'
+          ? this.$store.state.repository.viewerText
+          : '';
+      this.$refs.editorArea.invoke('setMarkdown', setMarkdownText, false);
+      this.$refs.editorArea.editor.moveCursorToStart();
+    } else {
+      this.setEditingViewerText(this.$refs.editorArea.invoke('getMarkdown'));
+    }
     if (this.$refs.editorArea.editor.currentMode === 'wysiwyg') {
       const uiTabPnl = this.$refs.editorArea.$el.querySelectorAll(
         '.ui-tab-pnl'
@@ -540,8 +621,10 @@ export default class ProductEdit extends Vue {
     const fileUploadModalName = this.fileUploadModalName;
     const viewerText = this.$store.state.repository.viewerText;
     const convertImagePathAction = this.convertImagePathAction;
-    const currentProductCode = this.$store.state.product.product.productCode;
-    const refName = this.$store.state.repository.currentRef;
+    // const currentProductCode = this.$store.state.product.product.productCode;
+    const currentProductCode = this.$route.params.productCode;
+    // const refName = this.$store.state.repository.currentRef;
+    const refName = this.$route.params.branchName;
     const md = require('markdown-it')({
       html: true,
       linkify: true,

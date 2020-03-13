@@ -220,6 +220,9 @@ export default class VideoList extends Vue {
   @Video.Action('updateVideoCount') updateVideoCountAction!: (
     _id: string
   ) => void;
+  @Video.Mutation('selectedProduct') selectedProductMutation!: (
+    data: IProduct
+  ) => void;
 
   selectedProduct!: IProduct;
   managedVideos!: IVideo[];
@@ -232,6 +235,7 @@ export default class VideoList extends Vue {
 
   created() {
     this.selectedProduct = this.$store.state.video.products[0];
+    this.selectedProductMutation(this.selectedProduct);
     // this.managedVideos = this.selectedProduct.managedVideos;
   }
 

@@ -170,8 +170,17 @@ export const actions: ActionTree<BranchState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      throw new Error(e.response.data.msg);
     }
   },
   async getBranchNameList(
@@ -193,8 +202,8 @@ export const actions: ActionTree<BranchState, RootState> = {
         docBranchName.push(branch.name);
       });
       commit('setBranchNameList', docBranchName);
-    } catch (err) {
-      console.error(err.response.status);
+    } catch (e) {
+      console.error(e.response.status);
     }
   },
   async getBranchChangesData(
@@ -253,8 +262,16 @@ export const actions: ActionTree<BranchState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
     }
   },
   async createBranch(
@@ -297,8 +314,16 @@ export const actions: ActionTree<BranchState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
     }
   },
 };

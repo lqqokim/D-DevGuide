@@ -154,7 +154,7 @@ import { IVideo } from '@/store/modules/video';
 import { IAlert } from '~/store/modules/common';
 
 const Common = namespace('common');
-const API_KEY = 'AIzaSyCrI0kwNS07VIBB006Rhu5WuI-9hZPoYD4';
+const YOUTUBE_API_KEY = 'AIzaSyCd-5yreak1q_wu-vaLhrp9eD2pE46OaFs';
 
 interface Category {
   productName: string;
@@ -482,7 +482,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
   async playTime(youtubeId): Promise<any> {
     // const trimStr = youtubeId.replace(/(^\s*)|(\s*$)/gi, '');
     const { data } = await this.$axios.get(
-      `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=contentDetails&key=${API_KEY}`
+      `https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&part=contentDetails&key=${YOUTUBE_API_KEY}`
     );
 
     // console.log('playTime :: ', data);

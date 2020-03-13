@@ -139,9 +139,11 @@
 import draggable from 'vuedraggable';
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import * as version from '@/store/modules/version';
+import * as product from '@/store/modules/product';
 import { IAlert } from '@/store/modules/common';
 
 const Version = namespace('version');
+const Product = namespace('product');
 const Common = namespace('common');
 
 @Component({
@@ -157,6 +159,7 @@ export default class ProductVerManage extends Vue {
   @Version.Action('createVersion') createVersionAction;
   @Version.Action('removeVersion') removeVersionAction;
   @Version.Action('updateVersionIndex') updateVersionIndexAction;
+  @Product.Action('selectProduct') selectProductAction;
 
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
@@ -169,6 +172,10 @@ export default class ProductVerManage extends Vue {
     if (!this.$store.state.user.user.gitlabToken) {
       return;
     }
+
+    this.selectProductAction({
+      productCode: this.$route.params.productCode,
+    });
 
     this.getVersionListAction({
       productCode: this.$route.params.productCode,
@@ -201,18 +208,22 @@ export default class ProductVerManage extends Vue {
         msg: '버전을 생성하시겠습니까?',
       }).then(async (result) => {
         if (result.ok) {
-          await this.createVersionAction({
-            projectId: this.$store.state.product.product.projectId,
-            productCode: this.$store.state.product.product.productCode,
-            versionName: this.$refs.versionName.value,
-            tagName: this.$refs.tagName.value,
-            ref: this.$store.state.product.product.targetBranch,
-            gitlabToken: this.$store.state.user.user.gitlabToken,
-          });
-          this.$refs.versionName.value = '';
-          this.$refs.tagName.value = '';
-          this.newVersionCreateFlag = false;
-          this.localVersionList = this.$store.state.version.versionList.slice();
+          try {
+            await this.createVersionAction({
+              projectId: this.$store.state.product.product.projectId,
+              productCode: this.$store.state.product.product.productCode,
+              versionName: this.$refs.versionName.value,
+              tagName: this.$refs.tagName.value,
+              ref: this.$store.state.product.product.targetBranch,
+              gitlabToken: this.$store.state.user.user.gitlabToken,
+            });
+            this.$refs.versionName.value = '';
+            this.$refs.tagName.value = '';
+            this.newVersionCreateFlag = false;
+            this.localVersionList = this.$store.state.version.versionList.slice();
+          } catch (err) {
+            console.error(err);
+          }
         }
       });
     }
@@ -225,16 +236,20 @@ export default class ProductVerManage extends Vue {
       msg: '버전을 삭제하시겠습니까?',
     }).then(async (result) => {
       if (result.ok) {
-        await this.removeVersionAction({
-          projectId: this.$store.state.product.product.projectId,
-          productCode: this.$store.state.product.product.productCode,
-          tagName: version.tagName,
-          description: version.description,
-          authorName: version.authorName,
-          authorID: version.authorID,
-          gitlabToken: this.$store.state.user.user.gitlabToken,
-        });
-        this.localVersionList = this.$store.state.version.versionList.slice();
+        try {
+          await this.removeVersionAction({
+            projectId: this.$store.state.product.product.projectId,
+            productCode: this.$store.state.product.product.productCode,
+            tagName: version.tagName,
+            description: version.description,
+            authorName: version.authorName,
+            authorID: version.authorID,
+            gitlabToken: this.$store.state.user.user.gitlabToken,
+          });
+          this.localVersionList = this.$store.state.version.versionList.slice();
+        } catch (e) {
+          console.error(e);
+        }
       }
     });
   }

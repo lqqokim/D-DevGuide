@@ -41,6 +41,7 @@ export const mutations: MutationTree<VersionState> = {
 };
 
 export const actions: ActionTree<VersionState, RootState> = {
+  // version 목록 가져오기
   async getVersionList(
     { commit, state, dispatch },
     payload: { productCode: string }
@@ -78,10 +79,21 @@ export const actions: ActionTree<VersionState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
+  // version 생성
   async createVersion(
     { commit, state, dispatch },
     payload: {
@@ -146,10 +158,21 @@ export const actions: ActionTree<VersionState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
+  // version 삭제
   async removeVersion(
     { commit, state, dispatch },
     payload: {
@@ -208,8 +231,18 @@ export const actions: ActionTree<VersionState, RootState> = {
         },
         { root: true }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
     }
   },
 
@@ -227,6 +260,18 @@ export const actions: ActionTree<VersionState, RootState> = {
       if (data.success && data.data) {
         commit('setVersionList', data.data);
       }
-    } catch (e) {}
+    } catch (e) {
+      await dispatch(
+        'common/alert',
+        {
+          type: ALERT_TYPE.ERROR,
+          isShow: true,
+          msg: `[${e.response.status}] ${e.response.data.msg}`,
+        },
+        { root: true }
+      );
+      // error 가 나면 이후 코드를 실행하지 않기 위해 throw error 를 해줌
+      throw new Error(e.response.data.msg);
+    }
   },
 };

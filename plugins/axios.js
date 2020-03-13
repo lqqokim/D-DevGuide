@@ -1,39 +1,39 @@
-import Vue from 'vue';
-import axios from 'axios';
+export default ({ $axios, store }) => {
+  // $axios.defaults.baseURL = process.env.BASE_URL;
 
-const instance = axios.create({
-  baseURL: process.env.BASE_URL,
-  headers: {},
-  // timeout: 1000
-});
+  // if (process.server) {
+  //   return;
+  // }
 
-// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+  // Add a request interceptor
+  $axios.interceptors.request.use(
+    (config) => {
+      console.info('interceptors.request :: ', config);
+      config.headers.genericKey = 'someGenericValue';
+      return config;
+    },
+    (error) => {
+      console.error('request err :: ', error);
+      return Promise.reject(error);
+    }
+  );
 
-// Add a request interceptor
-instance.interceptors.request.use(
-  (config) => {
-    console.info('interceptors.request :: ', config);
-    // config.headers.genericKey = 'someGenericValue';
-    return config;
-  },
-  (error) => {
-    console.error('request err :: ', error);
-    return Promise.reject(error);
-  }
-);
+  // Add a response interceptor
+  $axios.interceptors.response.use(
+    (response) => {
+      /** In dev, intercepts request and logs it into console for dev */
+      // console.info('interceptors.response :: ', response);
+      return response;
+    },
+    (error) => {
+      console.error('response err :: ', error.response, error.status);
+      store.dispatch('common/alert', {
+        type: 'error',
+        isShow: true,
+        msg: `[${error.response.status}] ` + error.response.data.msg,
+      });
 
-// Add a response interceptor
-instance.interceptors.response.use(
-  (response) => {
-    /** In dev, intercepts request and logs it into console for dev */
-    console.info('interceptors.response :: ', response);
-    return response;
-  },
-  (error) => {
-    console.error('response err :: ', error);
-    return Promise.reject(error);
-  }
-);
-
-Vue.use(axios);
+      return Promise.reject(error);
+    }
+  );
+};
