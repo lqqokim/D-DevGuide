@@ -1,5 +1,5 @@
 <template>
-  <doc-home-manage />
+  <doc-home-manage v-if="$store.state.user.user._id" />
   <!--  <div class="dbs-container-wrap">-->
   <!--    <div class="viewer-wrap">-->
   <!--      <div class="dbs-top-image-wrap movie">-->

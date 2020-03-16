@@ -281,6 +281,7 @@ const authRoute = [
     component: MyInfoPage,
     meta: {
       authRequired: true,
+      adminRequired: true,
     },
   },
 ];
@@ -540,6 +541,7 @@ const forumRoute = [
       pageType: PAGE_FORUM,
       lnbType: LNB_FORUM,
       authRequired: true,
+      adminRequired: true,
     },
     component: ForumProductManagePage,
   },
@@ -648,6 +650,7 @@ const libraryRoute = [
       pageType: PAGE_LIB,
       lnbType: LNB_LIB,
       authRequired: true,
+      adminRequired: true,
     },
     component: LibraryVideoProductManagePage,
   },
@@ -660,6 +663,7 @@ const libraryRoute = [
       pageType: PAGE_LIB,
       lnbType: LNB_LIB,
       authRequired: true,
+      adminRequired: true,
     },
     component: LibraryVideoHomeManagePage,
   },
@@ -723,6 +727,7 @@ const libraryRoute = [
       pageType: PAGE_LIB,
       lnbType: LNB_LIB,
       authRequired: true,
+      adminRequired: true,
     },
     component: LibraryDocProductManagePage,
   },
@@ -735,6 +740,7 @@ const libraryRoute = [
       pageType: PAGE_LIB,
       lnbType: LNB_LIB,
       authRequired: true,
+      adminRequired: true,
     },
     component: LibraryDocHomeManagePage,
   },
@@ -796,6 +802,7 @@ const libraryRoute = [
       pageType: PAGE_LIB,
       lnbType: LNB_LIB,
       authRequired: true,
+      adminRequired: true,
     },
     component: LibraryDownloadProductManagePage,
   },
@@ -808,6 +815,7 @@ const libraryRoute = [
       pageType: PAGE_LIB,
       lnbType: LNB_LIB,
       authRequired: true,
+      adminRequired: true,
     },
     component: LibraryDownloadHomeManagePage,
   },
@@ -875,41 +883,34 @@ const router = new Router({
 /********************************************************
   인증관련 페이지 Navigation Guard [vue persist 사용]
  ********************************************************/
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   let userState = $store.state.user.user;
+  // dbs 에서 생성된 사용자 토큰
   const sessionToken = sessionStorage.getItem('KEY');
-  console.log('sessionToken :: ', sessionToken);
-  const sessionState = sessionStorage.getItem('vuex');
-  console.log('sessionState :: ', sessionState);
+  // console.log('sessionToken ', sessionToken);
 
-  console.log(axios);
+  // dbs 로그인 유저정보
+  const sessionDBSUser = sessionStorage.getItem('DBS_USER');
+  // console.log('sessionDBSUser ', sessionDBSUser);
 
-  if (sessionToken && !userState._id) {
-    try {
-      const { data } = await axios.post('api/auth/token', {
-        token: sessionToken,
-      });
+  // vuex 사용자 정보
+  const sessionVuexUser = sessionStorage.getItem('vuex');
+  // console.log('sessionVuexUser : ', sessionVuexUser);
 
-      if (data.res) {
-        next();
-      }
-      console.log('datadata :: ', data);
-
-      $store.commit('user/SET_USER_INFO', data.data);
-    } catch (e) {
-      console.log('ff :: ', e);
-    }
+  // sessionDBSUser 가 존재하는 경우
+  if (sessionDBSUser) {
+    $store.commit('user/SET_USER_INFO', JSON.parse(sessionDBSUser));
+  }
+  // sessionStates 존재하지만, store 에 유저정보가 없는 경우
+  else if (sessionVuexUser && !userState._id) {
+    $store.commit('user/SET_USER_INFO', JSON.parse(sessionVuexUser).user);
+    userState = $store.state.user.user;
   }
 
-  // sessionStates 존재하지만, store 에 유저정보가 없는 경우
-  if (sessionState && !userState._id) {
-    console.log('in :: ', JSON.parse(sessionStorage.getItem('vuex')).user.user);
-    await $store.commit(
-      'user/SET_USER_INFO',
-      JSON.parse(sessionStorage.getItem('vuex')).user.user
-    );
-
-    userState = $store.state.user.user;
+  // 마이페이지 접근 유저가 고객일 경우. dbs 마이페이지로 이동
+  if (to.path === '/myInfo' && sessionDBSUser && !userState._id) {
+    location.href = '/html/PagePanel.html?pageId=myinfo';
+    return next();
   }
 
   // 인증 요구되는 페이지이지만 사용자 토큰이 존재하지 않는 경우
@@ -929,6 +930,22 @@ router.beforeEach(async (to, from, next) => {
             path: from.path,
           });
         }
+      });
+  } else if (
+    sessionToken &&
+    to.meta.adminRequired &&
+    userState.authority !== 'S'
+  ) {
+    $store
+      .dispatch('common/alert', {
+        type: 'warning',
+        isShow: true,
+        msg: '해당 페이지 접근권한이 없습니다.',
+      })
+      .then((result) => {
+        next({
+          path: from.path,
+        });
       });
   }
   // 깃랩토큰이 필요한 페이지이지만 깃랩토큰이 존재하지 않는 경우

@@ -101,13 +101,16 @@ export const mutations: MutationTree<UserState> = {
     }
     // dbs 일반로그인
     else {
+      if (payload.ID === 'admin@test.com') {
+        payload.ID = 'admin';
+      }
+
       state.user.loginId = payload.ID;
       state.user.name = payload.NAME;
       state.user.authority = payload.AUTHORITY;
     }
 
     state.user.authToken = state.userToken;
-    console.log('user ::: ', state.user);
   },
   SET_GITLAB_TOKEN(state, payload: string): void {
     state.user.gitlabToken = payload;
@@ -144,16 +147,17 @@ export const actions: ActionTree<UserState, RootState> = {
       if (loginData.success && loginData.data) {
         const token: string = loginData.data;
 
-        // sessionStorage 저장 : CRS 용도로라도 필요하다.
+        // dbs 이동시 유저정보 얻기위해 sessionStorage 저장
         sessionStorage.setItem('KEY', token);
-        // 쿠키 저장
+
+        // 쿠키 방식
         // @ts-ignore
         // this.$cookies.set('KEY', token, {
         //   path: '/',
         //   maxAge: 60 * 60 * 24 * 7, // 7days
         // });
 
-        await commit('SET_USER_TOKEN', token);
+        commit('SET_USER_TOKEN', token);
 
         // [2] 토큰에서 획득한 유저 아이디로 디테일 정보 조회 후 스토어 세팅
         const { data } = await this.$axios.get(
@@ -162,7 +166,7 @@ export const actions: ActionTree<UserState, RootState> = {
 
         if (data.success && data.data.length) {
           const mongoUser: IUser = data.data[0];
-          await commit('SET_USER_INFO', mongoUser);
+          commit('SET_USER_INFO', mongoUser);
 
           this.$router.push({
             path: '/',
@@ -208,67 +212,69 @@ export const actions: ActionTree<UserState, RootState> = {
     }
   },
 
-  async encryptToken({ commit, state, dispatch }, token: string): Promise<any> {
-    try {
-      commit('SET_USER_TOKEN', token);
+  // sessionStorage 기반 로그인정책으로 사용x
+  // async encryptToken({ commit, state, dispatch }, token: string): Promise<any> {
+  //   try {
+  //     commit('SET_USER_TOKEN', token);
+  //
+  //     // [1] 토큰에서 유저 정보 획득
+  //     const { data } = await this.$axios.post('api/auth/token', {
+  //       token,
+  //     });
+  //
+  //     const userInfo: UserByToken = data.data;
+  //     let loginId: string;
+  //     // if (userInfo) {
+  //     //   loginId = userInfo.ID;
+  //     // } else {
+  //     //   // 토큰 세션 종료 ...
+  //     //   await commit('userLogout');
+  //     //   return;
+  //     // }
+  //
+  //     if (data.res && data.data) {
+  //       loginId = userInfo.ID;
+  //     } else {
+  //       commit('userLogout');
+  //       return;
+  //     }
+  //
+  //     // [2] 토큰에서 획득한 유저 아이디로 mongodb 유저 정보 조회
+  //     const userDetailRes = await this.$axios.get('api/auth/user/' + loginId);
+  //     const userData = userDetailRes.data;
+  //
+  //     // console.log('[encryptToken MongoDB] ', userData);
+  //     if (userData.success && userData.data.length) {
+  //       /**
+  //        * 개발자 사이트에서 생성한 토큰 : mongodb 직원 정보 store 저장
+  //        * 1) 개발자 사이트에서 Refresh
+  //        * 2) dbs -> 개발자 사이트 이동
+  //        */
+  //       const user: IUser = userData.data[0];
+  //       // console.info('[ mongodb 조회 Success ]', user);
+  //       commit('SET_USER_INFO', user);
+  //     } else {
+  //       /**
+  //        * dbs 에서 생성한 토큰 : 토큰 정보에 담겨진 정보 store 저장
+  //        * 1) 개발자 사이트에서 Refresh
+  //        * 2) dbs -> 개발자 사이트 이동
+  //        */
+  //       // console.info('[ mongodb 조회 Fail ]', userByToken);
+  //       commit('SET_USER_INFO', userInfo);
+  //     }
+  //   } catch (e) {
+  //     await dispatch(
+  //       'common/alert',
+  //       {
+  //         type: ALERT_TYPE.ERROR,
+  //         isShow: true,
+  //         msg: `[${e.response.status}]` + e.response.data.msg,
+  //       },
+  //       { root: true }
+  //     );
+  //   }
+  // },
 
-      // [1] 토큰에서 유저 정보 획득
-      const { data } = await this.$axios.post('api/auth/token', {
-        token,
-      });
-
-      const userInfo: UserByToken = data.data;
-      let loginId: string;
-      // if (userInfo) {
-      //   loginId = userInfo.ID;
-      // } else {
-      //   // 토큰 세션 종료 ...
-      //   await commit('userLogout');
-      //   return;
-      // }
-
-      if (data.res && data.data) {
-        loginId = userInfo.ID;
-      } else {
-        commit('userLogout');
-        return;
-      }
-
-      // [2] 토큰에서 획득한 유저 아이디로 mongodb 유저 정보 조회
-      const userDetailRes = await this.$axios.get('api/auth/user/' + loginId);
-      const userData = userDetailRes.data;
-
-      // console.log('[encryptToken MongoDB] ', userData);
-      if (userData.success && userData.data.length) {
-        /**
-         * 개발자 사이트에서 생성한 토큰 : mongodb 직원 정보 store 저장
-         * 1) 개발자 사이트에서 Refresh
-         * 2) dbs -> 개발자 사이트 이동
-         */
-        const user: IUser = userData.data[0];
-        // console.info('[ mongodb 조회 Success ]', user);
-        commit('SET_USER_INFO', user);
-      } else {
-        /**
-         * dbs 에서 생성한 토큰 : 토큰 정보에 담겨진 정보 store 저장
-         * 1) 개발자 사이트에서 Refresh
-         * 2) dbs -> 개발자 사이트 이동
-         */
-        // console.info('[ mongodb 조회 Fail ]', userByToken);
-        commit('SET_USER_INFO', userInfo);
-      }
-    } catch (e) {
-      await dispatch(
-        'common/alert',
-        {
-          type: ALERT_TYPE.ERROR,
-          isShow: true,
-          msg: `[${e.response.status}]` + e.response.data.msg,
-        },
-        { root: true }
-      );
-    }
-  },
   // 깃랩 토큰 등록
   async createGitLabToken({ state, commit, dispatch }, payload): Promise<any> {
     try {

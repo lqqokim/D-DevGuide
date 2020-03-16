@@ -1,5 +1,5 @@
 <template>
-  <download-product-manage />
+  <download-product-manage v-if="$store.state.user.user._id" />
   <!--  <div class="dbs-container-wrap">-->
   <!--    <div class="dbs-top-image-wrap movie">-->
   <!--      <div class="dbs-top-image">-->

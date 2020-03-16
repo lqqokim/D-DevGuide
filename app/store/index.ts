@@ -24,6 +24,9 @@ Vue.use(Vuex);
 
 const vuexLocal = new VuexPersistence({
   storage: window.sessionStorage,
+  // @ts-ignore
+  reducer: (state) => ({ user: state.user.user }),
+  // filter: (mutation) => mutation.type === 'user',
 });
 
 export const store = new Vuex.Store({
