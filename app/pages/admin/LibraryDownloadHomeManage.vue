@@ -1,5 +1,5 @@
 <template>
-  <download-home-manage />
+  <download-home-manage v-if="$store.state.user.user._id" />
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

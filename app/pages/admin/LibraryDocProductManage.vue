@@ -221,7 +221,7 @@
   <!--      </div>-->
   <!--    </div>-->
   <!--  </div>-->
-  <doc-product-manage></doc-product-manage>
+  <doc-product-manage v-if="$store.state.user.user._id"></doc-product-manage>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

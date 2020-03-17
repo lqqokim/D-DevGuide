@@ -1,5 +1,5 @@
 <template>
-  <my-info />
+  <my-info v-if="$store.state.user.user._id" />
   <!--  <div class="dbs-container-wrap">-->
   <!--    <div class="dbs-top-image-wrap login">-->
   <!--      <div class="dbs-top-image">-->

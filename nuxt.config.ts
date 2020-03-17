@@ -111,7 +111,7 @@ const config: Configuration = {
   // },
   axios: {
     // baseURL: process.env.BASE_URL || 'http://localhost:3000',
-    credentials: true,
+    // credentials: true,
     proxy: true,
     // debug: true,
     retry: {
@@ -122,7 +122,7 @@ const config: Configuration = {
     //   // config.headers.common['Content-Type'] =
     //   //   'application/x-www-form-urlencoded;application/json';
     //
-    //   console.log('assdasda :: ', store.state.user.user);
+    //   console.log('user ', store.state.user.user);
     //   return config;
     // },
   },

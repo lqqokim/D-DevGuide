@@ -5,8 +5,6 @@ const request = require('request-promise-native');
 router.post('/', (req, res) => {
   const { token } = req.body;
 
-  console.log('server token :: ', token);
-
   if (token) {
     checkUserByToken(token)
       .then((result) => {

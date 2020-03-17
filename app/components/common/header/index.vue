@@ -128,8 +128,7 @@ export default class HeaderComp extends Vue {
   };
 
   get isLogin() {
-    console.log('isLogin :: ', this.$store.state.user.user);
-    return this.$store.state.user.user._id;
+    return this.$store.state.user.user.loginId;
   }
 
   created() {
