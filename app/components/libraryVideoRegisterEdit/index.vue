@@ -246,15 +246,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
       : [];
   }
 
-  mounted() {
-    // // remove tui toolbar image button
-    // const tuiImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
-    //   '.tui-image.tui-toolbar-icons'
-    // );
-    //
-    // tuiImageBtnEl.parentNode!.removeChild(tuiImageBtnEl);
-  }
-
+  // 싱글 동영상 정보 입력후, 다른곳 클릭하여 focus out 되었을때 추가되도록 함
   onfocusoutInput(): void {
     // 시리즈 등록시에는 blur event x
     if (this.$route.params.type === 'series') return;
@@ -265,12 +257,14 @@ export default class LibraryVideoRegisterEdit extends Vue {
     this.videoProp.tempSeriesVideoTitle = this.tempSeriesVideoTitle;
   }
 
+  // 제품 목록 콤보박스 선택
   onclickCategory(product: any): void {
     this.selectedCategory.productCode = product.productCode;
     this.selectedCategory.productName = product.productName;
     this.isOpenSelectBox = false;
   }
 
+  // 동영상 미리보기
   openVideoPage(url: string | undefined): void | any {
     if (!url) {
       this.alertAction({
@@ -285,11 +279,13 @@ export default class LibraryVideoRegisterEdit extends Vue {
     window.open(url, '_blank');
   }
 
+  // 추가한 동영상 제거
   removeVideo(): void {
     this.video.youtubeId = '';
     this.videoProp.youtubeId = '';
   }
 
+  // 추가한 시리즈 동영상 제거
   removeVideoSeries(index: number): void {
     this.seriesVideos.splice(index, 1);
   }
@@ -299,6 +295,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     this.seriesVideos = seriesVideos;
   }
 
+  // 확인 버튼 클릭
   onclickSave(): void {
     if (!this.video.videoTitle) {
       this.alertAction({
@@ -349,6 +346,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     }
   }
 
+  // 시리즈 동영상 추가
   async onclickAddSeries(): Promise<any> {
     if (!this.video.youtubeId) {
       this.alertAction({
@@ -437,6 +435,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     });
   }
 
+  // 데이터 초기화
   initData(): void {
     this.videoProp = {
       videoTitle: '',
@@ -450,6 +449,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     this.seriesVideos = [];
   }
 
+  // 동영상 목록 페이지 이동
   redirect(): void {
     this.$router.push({
       name: 'videoList',
@@ -460,6 +460,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     });
   }
 
+  // 취소 버튼 클릭
   onclickCancel(): void {
     const msgByVideoType: string =
       this.$route.params.type === 'series' ? '시리즈' : '';
@@ -479,6 +480,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     });
   }
 
+  // 재생시간
   async playTime(youtubeId): Promise<any> {
     // const trimStr = youtubeId.replace(/(^\s*)|(\s*$)/gi, '');
     const { data } = await this.$axios.get(
@@ -494,6 +496,7 @@ export default class LibraryVideoRegisterEdit extends Vue {
     }
   }
 
+  // 재생시간 포멧 설정
   YTDurationToSeconds(duration) {
     let match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
 
@@ -528,23 +531,6 @@ export default class LibraryVideoRegisterEdit extends Vue {
     // return hours * 3600 + minutes * 60 + seconds;
     return result;
   }
-
-  // @change="onEditorChange"
-  // onEditorChange(): void {
-  //   const ts = new TurndownService();
-  //   const markdown = ts.turndown(this.$refs.tui.invoke('getHtml'));
-  // }
-
-  // get editorLoader() {
-  //   console.log('editorLoader ', this.$route.meta.editType);
-  //
-  //   return () => {
-  //     import(
-  //       `@/components/libraryHome/video/${this.$route.meta.editType}Editor.vue`
-  //     );
-  //   };
-  // }
-  //
 }
 </script>
 

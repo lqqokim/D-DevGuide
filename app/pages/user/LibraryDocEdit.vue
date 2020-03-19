@@ -1,6 +1,5 @@
 <template>
   <library-doc-edit></library-doc-edit>
-  <!--  TODO 캐러셀-->
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

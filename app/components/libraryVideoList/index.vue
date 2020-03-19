@@ -145,40 +145,51 @@ export default class LibraryVideoList extends Vue {
   @Video.Action('getVideosByProduct') videosByProductAction!: (payload: {
     data: IVideo;
     params: ListParams;
-  }) => void;
+  }) => Promise<any>;
   @Video.Action('removeVideo') removeVideoAction!: (
     _id: string
   ) => Promise<any>;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   private readonly LIMIT: number = 8;
+  videosByProduct: IVideo[] = [];
+  isViewMore: boolean = true;
+  countMore: number = 1;
+  total!: number;
 
   get localVideosByProduct(): IVideo[] {
     return this.videosByProduct;
   }
 
-  videosByProduct: IVideo[] = [];
-
-  isViewMore: boolean = true;
-  countMore: number = 1;
-  total!: number;
-
   get user(): IUser {
     return this.$store.state.user.user;
   }
 
+  created() {
+    this.total = this.$store.state.video.totalSize;
+    this.videosByProduct = this.$store.state.video.videosByProduct;
+
+    if (this.total <= this.LIMIT) {
+      this.isViewMore = false;
+    }
+  }
+
+  // 직원 여부
   isCheckEmp(): boolean {
     return this.user.authority === 'E';
   }
 
+  // 작성자 여부
   isCheckWriter(video: IVideo): boolean {
     return this.user.loginId === video.empId;
   }
 
+  // 관리자 권한 여부
   isAdmin(): boolean {
     return this.user.authority === 'S';
   }
 
+  // 제품 스태프 여부
   isStaff(video: IVideo): boolean {
     if (
       this.user.loginId &&
@@ -192,15 +203,6 @@ export default class LibraryVideoList extends Vue {
       );
     } else {
       return false;
-    }
-  }
-
-  created() {
-    this.total = this.$store.state.video.totalSize;
-    this.videosByProduct = this.$store.state.video.videosByProduct;
-
-    if (this.total <= this.LIMIT) {
-      this.isViewMore = false;
     }
   }
 
@@ -274,9 +276,9 @@ export default class LibraryVideoList extends Vue {
     }
   }
 
+  // 7일 이내에 등록했을 경우 New 표시
   isNew(updateDate: number): boolean {
     const standard = 1000 * 3600 * 24;
-    // 7일 이내에 등록했을 경우 New 표시
     return (Date.now() - updateDate) / standard < 7;
   }
 

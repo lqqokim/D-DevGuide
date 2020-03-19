@@ -1,7 +1,9 @@
 <template>
   <div class="container-panel">
+    <!-- 내가 작성한 질문 -->
     <my-forum-list />
 
+    <!-- 네기 갑변한 질문 -->
     <my-reply-forum-list />
   </div>
 </template>

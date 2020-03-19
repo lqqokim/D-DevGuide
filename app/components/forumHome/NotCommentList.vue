@@ -64,6 +64,7 @@ import { dateFormat } from '~/utils/commonFuncs';
 
 @Component
 export default class NotCommentList extends Vue {
+  // 답변이 없는 질문 목록 더보기 클릭
   onclickNotCommentMore(): void {
     this.$router.push({
       name: 'forumList',

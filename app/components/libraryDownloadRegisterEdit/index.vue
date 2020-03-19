@@ -148,10 +148,6 @@ export default class LibraryDownloadRegisterEdit extends Vue {
 
   isExistInputFile: boolean = false;
 
-  get file(): IFile {
-    return this.$store.state.download.selectedFile;
-  }
-
   $refs!: {
     fileInputText: any;
     fileUploader: any;
@@ -167,6 +163,10 @@ export default class LibraryDownloadRegisterEdit extends Vue {
 
   localOriginFileName: string = '';
   localFileSize: number = 0;
+
+  get file(): IFile {
+    return this.$store.state.download.selectedFile;
+  }
 
   created() {
     const selectedProduct: IProduct = this.$store.state.download
@@ -186,20 +186,6 @@ export default class LibraryDownloadRegisterEdit extends Vue {
     this.localFileSize = this.file.size;
   }
 
-  mounted() {
-    // // remove tui toolbar image button
-    // const tuiImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
-    //   '.tui-image.tui-toolbar-icons'
-    // );
-    //
-    // tuiImageBtnEl.parentNode!.removeChild(tuiImageBtnEl);
-    // setTimeout(() => {
-    //   if (this.$refs.fileInputText && this.$refs.fileInputText.value) {
-    //     this.$refs.fileInputText.value = this.file.originFileName;
-    //   }
-    // }, 200);
-  }
-
   onclickSave(): void {
     if (!this.file.fileTitle) {
       this.alertAction({
@@ -210,9 +196,6 @@ export default class LibraryDownloadRegisterEdit extends Vue {
 
       return;
     }
-
-    // console.log(this.file);
-    // console.log(this.inputFile);
 
     if (!this.isExistInputFile) {
       this.alertAction({
@@ -279,17 +262,6 @@ export default class LibraryDownloadRegisterEdit extends Vue {
       }
     });
   }
-
-  // onChangeFile(file: any): void {
-  //   if (!this.isExistInputFile) {
-  //     this.isExistInputFile = true;
-  //   }
-  //
-  //   this.inputFile = file;
-  //   // this.localFileSize = file.files[0].size / 1024 ** 2;
-  //   this.localFileSize = file.files[0].size;
-  //   this.localOriginFileName = file.files[0].name;
-  // }
 
   onclickFileUpload(): void {
     const input = document.createElement('input');

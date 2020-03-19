@@ -255,21 +255,6 @@ export default class MyReplyForumList extends Vue {
     this.selectedIndex = -1;
   }
 
-  // onclickPage(page: number): void {
-  //   this.selectedPage = page;
-  //
-  //   let skip: number = parseInt(
-  //     (this.selectedPage - 1) * parseInt(this.selectedCountOption.code) +
-  //       this.postsByProduct.length
-  //   );
-  //
-  //   if (this.selectedPage === 0) {
-  //     skip = 0;
-  //   }
-  //
-  //   this.actionGetPosts(skip);
-  // }
-
   async actionGetPosts(skip: number = 0): Promise<any> {
     const params = {
       skip,

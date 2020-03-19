@@ -389,10 +389,6 @@ export default class MyInfo extends Vue {
     gitlabToken: string
   ) => Promise<any>;
 
-  get user(): IUser {
-    return this.$store.state.user.user;
-  }
-
   gitlabToken!: string;
 
   // get gitlabToken(): string {
@@ -402,6 +398,10 @@ export default class MyInfo extends Vue {
   // set gitlabToken(token: string) {
   //   this.token = token;
   // }
+
+  get user(): IUser {
+    return this.$store.state.user.user;
+  }
 
   created() {
     this.gitlabToken = this.$store.state.user.user.gitlabToken;

@@ -273,7 +273,7 @@ export default class LibraryDownloadList extends Vue {
   ) => Promise<any>;
   @Download.Action('updateDownloadCount') updateDownloadCountAction!: (
     file: IFile
-  ) => void;
+  ) => Promise<any>;
 
   @Download.Action('searchDownloads')
   searchDownloadsAction!: (payload: {
@@ -293,15 +293,7 @@ export default class LibraryDownloadList extends Vue {
   pages: number[] = [];
   totalPages: number[] = [];
   nextCount: number = 0;
-  // get pages() {
-  //   const pages: number[] = [];
-  //   for (let i = 0; i < this.$store.state.download.totalPages.length; i++) {
-  //     pages.push(i);
-  //   }
-  //
-  //   console.log('aaa ', pages);
-  //   return pages;
-  // }
+
   selectedIndex: number = -1;
 
   $refs!: {
@@ -310,6 +302,51 @@ export default class LibraryDownloadList extends Vue {
   };
 
   searchWord: string = '';
+
+  get user(): IUser {
+    return this.$store.state.user.user;
+  }
+
+  get filesByProduct() {
+    return this.$store.state.download.filesByProduct;
+  }
+
+  created() {
+    this.countOptions = this.$store.state.common.countOptions;
+    this.sortOptions = this.$store.state.common.sortOptions;
+    // this.pages = this.$store.state.common.pages;
+    this.selectedCountOption = this.countOptions[0];
+    this.selectedSortOption = this.sortOptions[0];
+    this.setPages();
+  }
+
+  isCheckEmp(): boolean {
+    return this.user.authority === 'E';
+  }
+
+  isCheckWriter(file: IFile): boolean {
+    return this.user.loginId === file.empId;
+  }
+
+  isAdmin(): boolean {
+    return this.user.authority === 'S';
+  }
+
+  isStaff(file: IFile): boolean {
+    if (
+      this.user.loginId &&
+      this.$store.state.download.selectedProduct.staffs !== undefined &&
+      (this.user.authority === 'E' || this.user.authority === 'S')
+    ) {
+      return this.$store.state.download.selectedProduct.staffs.some(
+        (staff: IStaff) => {
+          return staff.empId === file.empId;
+        }
+      );
+    } else {
+      return false;
+    }
+  }
 
   inputWord(e): void {
     this.searchWord = e.target.value;
@@ -346,73 +383,9 @@ export default class LibraryDownloadList extends Vue {
     });
   }
 
-  get user(): IUser {
-    return this.$store.state.user.user;
-  }
-
-  isCheckEmp(): boolean {
-    return this.user.authority === 'E';
-  }
-
-  isCheckWriter(file: IFile): boolean {
-    return this.user.loginId === file.empId;
-  }
-
-  isAdmin(): boolean {
-    return this.user.authority === 'S';
-  }
-
-  isStaff(file: IFile): boolean {
-    if (
-      this.user.loginId &&
-      this.$store.state.download.selectedProduct.staffs !== undefined &&
-      (this.user.authority === 'E' || this.user.authority === 'S')
-    ) {
-      return this.$store.state.download.selectedProduct.staffs.some(
-        (staff: IStaff) => {
-          return staff.empId === file.empId;
-        }
-      );
-    } else {
-      return false;
-    }
-  }
-
-  get filesByProduct() {
-    return this.$store.state.download.filesByProduct;
-  }
-
-  created() {
-    this.countOptions = this.$store.state.common.countOptions;
-    this.sortOptions = this.$store.state.common.sortOptions;
-    // this.pages = this.$store.state.common.pages;
-    this.selectedCountOption = this.countOptions[0];
-    this.selectedSortOption = this.sortOptions[0];
-    this.setPages();
-  }
-
   onclickDownload(file: IFile): void {
     this.updateDownloadCountAction(file);
   }
-
-  // onclickDownload(): void {
-  //   // this.$refs.downloadBtn.href = `/uploads/${this.doc.docName}`;
-  //   // this.$refs.downloadBtn.download = this.doc.originDocName;
-  //   this.alertAction({
-  //     type: 'question',
-  //     isShow: true,
-  //     msg: '문서를 다운로드하시겠습니까?',
-  //   }).then((result) => {
-  //     console.log('aa :: ', result);
-  //     if (result.ok) {
-  //       // const downloadBtnEl = this.$refs.downloadBtn;
-  //       // console.log(this.$refs.downloadBtn);
-  //       // this.$refs.downloadBtn.href = `/uploads/${this.doc.docName}`;
-  //       // this.$refs.downloadBtn.download = this.doc.originDocName;
-  //       this.$refs.downloadBtn.click();
-  //     }
-  //   });
-  // }
 
   onclickFold(selectedIndex: number): void {
     this.selectedIndex = -1;
@@ -430,32 +403,6 @@ export default class LibraryDownloadList extends Vue {
         contentRefs[i].style.display = 'block';
       }
     }
-    // $(this).css('height', 'auto');
-    // const fullHeight = this.$refs['desc' + index][0].clientHeight;
-    // console.log('fullHeight', fullHeight);
-    // this.$refs['desc' + index][0].style.height = reducedHeight;
-    // //
-    // this.$refs['desc' + index][0].animate(
-    //   // { height: fullHeight },
-    //   {
-    //     height: fullHeight,
-    //     // timing options
-    //     duration: 1000,
-    //     iterations: Infinity,
-    //   }
-    // );
-    // document.getElementById('tunnel').animate(
-    //   [
-    //     // keyframes
-    //     { transform: 'translateY(0px)' },
-    //     { transform: 'translateY(-300px)' },
-    //   ],
-    //   {
-    //     // timing options
-    //     duration: 1000,
-    //     iterations: Infinity,
-    //   }
-    // );
   }
 
   setPages(): void {

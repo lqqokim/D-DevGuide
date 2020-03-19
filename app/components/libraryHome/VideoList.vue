@@ -216,10 +216,10 @@ export default class VideoList extends Vue {
   @Video.Action('getVideosByProduct') videosByProductAction!: (payload: {
     data: IProduct;
     params?: ListParams;
-  }) => void;
+  }) => Promise<any>;
   @Video.Action('updateVideoCount') updateVideoCountAction!: (
     _id: string
-  ) => void;
+  ) => Promise<any>;
   @Video.Mutation('selectedProduct') selectedProductMutation!: (
     data: IProduct
   ) => void;
@@ -227,38 +227,30 @@ export default class VideoList extends Vue {
   selectedProduct!: IProduct;
   managedVideos!: IVideo[];
 
-  imagePath(video): string {
-    return `https://img.youtube.com/vi/${
-      video.isSeries ? video.series[0].youtubeId : video.youtubeId
-    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
-  }
-
   created() {
     this.selectedProduct = this.$store.state.video.products[0];
     this.selectedProductMutation(this.selectedProduct);
     // this.managedVideos = this.selectedProduct.managedVideos;
   }
 
-  onclickProduct(product: IProduct): void {
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${
+      video.isSeries ? video.series[0].youtubeId : video.youtubeId
+    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
+
+  async onclickProduct(product: IProduct): Promise<any> {
     if (this.selectedProduct._id === product._id) {
       return;
     }
 
     this.selectedProduct = product;
-    this.videosByProductAction({
+    await this.videosByProductAction({
       data: product,
     });
   }
 
   onclickVideoDetail(video: IVideo): void {
-    // await this.updateVideoCountAction(video._id);
-    //
-    // if (video.isSeries && !video.groupId) {
-    //   video.series[0].viewCount++;
-    // } else {
-    //   video.viewCount++;
-    // }
-
     // @ts-ignore
     this.$router.push({
       name: 'videoDetail',
@@ -270,9 +262,9 @@ export default class VideoList extends Vue {
     });
   }
 
+  // 7일 이내에 등록했을 경우 New 표시
   isNew(updateDate: number): boolean {
     const standard = 1000 * 3600 * 24;
-    // 7일 이내에 등록했을 경우 New 표시
     return (Date.now() - updateDate) / standard < 7;
   }
 

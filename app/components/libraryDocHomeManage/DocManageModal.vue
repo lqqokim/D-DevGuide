@@ -62,17 +62,16 @@ export default class DocManageModal extends Vue {
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   private readonly LIMIT: number = 8;
-
-  get localDocsByProduct(): IDocument[] {
-    return this.docsByProduct;
-  }
-
   docsByProduct: IDocument[] = [];
   selectedDocs: IDocument[] = [];
 
   isViewMore: boolean = true;
   countMore: number = 1;
   total!: number;
+
+  get localDocsByProduct(): IDocument[] {
+    return this.docsByProduct;
+  }
 
   created() {
     this.total = this.$store.state.document.totalSize;

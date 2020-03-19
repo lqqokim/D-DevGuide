@@ -94,12 +94,10 @@ export default class ForumProductManage extends Vue
   @Forum.Action('removeProduct') removeProductAction!: (
     product: IProduct
   ) => Promise<any>;
-  @Forum.Mutation('products') productsMutation!: (
-    products: IProduct[]
-  ) => Promise<any>;
   @Forum.Action('updateProducts') updateProductsAction!: (
     products: IProduct[]
   ) => Promise<any>;
+  @Forum.Mutation('products') productsMutation!: (products: IProduct[]) => void;
 
   $refs!: {
     productInfoComp: any;
@@ -221,9 +219,6 @@ export default class ForumProductManage extends Vue
     } else {
       await this.registerProductAction(product);
     }
-
-    // init initialProducts, selectedProduct
-    // this.initialProducts = this.$store.state.forum.products.slice();
 
     // 등록 후 첫번째 제품 선택
     this.selectedProduct = this.products[0];

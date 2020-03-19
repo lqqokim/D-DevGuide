@@ -73,15 +73,6 @@ export default class AlertComponent extends Vue {
     };
   }
 
-  created() {
-    // document.addEventListener('click', (event) => {
-    //   if (this.$refs.alertWrap) {
-    //     this.$refs.alertWrap.style.marginTop = -event.clientY / 2 + 277 + 'px';
-    //     this.$refs.alertWrap.style.marginLeft = -event.clientX / 2 + 250 + 'px';
-    //   }
-    // });
-  }
-
   async onclickOk(): Promise<any> {
     await this.alertButtonAction({
       ok: true,
@@ -94,10 +85,6 @@ export default class AlertComponent extends Vue {
       ok: true,
       cancel: false,
     });
-    // await this.alertAction({
-    //   ...this.info,
-    //   isShow: false,
-    // });
   }
 
   async onclickCancel(): Promise<any> {
@@ -105,10 +92,6 @@ export default class AlertComponent extends Vue {
       ok: false,
       cancel: true,
     });
-    // await this.alertAction({
-    //   ...this.info,
-    //   isShow: false,
-    // });
   }
 }
 </script>

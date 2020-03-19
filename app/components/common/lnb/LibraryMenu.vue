@@ -161,17 +161,9 @@ const File = namespace('download');
 
 @Component
 export default class extends Vue {
-  @Video.Action('videoProducts') videoProductsAction!: () => void;
-  @Doc.Action('docProducts') docProductsAction!: () => void;
-  @File.Action('fileProducts') fileProductsAction!: () => void;
-
-  selectedProductCode!: string;
-
-  isVideoFolder: boolean = true;
-  isDocFolder: boolean = true;
-  isDownloadFolder: boolean = true;
-
-  path: string = '';
+  @Video.Action('videoProducts') videoProductsAction!: () => Promise<any>;
+  @Doc.Action('docProducts') docProductsAction!: () => Promise<any>;
+  @File.Action('fileProducts') fileProductsAction!: () => Promise<any>;
 
   @Watch('$route.params.productCode', { deep: true, immediate: true })
   onChangeMenu(value, oldValue) {
@@ -179,9 +171,11 @@ export default class extends Vue {
     this.path = this.$route.path;
   }
 
-  isAdmin(): boolean {
-    return this.$store.state.user.user.authority === 'S';
-  }
+  selectedProductCode!: string;
+  isVideoFolder: boolean = true;
+  isDocFolder: boolean = true;
+  isDownloadFolder: boolean = true;
+  path: string = '';
 
   async created() {
     this.path = this.$route.path;
@@ -199,6 +193,10 @@ export default class extends Vue {
     await this.docProductsAction();
     // if (!this.$store.state.document.products.length) {
     // }
+  }
+
+  isAdmin(): boolean {
+    return this.$store.state.user.user.authority === 'S';
   }
 
   onclickMenuProduct(product, categoryName): void {

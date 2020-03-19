@@ -122,11 +122,6 @@ export default class LibraryDownloadEdit extends Vue {
   docManageModalHeight: string = '734px';
   docManageModalWidth: string = '826px';
 
-  // docType(doc: IDocument): string[] {
-  //   console.log(doc);
-  //   return [`btn-${doc.fileExt}`];
-  // }
-
   created() {
     this.$store.state.document.products.forEach((product) => {
       this.localManagedDocs.push(product.managedDocs);
