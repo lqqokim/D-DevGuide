@@ -101,10 +101,6 @@ export default class ProductCardList extends Vue {
 
   localProducts: any[] = [];
 
-  update() {
-    // this.localProducts = this.products.slice();
-  }
-
   created() {
     this.localProducts = this.products.slice();
   }

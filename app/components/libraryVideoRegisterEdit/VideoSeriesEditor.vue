@@ -101,7 +101,6 @@ export default class VideoSeriesEditor extends Vue {
   @Prop() readonly video!: IVideo;
   @Watch('seriesVideos', { immediate: true, deep: true })
   onSeriesVideosChange(val) {
-    // console.log('onSeriesVideosChange', val);
     this.localSeriesVideos = val;
   }
   description!: string;

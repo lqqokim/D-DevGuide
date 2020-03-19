@@ -15,6 +15,7 @@
           <!--          <input type="search" required="required" />-->
           <div class="search"></div>
         </div>
+        <!-- 열려있는 검색 바 -->
         <!--
               <div class="srch">
                 <div class="srch-wrap-bar-small">
@@ -25,8 +26,7 @@
                     </button>
                   </div>
                 </div>
-              </div>
-              -->
+              </div> -->
       </div>
       <div class="register">
         <button
@@ -269,7 +269,7 @@
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import * as removeMd from 'remove-markdown';
 import { dateFormat } from '~/utils/commonFuncs';
-import { IProduct, IFilterType, ListParams } from '~/store/modules/forum';
+import { IProduct, IFilterType } from '~/store/modules/forum';
 import { IAlert, SortOptions } from '~/store/modules/common';
 
 const Forum = namespace('forum');
@@ -288,67 +288,29 @@ export default class ForumList extends Vue {
     params: any;
   }) => Promise<any>;
 
-  //   searchWord: params.searchWord,
-  // });  await store.dispatch('forum/searchPosts', {
-
   isOpenSort: boolean = false;
   isOpenCount: boolean = false;
   selectedSortOption: SortOptions = { code: '', name: '' };
   selectedCountOption: SortOptions = { code: '', name: '' };
   selectedPage: number = 1;
-  countOptions!: SortOptions[];
-  sortOptions!: SortOptions[];
+  countOptions!: SortOptions[]; // 5, 15, 30 개씩 보기
+  sortOptions!: SortOptions[]; // 최신순, 추천순
   total!: number;
   pages: number[] = [];
   totalPages: number[] = [];
   selectedIndex: number = -1;
   isNotExistComments: boolean = false; // 답변이 없는 항목만 보기
-  // isComplete: boolean | undefined = undefined;
-
   nextCount: number = 0;
+  searchWord: string = ''; // 검색어
 
-  filterTypes!: IFilterType;
-  selectedFilter!: string;
+  filterTypes!: IFilterType; // { ALL: 'All', COMPLETE: 'Complete', PROGRESS: 'Progress'}
+  selectedFilter!: string; // 전제, 완료됨, 진행중
 
   $refs!: {
     contentRef: any;
   };
 
-  searchWord: string = '';
-
-  inputWord(e): void {
-    this.searchWord = e.target.value;
-  }
-
-  async searchRequest(e): Promise<any> {
-    // if (
-    //   ((e.type === 'keydown' && e.keyCode === 13) || e.type === 'click') &&
-    //   this.searchWord !== ''
-    // )
-    if ((e.type === 'keydown' && e.keyCode === 13) || e.type === 'click') {
-      await this.actionGetSearchPosts();
-      this.setPages();
-    }
-  }
-
-  async actionGetSearchPosts(skip: number = 0): Promise<any> {
-    const params = {
-      skip,
-      sort: this.selectedSortOption.code,
-      limit: this.selectedCountOption.code,
-      isNotExistComments: this.isNotExistComments,
-      filterType: this.selectedFilter,
-    };
-
-    await this.searchPostsAction({
-      searchWord: this.searchWord,
-      productCode: this.$store.state.forum.selectedProduct.productCode,
-      params: {
-        params,
-      },
-    });
-  }
-
+  // 제품에 대한 post 목록
   get postsByProduct() {
     return this.$store.state.forum.postsByProduct;
   }
@@ -356,7 +318,6 @@ export default class ForumList extends Vue {
   async created(): Promise<any> {
     const filterTypes = this.$store.state.forum.filterTypes;
     const routeParams = this.$route.params;
-    // console.log('this.$route.params', this.$route.params);
 
     this.filterTypes = filterTypes;
     this.selectedFilter = filterTypes.ALL;
@@ -381,16 +342,45 @@ export default class ForumList extends Vue {
       }
 
       await this.actionGetPosts();
-
-      // this.isNotExistComments = false;
-      // this.selectedFilter = filterTypes.ALL;
-      // this.selectedSortOption = this.sortOptions[0];
     }
 
-    // 초기 page number 설정
     this.setPages();
   }
 
+  // 검색어 입력
+  inputWord(e): void {
+    this.searchWord = e.target.value;
+  }
+
+  // 검색창에서 검색
+  async searchRequest(e): Promise<any> {
+    if ((e.type === 'keydown' && e.keyCode === 13) || e.type === 'click') {
+      await this.actionGetSearchPosts();
+      this.setPages();
+    }
+  }
+
+  // 검색창에서의 검색 결과 목록 조회
+  async actionGetSearchPosts(skip: number = 0): Promise<any> {
+    // paging 처리를 위한 옵션
+    const params = {
+      skip, // 이전 페이지 갯수
+      filterType: this.selectedFilter, // 전제, 완료됨, 진행중
+      isNotExistComments: this.isNotExistComments, // 답변이 있는 항목인지에 대한 boolean
+      limit: this.selectedCountOption.code, // 5, 15, 30 개씩 보기
+      sort: this.selectedSortOption.code, // 최신순, 추천순
+    };
+
+    await this.searchPostsAction({
+      searchWord: this.searchWord,
+      productCode: this.$store.state.forum.selectedProduct.productCode,
+      params: {
+        params,
+      },
+    });
+  }
+
+  // 첫번째 페이지 이동 클릭
   onclickFirstPage(isDisabled: boolean) {
     if (isDisabled) return false;
 
@@ -406,6 +396,7 @@ export default class ForumList extends Vue {
     this.onclickPage(this.selectedPage);
   }
 
+  // 마지막 페이지 이동 클릭
   onclickEndPage(isDisabled: boolean) {
     if (isDisabled) return false;
 
@@ -421,6 +412,7 @@ export default class ForumList extends Vue {
     this.onclickPage(this.selectedPage);
   }
 
+  // 다음 페이지 화살표 클릭
   onclickNextPage(isDisabled: boolean) {
     if (isDisabled) return false;
 
@@ -435,6 +427,7 @@ export default class ForumList extends Vue {
     this.onclickPage(this.selectedPage);
   }
 
+  // 이전 페이지 화살표 클릭
   onclickPrevPage(isDisabled: boolean) {
     if (isDisabled) return false;
 
@@ -449,12 +442,7 @@ export default class ForumList extends Vue {
     this.onclickPage(this.selectedPage);
   }
 
-  removeMdFormat(contents: string): string {
-    return removeMd(contents)
-      .split('\n')
-      .join('<br/>');
-  }
-
+  // 페이지수 설정
   setPages(): void {
     const pages: number[] = [];
     const totalSize: number = this.$store.state.forum.totalSize;
@@ -468,12 +456,13 @@ export default class ForumList extends Vue {
     }
 
     this.totalPages = pages;
-    this.pages = this.totalPages.slice(0, 5);
+    this.pages = this.totalPages.slice(0, 5); // 페이지 5개씩 보여준다.
     this.selectedPage = this.pages[0];
     // init fold
     this.selectedIndex = -1;
   }
 
+  // 추천순, 최신순 선택
   async onclickSort(sortOption: SortOptions): Promise<any> {
     this.selectedSortOption = sortOption;
     this.isOpenSort = !this.isOpenSort;
@@ -488,6 +477,7 @@ export default class ForumList extends Vue {
     this.setPages();
   }
 
+  // 5, 10, 15 개씩 보기 선택
   async onclickCount(countOption: SortOptions): Promise<any> {
     this.selectedCountOption = countOption;
     this.isOpenCount = !this.isOpenCount;
@@ -502,9 +492,11 @@ export default class ForumList extends Vue {
     this.setPages();
   }
 
+  // 페이지 숫자 클릭
   onclickPage(page: number): void {
     this.selectedPage = page;
 
+    // skip 된 페이지
     let skip: number = parseInt(
       (this.selectedPage - 1) * parseInt(this.selectedCountOption.code) +
         this.postsByProduct.length
@@ -522,6 +514,7 @@ export default class ForumList extends Vue {
     this.actionGetPosts(skip);
   }
 
+  // 답변이 없는 항목만 보기 체크
   async onclickCheckComments(): Promise<any> {
     this.isNotExistComments = !this.isNotExistComments;
 
@@ -535,6 +528,7 @@ export default class ForumList extends Vue {
     this.setPages();
   }
 
+  // 완료됨 클릭
   async onclickComplete(): Promise<any> {
     if (this.selectedFilter === this.filterTypes.COMPLETE) {
       return;
@@ -556,6 +550,7 @@ export default class ForumList extends Vue {
     this.setPages();
   }
 
+  // 진행중 클릭
   async onclickProgress(): Promise<any> {
     if (this.selectedFilter === this.filterTypes.PROGRESS) {
       return;
@@ -573,6 +568,7 @@ export default class ForumList extends Vue {
     this.setPages();
   }
 
+  // 전체 클릭
   async onclickAll(): Promise<any> {
     if (this.selectedFilter === this.filterTypes.ALL) {
       return;
@@ -595,13 +591,15 @@ export default class ForumList extends Vue {
     this.setPages();
   }
 
+  // 조회 옵션에 대한 post 목록 조회
   async actionGetPosts(skip: number = 0): Promise<any> {
+    // paging 처리를 위한 옵션
     const params = {
-      skip,
-      sort: this.selectedSortOption.code,
-      limit: this.selectedCountOption.code,
-      isNotExistComments: this.isNotExistComments,
-      filterType: this.selectedFilter,
+      skip, // 이전 페이지 갯수
+      filterType: this.selectedFilter, // 전제, 완료됨, 진행중
+      isNotExistComments: this.isNotExistComments, // 답변이 있는 항목인지에 대한 boolean
+      limit: this.selectedCountOption.code, // 5, 15, 30 개씩 보기
+      sort: this.selectedSortOption.code, // 최신순, 추천순
     };
 
     await this.postsByProductAction({
@@ -612,6 +610,7 @@ export default class ForumList extends Vue {
     });
   }
 
+  // 질문 등록 클릭
   onclickForumRegister(): void {
     if (!this.$store.state.forum.products.length) {
       this.alertAction({
@@ -639,6 +638,12 @@ export default class ForumList extends Vue {
       },
     });
     // }
+  }
+
+  removeMdFormat(contents: string): string {
+    return removeMd(contents)
+      .split('\n')
+      .join('<br/>');
   }
 
   convertDateFormat(time): string {

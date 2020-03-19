@@ -92,12 +92,10 @@ export default class LibraryDocProductManage extends Vue
   @Doc.Action('removeProduct') removeProductAction!: (
     product: IProduct
   ) => Promise<any>;
-  @Doc.Mutation('products') productsMutation!: (
-    products: IProduct[]
-  ) => Promise<any>;
   @Doc.Action('updateProducts') updateProductsAction!: (
     products: IProduct[]
   ) => Promise<any>;
+  @Doc.Mutation('products') productsMutation!: (products: IProduct[]) => void;
 
   $refs!: {
     productInfoComp: any;

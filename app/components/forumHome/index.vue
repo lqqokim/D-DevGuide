@@ -158,17 +158,9 @@ export default class ForumHome extends Vue {
         msg: '제품을 먼저 등록해주세요.',
       });
 
-      // return;
+      return;
     }
 
-    // // 로그인 하지 않았을 경우, 로그인 화면으로 이동
-    // if (!this.$store.state.user.user.loginId) {
-    //   this.$router.push({
-    //     name: 'login',
-    //   });
-    // }
-    // // 로그인 했을 경우, 질문등록 화면 이동
-    // else {
     this.$router.push({
       name: 'forumRegister',
       params: {
@@ -179,7 +171,8 @@ export default class ForumHome extends Vue {
     // }
   }
 
-  numberWithCommas(num) {
+  // 숫자에 콤마 형식 적용 함수
+  numberWithCommas(num): string {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 }

@@ -113,6 +113,7 @@ export default class InProgressList extends Vue {
     });
   }
 
+  // 답변이 진행중인 목록 더보기 클릭
   onclickInProgressMore(): void {
     this.$router.push({
       name: 'forumList',

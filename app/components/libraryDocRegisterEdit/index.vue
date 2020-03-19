@@ -160,13 +160,7 @@ export default class LibraryDocRegister extends Vue {
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @Doc.Action('createDoc') createDocAction!: (payload: any) => Promise<any>;
   @Doc.Action('updateDoc') updateDocAction!: (payload: any) => Promise<any>;
-  @Doc.Action('previewDoc') previewDocAction!: (file: any) => void;
-
-  @Watch('$route', { immediate: true, deep: true })
-  onChangeRoute(to, from) {
-    // console.log('onChangeRoute :: ', to, from);
-    // console.log('onChangeMenu :: ', this.selectedProductCode);
-  }
+  @Doc.Action('previewDoc') previewDocAction!: (file: any) => Promise<any>;
 
   get doc() {
     return this.$store.state.document.selectedDoc;
@@ -204,13 +198,6 @@ export default class LibraryDocRegister extends Vue {
   }
 
   mounted() {
-    // // remove tui toolbar image button
-    // const tuiImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
-    //   '.tui-image.tui-toolbar-icons'
-    // );
-    //
-    // tuiImageBtnEl.parentNode!.removeChild(tuiImageBtnEl);
-
     setTimeout(() => {
       if (this.$refs.fileInputText && this.$refs.fileInputText.value) {
         this.$refs.fileInputText.value = this.doc.originDocName;

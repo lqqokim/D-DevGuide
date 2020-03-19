@@ -146,36 +146,6 @@
             </dd>
           </dl>
         </li>
-        <!--        <li>-->
-        <!--          <div class="thumb">-->
-        <!--            <img src="../../assets/images/mov_02.jpg" alt="" />-->
-        <!--            <span class="btn-type btn-hwp">한글</span>-->
-        <!--          </div>-->
-        <!--          <dl class="thumb-desc">-->
-        <!--            <dt>DEWS/UI 기초 교육 시리즈</dt>-->
-        <!--            <dd>2019-09-24<span class="hit">조회 1039</span></dd>-->
-        <!--          </dl>-->
-        <!--        </li>-->
-        <!--        <li>-->
-        <!--          <div class="thumb">-->
-        <!--            <img src="../../assets/images/mov_03.jpg" alt="" />-->
-        <!--            <span class="btn-type btn-ppt">PPT</span>-->
-        <!--          </div>-->
-        <!--          <dl class="thumb-desc">-->
-        <!--            <dt>DEWS 플랫폼 CM - UI편</dt>-->
-        <!--            <dd>2019-09-24<span class="hit">조회 1039</span></dd>-->
-        <!--          </dl>-->
-        <!--        </li>-->
-        <!--        <li>-->
-        <!--          <div class="thumb">-->
-        <!--            <img src="../../assets/images/mov_04.jpg" alt="" />-->
-        <!--            <span class="btn-type btn-excel">엑셀</span>-->
-        <!--          </div>-->
-        <!--          <dl class="thumb-desc">-->
-        <!--            <dt>2019 DEWS/UI 세미나 자료</dt>-->
-        <!--            <dd>2019-09-24<span class="hit">조회 1039</span></dd>-->
-        <!--          </dl>-->
-        <!--        </li>-->
       </ul>
       <p v-if="count">
         <a role="button" class="arrow prev" @click="count--"></a>
@@ -189,7 +159,6 @@
 </template>
 <script lang="ts">
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
-// import * as PDFObject from 'pdfobject';
 import { dateFormat } from '~/utils/commonFuncs';
 import { IDocument, IStaff } from '@/store/modules/document';
 import { IUser } from '@/store/modules/user';
@@ -207,7 +176,6 @@ export default class LibraryDocDetail extends Vue {
     downloadBtn: any;
   };
 
-  // user!: User;
   docsAllByProduct!: IDocument[];
   count: number = 0;
 
@@ -231,18 +199,26 @@ export default class LibraryDocDetail extends Vue {
     return this.$store.state.user.user;
   }
 
+  created() {
+    this.docsAllByProduct = this.$store.state.document.docsAllByProduct.slice();
+  }
+
+  // 직원 여부
   isCheckEmp(): boolean {
     return this.user.authority === 'E';
   }
 
+  // 작성자 여부
   isCheckWriter(doc: IDocument): boolean {
     return this.user.loginId === doc.empId;
   }
 
+  // 관리자 권한 여부
   isAdmin(): boolean {
     return this.user.authority === 'S';
   }
 
+  // 제품 스태프 여부
   isStaff(doc: IDocument): boolean {
     if (
       this.user.loginId &&
@@ -258,33 +234,12 @@ export default class LibraryDocDetail extends Vue {
     }
   }
 
-  created() {
-    this.docsAllByProduct = this.$store.state.document.docsAllByProduct.slice();
-  }
-
+  // 문서 타입(pdf) 반환
   docType(doc: IDocument): string[] {
     return [`btn-${doc.fileExt}`];
   }
 
-  // onclickDownload(): void {
-  //   // this.$refs.downloadBtn.href = `/uploads/${this.doc.docName}`;
-  //   // this.$refs.downloadBtn.download = this.doc.originDocName;
-  //   this.alertAction({
-  //     type: 'question',
-  //     isShow: true,
-  //     msg: '문서를 다운로드하시겠습니까?',
-  //   }).then((result) => {
-  //     console.log('aa :: ', result);
-  //     if (result.ok) {
-  //       // const downloadBtnEl = this.$refs.downloadBtn;
-  //       // console.log(this.$refs.downloadBtn);
-  //       // this.$refs.downloadBtn.href = `/uploads/${this.doc.docName}`;
-  //       // this.$refs.downloadBtn.download = this.doc.originDocName;
-  //       this.$refs.downloadBtn.click();
-  //     }
-  //   });
-  // }
-
+  // 문서 삭제버튼 클릭
   onclickRemove(): void {
     this.alertAction({
       type: 'question',
@@ -298,6 +253,7 @@ export default class LibraryDocDetail extends Vue {
     });
   }
 
+  // 문서 목록 페이지 이동
   redirectDocList(): void {
     this.$router.push({
       name: 'docList',
@@ -307,17 +263,9 @@ export default class LibraryDocDetail extends Vue {
     });
   }
 
-  onclickPrev(): void {
-    this.count--;
-  }
-
-  onclickNext(): void {
-    this.count++;
-  }
-
+  // 7일 이내에 등록했을 경우 New 표시
   isNew(updateDate: number): boolean {
     const standard = 1000 * 3600 * 24;
-    // 7일 이내에 등록했을 경우 New 표시
     return (Date.now() - updateDate) / standard < 7;
   }
 

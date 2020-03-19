@@ -1,6 +1,4 @@
 import { VideoModel, VideoProductModel } from './../../../models/video';
-import { ForumPostModel } from '~/api/models/forum';
-const request = require('request-promise-native');
 
 const { Router } = require('express');
 const router = Router();

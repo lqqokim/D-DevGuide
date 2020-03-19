@@ -226,37 +226,6 @@ export default class ViewerMenu extends Vue {
   displayVersionList: boolean = false;
   viewerMenuTreeData: Array<any> = [];
 
-  mounted() {
-    EventBus.$on('toggle', (folderData) => {
-      if (folderData.type === 'page') {
-        for (const key in this.viewerMenuTreeData) {
-          this.removeSelectedOption(this.viewerMenuTreeData[key]);
-        }
-      }
-      if (folderData.children) {
-        folderData.option.expanded = !folderData.option.expanded;
-      }
-      folderData.option.selected = folderData.type === 'page';
-
-      // Sample Page 일 경우 새 창을 띄워줌
-      if (folderData.type === 'samplePage') {
-        this.getRepositorySampleFileAction({
-          productCode: this.$route.params.productCode,
-          ref: this.$store.state.repository.currentRef,
-          refType: this.$store.state.repository.refType,
-          filePath: folderData.option.path,
-          pageTitle: folderData.title,
-        }).then((result) => {
-          const win = window.open('');
-          // 새 창이 제대로 열리지 않으면 null 이 반환됨
-          if (win !== null) {
-            win.document.write(result);
-          }
-        });
-      }
-    });
-  }
-
   created() {
     // 트리 클릭 시 확장, 포커스 설정
     if (
@@ -339,6 +308,38 @@ export default class ViewerMenu extends Vue {
     // });
     // console.log(this.$store.state.repository.treeData);
   }
+
+  mounted() {
+    EventBus.$on('toggle', (folderData) => {
+      if (folderData.type === 'page') {
+        for (const key in this.viewerMenuTreeData) {
+          this.removeSelectedOption(this.viewerMenuTreeData[key]);
+        }
+      }
+      if (folderData.children) {
+        folderData.option.expanded = !folderData.option.expanded;
+      }
+      folderData.option.selected = folderData.type === 'page';
+
+      // Sample Page 일 경우 새 창을 띄워줌
+      if (folderData.type === 'samplePage') {
+        this.getRepositorySampleFileAction({
+          productCode: this.$route.params.productCode,
+          ref: this.$store.state.repository.currentRef,
+          refType: this.$store.state.repository.refType,
+          filePath: folderData.option.path,
+          pageTitle: folderData.title,
+        }).then((result) => {
+          const win = window.open('');
+          // 새 창이 제대로 열리지 않으면 null 이 반환됨
+          if (win !== null) {
+            win.document.write(result);
+          }
+        });
+      }
+    });
+  }
+
   // 현재 선택되지 않은 li 의 selected 속성 없애주기
   removeSelectedOption(treeData): void {
     if (treeData.option.selected && treeData.type === 'page') {

@@ -1,20 +1,13 @@
 // 라우터 진입시 호출 (설정은 nuxt.config.js의 미들웨어 참조)
-
-export default (context) => {
-  //   // context.store.dispatch('user/initAuth', context);
-  //
-  console.log('middleware :: ', context.store.state.user);
-
+export default ({ req, res, beforeNuxtRender, store }) => {
   // Server-side
   if (process.server) {
-    const { req, res, beforeNuxtRender } = context;
     console.info('SERVER-SIDE ');
   }
 
   if (process.client) {
     // const { from, nuxtState } = context;
     const token = sessionStorage.getItem('KEY');
-
     console.info('CLIENT-SIDE ', token);
   }
 

@@ -60,24 +60,23 @@ export default class VideoManageModal extends Vue {
   @Video.Action('getVideosByProduct') videosByProductAction!: (payload: {
     data: IVideo;
     params: ListParams;
-  }) => void;
+  }) => Promise<any>;
   @Video.Action('removeVideo') removeVideoAction!: (
     _id: string
   ) => Promise<any>;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   private readonly LIMIT: number = 8;
-
-  get localVideosByProduct(): IVideo[] {
-    return this.videosByProduct;
-  }
-
   videosByProduct: IVideo[] = [];
   selectedVideos: IVideo[] = [];
 
   isViewMore: boolean = true;
   countMore: number = 1;
   total!: number;
+
+  get localVideosByProduct(): IVideo[] {
+    return this.videosByProduct;
+  }
 
   created() {
     this.total = this.$store.state.video.totalSize;
@@ -90,12 +89,14 @@ export default class VideoManageModal extends Vue {
     this.selectedVideos = this.$store.state.video.selectedProduct.managedVideos.slice();
   }
 
+  // 동영상 Thumbnail
   imagePath(video): string {
     return `https://img.youtube.com/vi/${
       video.isSeries ? video.series[0].youtubeId : video.youtubeId
     }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
   }
 
+  // 더보기 클릭
   async onclickMoreView(): Promise<any> {
     this.countMore++;
 

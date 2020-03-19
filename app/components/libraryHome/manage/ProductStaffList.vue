@@ -112,10 +112,6 @@ export default class ProductStaffList extends Vue {
   };
 
   async onClickAddStaff(): Promise<any> {
-    // for (let i = 0; i < this.temp.length; i++) {
-    //   this.localStaffs.push(this.temp[i]);
-    // }
-
     if (!this.$store.state.searchGWUser.searchGWUserList.length) {
       await this.getSearchGWUserAction({
         empName: '',

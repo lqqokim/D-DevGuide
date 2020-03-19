@@ -116,6 +116,7 @@ export default class ManyLikeList extends Vue {
     });
   }
 
+  // 추천이 가장 많은 목록 더보기 클릭
   onclickManyLikeMore(): void {
     this.$router.push({
       name: 'forumList',
