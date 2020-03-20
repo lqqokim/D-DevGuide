@@ -83,7 +83,10 @@ const Common = namespace('common');
 })
 export default class ProductStaffList extends Vue {
   @SearchGWUser.Action('getSearchGWUser')
-  getSearchGWUserAction;
+  getSearchGWUserAction!: (payload: {
+    empName: string;
+    loginId: string;
+  }) => Promise<any>;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @Prop() readonly staffs!: any;
   @Watch('staffs', { immediate: true, deep: true })
