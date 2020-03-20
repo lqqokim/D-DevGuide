@@ -89,7 +89,7 @@
 import draggable from 'vuedraggable';
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { dateFormat } from '~/utils/commonFuncs';
-import { IDocument, ListParams } from '@/store/modules/document';
+import { IDocument, ListParams, IProduct } from '@/store/modules/document';
 import ModalComponent from '@/components/common/modal/modalComponent.vue';
 import DocManageModal from '@/components/libraryDocHomeManage/DocManageModal.vue';
 import { IAlert } from '@/store/modules/common';
@@ -107,8 +107,18 @@ const Common = namespace('common');
 export default class LibraryDownloadEdit extends Vue {
   localManagedDocs: any[] = [];
 
-  @Doc.Action('getDocsByProduct') getDocsByProductAction;
-  @Doc.Action('updateManagedDoc') updateManagedDocAction;
+  @Doc.Action('getDocsByProduct') getDocsByProductAction!: (payload: {
+    data: IProduct;
+    params: {
+      limit: number;
+      skip: number;
+      sort: string;
+    };
+  }) => Promise<any>;
+  @Doc.Action('updateManagedDoc') updateManagedDocAction!: (payload: {
+    productId: string;
+    managedDocs: IDocument[];
+  }) => Promise<any>;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   $refs!: {
@@ -136,7 +146,7 @@ export default class LibraryDownloadEdit extends Vue {
         skip: 0,
         sort: '-uploadDate',
       },
-    }).then(() => {});
+    });
 
     this.$modal.show(this.docManageModalName);
   }

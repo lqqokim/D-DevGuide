@@ -50,7 +50,7 @@
 <script lang="ts">
 import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { dateFormat } from '~/utils/commonFuncs';
-import { IDocument, ListParams } from '@/store/modules/document';
+import { IDocument, IProduct, ListParams } from '@/store/modules/document';
 import { IAlert } from '@/store/modules/common';
 
 const Doc = namespace('document');
@@ -58,8 +58,15 @@ const Common = namespace('common');
 
 @Component
 export default class DocManageModal extends Vue {
-  @Doc.Action('getDocsByProduct') getDocsByProductAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
+  @Doc.Action('getDocsByProduct') getDocsByProductAction!: (payload: {
+    data: IProduct;
+    params: {
+      skip: number;
+      limit: number;
+      sort: string;
+    };
+  }) => Promise<any>;
 
   private readonly LIMIT: number = 8;
   docsByProduct: IDocument[] = [];

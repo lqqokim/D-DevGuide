@@ -158,9 +158,17 @@ const Doc = namespace('document');
 })
 export default class LibraryDocRegister extends Vue {
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
-  @Doc.Action('createDoc') createDocAction!: (payload: any) => Promise<any>;
-  @Doc.Action('updateDoc') updateDocAction!: (payload: any) => Promise<any>;
-  @Doc.Action('previewDoc') previewDocAction!: (file: any) => Promise<any>;
+  @Doc.Action('createDoc') createDocAction!: (payload: {
+    isChange: boolean;
+    data: IDocument;
+    file: File;
+  }) => Promise<any>;
+  @Doc.Action('updateDoc') updateDocAction!: (payload: {
+    isChange: boolean;
+    data: IDocument;
+    file: File;
+  }) => Promise<any>;
+  @Doc.Action('previewDoc') previewDocAction!: (file: File) => Promise<any>;
 
   get doc() {
     return this.$store.state.document.selectedDoc;
