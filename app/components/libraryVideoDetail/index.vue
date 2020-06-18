@@ -207,33 +207,55 @@ export default class LibraryVideoDetail extends Vue {
     video: IVideo
   ) => Promise<any>;
 
-  // 선택된 동영상 변경 감지
-  @Watch('video', { immediate: false, deep: true })
-  onVideoChange(val: IVideo) {
-    // history pushState for url change
-    this.historyPush(val._id as string);
-  }
-
-  // 선택된 동영상이 변경될시, pushState 로 url 변경
-  historyPush(_id: string) {
-    // @ts-ignore
-    history.pushState(
-      {},
-      'nextVideo',
-      '/video/' + this.$route.params.productCode + '/' + _id
-    );
-  }
-
   $refs!: {
     descVideoDetail: any;
   };
 
+  // isStaff: boolean = false;
   selectedVideoIdx!: number;
+  // selectedVideoGroup!: video.Video;
   count: number = 0;
   videoAllByProduct: IVideo[] = [];
 
+  created() {
+    this.videoAllByProduct = this.$store.state.video.videoAllByProduct.slice();
+    this.updateVideoCountAction(this.video._id);
+  }
+
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${video.youtubeId}/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
+
   get user(): IUser {
     return this.$store.state.user.user;
+  }
+
+  isCheckEmp(): boolean {
+    return this.user.authority === 'E';
+  }
+
+  isCheckWriter(video: IVideo): boolean {
+    return this.user.loginId === video.empId;
+  }
+
+  isAdmin(): boolean {
+    return this.user.authority === 'S';
+  }
+
+  isStaff(video: IVideo): boolean {
+    if (
+      this.user.loginId &&
+      this.$store.state.download.selectedProduct.staffs !== undefined &&
+      (this.user.authority === 'E' || this.user.authority === 'S')
+    ) {
+      return this.$store.state.download.selectedProduct.staffs.some(
+        (staff: IStaff) => {
+          return staff.empId === video.empId;
+        }
+      );
+    } else {
+      return false;
+    }
   }
 
   get localVideoAllByProduct(): IVideo[] {
@@ -248,7 +270,6 @@ export default class LibraryVideoDetail extends Vue {
       .slice(this.count, 4 + this.count);
   }
 
-  // 선택된 동영상
   get video(): IVideo {
     let selectedVideo: IVideo = this.$store.state.video.selectedVideo;
     // const currentId: string = this.$route.params._id;
@@ -267,6 +288,35 @@ export default class LibraryVideoDetail extends Vue {
     }
 
     return selectedVideo;
+  }
+
+  @Watch('video', { immediate: false, deep: true })
+  onVideoChange(val: IVideo) {
+    // history pushState for url change
+    this.historyPush(val._id as string);
+  }
+
+  historyPush(_id: string) {
+    // @ts-ignore
+    history.pushState(
+      {},
+      'nextVideo',
+      '/video/' + this.$route.params.productCode + '/' + _id
+    );
+  }
+
+  async onclickVideoInSeries(video: IVideo): Promise<any> {
+    // this.$router.push({
+    //   name: 'videoDetail',
+    //   params: {
+    //     productCode: video.productCode,
+    //     _id: video._id,
+    //     video: this.$store.state.video.selectedVideoInSeries,
+    //   },
+    // });
+    await this.updateVideoCountAction(video._id);
+    video.viewCount++;
+    await this.selectedVideoMutation(video);
   }
 
   // 시리즈 내 동영상 목록
@@ -302,59 +352,18 @@ export default class LibraryVideoDetail extends Vue {
     });
     videosByProduct.splice(idx, 1);
 
+    // console.log('[videosByProduct]', videosByProduct);
+
     return videosByProduct;
   }
 
-  created() {
-    this.videoAllByProduct = this.$store.state.video.videoAllByProduct.slice();
-    this.updateVideoCountAction(this.video._id);
-  }
+  // mounted() {
+  //   // md to html for description
+  //   if (this.video) {
+  //     this.$refs.descVideoDetail.innerHTML = marked(this.video.description);
+  //   }
+  // }
 
-  // 동영상 Thumbnail
-  imagePath(video): string {
-    return `https://img.youtube.com/vi/${video.youtubeId}/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
-  }
-
-  // 직원 여부
-  isCheckEmp(): boolean {
-    return this.user.authority === 'E';
-  }
-
-  // 작성자 여부
-  isCheckWriter(video: IVideo): boolean {
-    return this.user.loginId === video.empId;
-  }
-
-  // 관리자 여부
-  isAdmin(): boolean {
-    return this.user.authority === 'S';
-  }
-
-  // 제품 스태프 여부
-  isStaff(video: IVideo): boolean {
-    if (
-      this.user.loginId &&
-      this.$store.state.download.selectedProduct.staffs !== undefined &&
-      (this.user.authority === 'E' || this.user.authority === 'S')
-    ) {
-      return this.$store.state.download.selectedProduct.staffs.some(
-        (staff: IStaff) => {
-          return staff.empId === video.empId;
-        }
-      );
-    } else {
-      return false;
-    }
-  }
-
-  // 시리즈내 다른 동영상 목록 동영상 클릭
-  async onclickVideoInSeries(video: IVideo): Promise<any> {
-    await this.updateVideoCountAction(video._id);
-    video.viewCount++;
-    await this.selectedVideoMutation(video);
-  }
-
-  // 동영상 삭제
   removeVideo(): void {
     const msg: string = this.video.isSeries
       ? '시리즈 내 모든 영상이 삭제됩니다. 삭제하시겠습니까?'
@@ -376,7 +385,6 @@ export default class LibraryVideoDetail extends Vue {
     });
   }
 
-  // 동영상 리스트 페이지 이동
   redirectVideos(): void {
     this.$router.push({
       name: 'videoList',
@@ -387,13 +395,11 @@ export default class LibraryVideoDetail extends Vue {
     });
   }
 
-  // 동영상 다음 버튼 클릭
   onclickNext(): void {
     this.selectedVideoIdx++;
     this.selectedVideoSeriesCount(this.selectedVideoIdx);
   }
 
-  // 동영상 이전 버튼 클릭
   onclickPrev(): void {
     this.selectedVideoIdx--;
     this.selectedVideoSeriesCount(this.selectedVideoIdx);
@@ -402,22 +408,25 @@ export default class LibraryVideoDetail extends Vue {
   async selectedVideoSeriesCount(selectedVideoIdx): Promise<any> {
     const selectedVideoSeries = this.$store.state.video.selectedVideoSeries;
 
-    // 동영상 조회수 증가
     await this.updateVideoCountAction(
       selectedVideoSeries[selectedVideoIdx]._id
     );
 
     selectedVideoSeries[selectedVideoIdx].viewCount++;
 
-    // 다음 동영상 정보로 변경
     await this.selectedVideoMutation(
       this.$store.state.video.selectedVideoSeries[selectedVideoIdx]
     );
   }
 
-  // 7일 이내에 등록했을 경우 New 표시
+  // async created() {
+  //   // 선택한 영상에 대한 상세 정보 조회
+  //   await this.videoDetailByIdAction(this.$route.params._id);
+  // }
+
   isNew(updateDate: number): boolean {
     const standard = 1000 * 3600 * 24;
+    // 7일 이내에 등록했을 경우 New 표시
     return (Date.now() - updateDate) / standard < 7;
   }
 

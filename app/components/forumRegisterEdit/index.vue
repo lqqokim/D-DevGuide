@@ -168,6 +168,17 @@ export default class ForumRegisterEdit extends Vue {
     }
   }
 
+  mounted() {
+    // setTimeout(() => {
+    //   // remove toolbar image button
+    //   const tuiRefImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
+    //     '.tui-image.tui-toolbar-icons'
+    //   );
+    //
+    //   tuiRefImageBtnEl.parentNode!.removeChild(tuiRefImageBtnEl);
+    // });
+  }
+
   onclickSave(): void {
     if (!this.post.title) {
       this.alertAction({
@@ -196,7 +207,6 @@ export default class ForumRegisterEdit extends Vue {
     }
   }
 
-  // 질문 작성 취소버튼 클릭
   onclickCancel(): void {
     this.alertAction({
       type: 'question',
@@ -209,7 +219,6 @@ export default class ForumRegisterEdit extends Vue {
     });
   }
 
-  // 질문 수정
   onUpdatePost(request): void {
     this.alertAction({
       type: 'question',
@@ -221,9 +230,19 @@ export default class ForumRegisterEdit extends Vue {
         this.redirectPostDetail();
       }
     });
+
+    // this.updatePostAction(request)
+    //   .then((res) => {
+    //     console.log('[Forum] 수정완료 : ', res);
+    //     alert(res);
+    //     this.redirectPostDetail();
+    //   })
+    //   .catch((err) => {
+    //     console.error(err);
+    //     alert('질문이 정상적으로 수정되지 않았습니다.');
+    //   });
   }
 
-  // 질문 생성
   onCreatePost(request): void {
     this.alertAction({
       type: 'question',
@@ -235,9 +254,21 @@ export default class ForumRegisterEdit extends Vue {
         this.redirectPostDetail();
       }
     });
+
+    // this.createPostAction(request)
+    //   .then((res) => {
+    //     if (res.success && res.data) {
+    //       console.log('[Forum] 등록완료 : ', res);
+    //       alert('질문이 등록되었습니다.');
+    //       this.redirectForumList();
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.error(err);
+    //     alert('질문이 정상적으로 등록되지 않았습니다.');
+    //   });
   }
 
-  // 질문 상세 페이지 이동
   redirectPostDetail(): void {
     this.$router.push({
       name: 'postDetail',
@@ -250,7 +281,6 @@ export default class ForumRegisterEdit extends Vue {
     });
   }
 
-  // 질문 목록 페이지 이동
   redirectForumList(): void {
     this.$router.push({
       name: 'forumList',

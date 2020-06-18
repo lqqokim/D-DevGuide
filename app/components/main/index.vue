@@ -186,21 +186,6 @@ export default class ProjectMain extends Vue {
     };
   }
 
-  created() {
-    if (
-      this.$store.state.product.productList !== undefined &&
-      this.$store.state.product.productList.length > 0
-    ) {
-      if (this.$store.state.product.productList.length > 4) {
-        this.productList = this.$store.state.product.productList.slice(3);
-        this.productListLength = 4;
-      } else {
-        this.productList = this.$store.state.product.productList;
-        this.productListLength = this.$store.state.product.productList.length;
-      }
-    }
-  }
-
   mounted() {
     setInterval(() => {
       this.onclickNextImage();
@@ -215,6 +200,21 @@ export default class ProjectMain extends Vue {
   onclickNextImage(): void {
     // @ts-ignore
     this.imageClasses.push(this.imageClasses.shift());
+  }
+
+  created() {
+    if (
+      this.$store.state.product.productList !== undefined &&
+      this.$store.state.product.productList.length > 0
+    ) {
+      if (this.$store.state.product.productList.length > 4) {
+        this.productList = this.$store.state.product.productList.slice(3);
+        this.productListLength = 4;
+      } else {
+        this.productList = this.$store.state.product.productList;
+        this.productListLength = this.$store.state.product.productList.length;
+      }
+    }
   }
 }
 </script>

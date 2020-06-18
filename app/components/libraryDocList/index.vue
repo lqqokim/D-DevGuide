@@ -241,23 +241,19 @@ export default class LibraryDocList extends Vue {
   @Doc.Action('getDocsByProduct') docsByProductAction!: (payload: {
     data: IDocument;
     params: ListParams;
-  }) => Promise<any>;
+  }) => void;
 
   private readonly LIMIT: number = 8;
+
+  get localDocsByProduct(): IDocument[] {
+    return this.docsByProduct;
+  }
 
   docsByProduct: IDocument[] = [];
 
   isViewMore: boolean = true;
   countMore: number = 1;
   total!: number;
-
-  get localDocsByProduct(): IDocument[] {
-    return this.docsByProduct;
-  }
-
-  get user(): IUser {
-    return this.$store.state.user.user;
-  }
 
   created() {
     this.total = this.$store.state.document.totalSize;
@@ -268,22 +264,22 @@ export default class LibraryDocList extends Vue {
     }
   }
 
-  // 직원 여부
+  get user(): IUser {
+    return this.$store.state.user.user;
+  }
+
   isCheckEmp(): boolean {
     return this.user.authority === 'E';
   }
 
-  // 작성자 여부
   isCheckWriter(doc: IDocument): boolean {
     return this.user.loginId === doc.empId;
   }
 
-  // 관리자 권한 여부
   isAdmin(): boolean {
     return this.user.authority === 'S';
   }
 
-  // 제품 스태프 여
   isStaff(doc: IDocument): boolean {
     if (
       this.user.loginId &&
@@ -303,7 +299,6 @@ export default class LibraryDocList extends Vue {
     return [`btn-${doc.fileExt}`];
   }
 
-  // 삭제 클릭
   onclickRemove(doc: IDocument): void {
     this.alertAction({
       type: 'question',
@@ -317,7 +312,15 @@ export default class LibraryDocList extends Vue {
     });
   }
 
-  // 하단 더보기 버튼 클릭
+  initData() {
+    this.docsByProduct = this.$store.state.document.docsByProduct;
+    this.countMore = 1;
+
+    //  total 초기화
+    this.total = this.$store.state.document.totalSize;
+    this.isViewMore = this.total > this.LIMIT;
+  }
+
   async onclickMoreView(): Promise<any> {
     this.countMore++;
 
@@ -342,24 +345,14 @@ export default class LibraryDocList extends Vue {
     }
   }
 
-  // 7일 이내에 등록했을 경우 New 표시
   isNew(updateDate: number): boolean {
     const standard = 1000 * 3600 * 24;
+    // 7일 이내에 등록했을 경우 New 표시
     return (Date.now() - updateDate) / standard < 7;
   }
 
   convertDateFormat(time): string {
     return dateFormat(time);
-  }
-
-  // 데이터 초기화
-  initData() {
-    this.docsByProduct = this.$store.state.document.docsByProduct;
-    this.countMore = 1;
-
-    //  total 초기화
-    this.total = this.$store.state.document.totalSize;
-    this.isViewMore = this.total > this.LIMIT;
   }
 }
 </script>

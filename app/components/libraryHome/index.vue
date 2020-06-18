@@ -2,13 +2,10 @@
   <div class="dbs-container">
     <search-bar />
 
-    <!-- 동영상 목록 -->
     <video-list />
 
-    <!-- 문서 목록-->
     <doc-list />
 
-    <!-- 다운로드 파일 목록 -->
     <download-list />
   </div>
 </template>

@@ -245,12 +245,30 @@ export default class MyForumList extends Vue {
       pages.push(i);
     }
 
+    // console.log('totalSize :: ', totalSize);
+    // console.log('pages :: ', pages);
+
     this.totalPages = pages;
     this.pages = this.totalPages.slice(0, 5);
     this.selectedPage = this.pages[0];
     // init fold
     this.selectedIndex = -1;
   }
+
+  // onclickPage(page: number): void {
+  //   this.selectedPage = page;
+  //
+  //   let skip: number = parseInt(
+  //     (this.selectedPage - 1) * parseInt(this.selectedCountOption.code) +
+  //       this.postsByProduct.length
+  //   );
+  //
+  //   if (this.selectedPage === 0) {
+  //     skip = 0;
+  //   }
+  //
+  //   this.actionGetPosts(skip);
+  // }
 
   async actionGetPosts(skip: number = 0): Promise<any> {
     const params = {
@@ -269,7 +287,6 @@ export default class MyForumList extends Vue {
     });
   }
 
-  // 완료됨 클릭
   async onclickComplete(): Promise<any> {
     if (this.selectedFilter === this.filterTypes.COMPLETE) {
       return;
@@ -280,7 +297,6 @@ export default class MyForumList extends Vue {
     this.setPages();
   }
 
-  // 진행중 클릭
   async onclickProgress(): Promise<any> {
     if (this.selectedFilter === this.filterTypes.PROGRESS) {
       return;
@@ -291,7 +307,6 @@ export default class MyForumList extends Vue {
     this.setPages();
   }
 
-  // 전체 클릭
   async onclickAll(): Promise<any> {
     if (this.selectedFilter === this.filterTypes.ALL) {
       return;
@@ -302,7 +317,6 @@ export default class MyForumList extends Vue {
     this.setPages();
   }
 
-  // 페이지 숫자 클릭
   onclickPage(page: number): void {
     this.selectedPage = page;
 

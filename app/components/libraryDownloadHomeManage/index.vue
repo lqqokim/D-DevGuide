@@ -96,23 +96,9 @@ export default class LibraryDownloadHomeManage extends Vue {
   localManagedFiles: any[] = [];
 
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
-  @Download.Action('getFilesByProduct') getFilesByProductAction!: (payload: {
-    data: IProduct;
-    params: {
-      params: {
-        limit: number;
-        skip: number;
-        sort: string;
-      };
-    };
-  }) => Promise<any>;
-  @Download.Action('productByCode') productByCodeAction!: (
-    payload: string
-  ) => Promise<any>;
-  @Download.Action('updateManagedFiles') updateManagedFilesAction!: (payload: {
-    productId: string;
-    managedFiles: IFile[];
-  }) => Promise<any>;
+  @Download.Action('getFilesByProduct') getFilesByProductAction;
+  @Download.Action('productByCode') productByCodeAction;
+  @Download.Action('updateManagedFiles') updateManagedFilesAction;
 
   $refs!: {
     downloadManageModal: any;
@@ -152,6 +138,7 @@ export default class LibraryDownloadHomeManage extends Vue {
 
   async onClickAddButton(product: IProduct) {
     await this.productByCodeAction(product.productCode);
+
     await this.getFilesByProductAction({
       data: product,
       params: {
@@ -161,7 +148,7 @@ export default class LibraryDownloadHomeManage extends Vue {
           sort: '-uploadDate',
         },
       },
-    });
+    }).then(() => {});
 
     this.$modal.show(this.downloadManageModalName);
   }

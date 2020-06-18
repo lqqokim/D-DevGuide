@@ -87,12 +87,12 @@ export default class LibraryDownloadProductManage extends Vue
   @Download.Action('removeProduct') removeProductAction!: (
     product: IProduct
   ) => Promise<any>;
+  @Download.Mutation('products') productsMutation!: (
+    products: IProduct[]
+  ) => Promise<any>;
   @Download.Action('updateProducts') updateProductsAction!: (
     products: IProduct[]
   ) => Promise<any>;
-  @Download.Mutation('products') productsMutation!: (
-    products: IProduct[]
-  ) => void;
 
   $refs!: {
     productInfoComp: any;
