@@ -92,10 +92,30 @@ const Common = namespace('common');
 @Component
 export default class ForumMenu extends Vue {
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
-  @Forum.Action('forumProducts') forumProductsAction!: () => Promise<any>;
+  @Forum.Action('forumProducts') forumProductsAction!: () => void;
+
+  $refs!: {
+    productNav: any;
+  };
+
+  // products = [];
+
+  selectedProductCode!: string;
+
+  isSelectedMyForum: boolean = false;
+  isSelectedProductForum: boolean = false;
+  isSelectedProductManage: boolean = false;
+
+  isFolderProductForum: boolean = true;
+
+  isAdmin(): boolean {
+    return this.$store.state.user.user.authority === 'S';
+  }
 
   @Watch('$route.params.productCode', { deep: true, immediate: true })
   onChangeMenu(value, oldValue) {
+    // console.log('onChangeMenu :: ', value);
+
     if (value === undefined) {
       const path = this.$route.path;
       if (path === '/qna/my') {
@@ -116,43 +136,7 @@ export default class ForumMenu extends Vue {
       this.selectedProductCode = value;
     }
   }
-  $refs!: {
-    productNav: any;
-  };
 
-  selectedProductCode!: string;
-  isSelectedMyForum: boolean = false;
-  isSelectedProductForum: boolean = false;
-  isSelectedProductManage: boolean = false;
-  isFolderProductForum: boolean = true;
-
-  get products() {
-    const products = this.$store.state.forum.products.slice();
-    products.unshift({
-      productName: '전체',
-      productCode: 'ALL',
-    });
-    return products;
-  }
-
-  async created() {
-    // production mode 에서 새로고침했을 때 this.$store.state.forum.products 가 존재하여 if 문에 걸려서 product 가져오는 action 을 수행하지 못 함
-    await this.forumProductsAction();
-
-    if (this.$route.params.productCode) {
-      this.isFolderProductForum = true;
-      this.isSelectedProductForum = true;
-    }
-
-    this.selectedProductCode = this.$route.params.productCode;
-  }
-
-  // 관리자 권한 여부
-  isAdmin(): boolean {
-    return this.$store.state.user.user.authority === 'S';
-  }
-
-  // 메뉴 카테고리 클릭
   onclickCategory(type: string) {
     if (type === 'MyForum') {
       this.isSelectedMyForum = true;
@@ -173,6 +157,71 @@ export default class ForumMenu extends Vue {
 
       this.selectedProductCode = '';
     }
+  }
+
+  // onclickProduct(productCode) {
+  //   console.log('onclickProduct :: ', productCode);
+  //   this.selectedProductCode = productCode;
+  // }
+
+  // onclickCategory(category, index: number): void {
+  //   // console.log('onclickCategory :: ', category, index);
+  //   if (category.categoryCode === 'productManage') {
+  //     this.$router.push({
+  //       name: 'forumProductManage',
+  //     });
+  //   } else if (category.categoryCode === 'forumMy') {
+  //     if (!this.$store.state.user.user.loginId) {
+  //       this.alertAction({
+  //         type: 'warning',
+  //         isShow: true,
+  //         msg: '로그인 이후에 이용하실 수 있습니다.',
+  //       }).then((result) => {
+  //         if (result.ok) {
+  //           // next('/login');
+  //           // DBS 고객 로그인 화면으로 이동
+  //           location.href = '/html/Login.html';
+  //         }
+  //       });
+  //
+  //       return;
+  //     }
+  //
+  //     this.$router.push({
+  //       name: 'forumMy',
+  //     });
+  //   }
+  // }
+
+  get products() {
+    const products = this.$store.state.forum.products.slice();
+    products.unshift({
+      productName: '전체',
+      productCode: 'ALL',
+    });
+    return products;
+  }
+
+  async created() {
+    // production mode 에서 새로고침했을 때 this.$store.state.forum.products 가 존재하여 if 문에 걸려서 product 가져오는 action 을 수행하지 못 함
+    await this.forumProductsAction();
+    // if (!this.$store.state.forum.products.length) {
+    // }
+
+    // const products = this.$store.state.forum.products.slice();
+    // products.unshift({
+    //   productName: '전체',
+    //   productCode: 'ALL',
+    // });
+    //
+    // this.products = products;
+
+    if (this.$route.params.productCode) {
+      this.isFolderProductForum = true;
+      this.isSelectedProductForum = true;
+    }
+
+    this.selectedProductCode = this.$route.params.productCode;
   }
 }
 </script>

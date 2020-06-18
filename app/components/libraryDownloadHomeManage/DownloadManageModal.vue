@@ -47,16 +47,7 @@ const Download = namespace('download');
 @Component
 export default class DownloadManageModal extends Vue {
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
-  @Download.Action('getFilesByProduct') getFilesByProductAction!: (payload: {
-    data: IProduct;
-    params: {
-      params: {
-        skip: number;
-        limit: number;
-        sort: string;
-      };
-    };
-  }) => Promise<any>;
+  @Download.Action('getFilesByProduct') getFilesByProductAction;
 
   private readonly LIMIT: number = 5;
 

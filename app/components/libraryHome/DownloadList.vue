@@ -75,6 +75,24 @@ export default class DownloadList extends Vue {
   created() {
     this.products = this.$store.state.download.products;
   }
+
+  // onclickDownload(): void {
+  //   // this.$refs.downloadBtn.href = `/uploads/${this.doc.docName}`;
+  //   // this.$refs.downloadBtn.download = this.doc.originDocName;
+  //   this.alertAction({
+  //     type: 'question',
+  //     isShow: true,
+  //     msg: '문서를 다운로드하시겠습니까?',
+  //   }).then((result) => {
+  //     if (result.ok) {
+  //       // const downloadBtnEl = this.$refs.downloadBtn;
+  //       // console.log(this.$refs.downloadBtn);
+  //       // this.$refs.downloadBtn.href = `/uploads/${this.doc.docName}`;
+  //       // this.$refs.downloadBtn.download = this.doc.originDocName;
+  //       this.$refs.downloadBtn.click();
+  //     }
+  //   });
+  // }
 }
 </script>
 <style scoped>

@@ -99,8 +99,8 @@ import { Vue, Component, namespace } from 'nuxt-property-decorator';
 import { dateFormat } from '~/utils/commonFuncs';
 import ModalComponent from '@/components/common/modal/modalComponent.vue';
 import VideoManageModal from '@/components/libraryVideoHomeManage/VideoManageModal.vue';
+import * as video from '@/store/modules/video.ts';
 import { IAlert } from '@/store/modules/common';
-import { IProduct, IVideo } from '~/store/modules/video';
 
 const Video = namespace('video');
 const Common = namespace('common');
@@ -114,18 +114,8 @@ const Common = namespace('common');
 })
 export default class LibraryVideoHomeManage extends Vue {
   localManagedVideos: any[] = [];
-  @Video.Action('getVideosByProduct') getVideosByProductAction!: (payload: {
-    data: IProduct;
-    params: {
-      limit: number;
-      skip: number;
-      sort: string;
-    };
-  }) => Promise<any>;
-  @Video.Action('updateManagedVideos') updateManagedVideosAction!: (payload: {
-    productId: string;
-    managedVideos: IVideo[];
-  }) => Promise<any>;
+  @Video.Action('getVideosByProduct') getVideosByProductAction;
+  @Video.Action('updateManagedVideos') updateManagedVideosAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   $refs!: {
@@ -178,7 +168,7 @@ export default class LibraryVideoHomeManage extends Vue {
         skip: 0,
         sort: '-uploadDate',
       },
-    });
+    }).then(() => {});
 
     this.$modal.show(this.videoManageModalName);
   }

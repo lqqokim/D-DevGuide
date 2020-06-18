@@ -2,11 +2,13 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import axios from 'axios';
 import { store as $store } from '@/store';
+import DialogPage from '@/pages/user/Dialog.vue';
 
 /********************************************************
  import 개발자 문서 페이지
  ********************************************************/
 import ProductListPage from '@/pages/user/ProductList.vue';
+import ProductDetailPage from '@/pages/user/ProductDetail.vue';
 import ProductDocViewPage from '@/pages/user/ProductDocView.vue';
 import ProductEditPage from '@/pages/user/ProductEdit.vue';
 
@@ -279,6 +281,7 @@ const authRoute = [
     component: MyInfoPage,
     meta: {
       authRequired: true,
+      adminRequired: true,
     },
   },
 ];

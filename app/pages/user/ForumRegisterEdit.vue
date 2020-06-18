@@ -1,5 +1,7 @@
 <template>
+  <!--  <ClientOnly>-->
   <forum-register-edit />
+  <!--  </ClientOnly>-->
 </template>
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator';

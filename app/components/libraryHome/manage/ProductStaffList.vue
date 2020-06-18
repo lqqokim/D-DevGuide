@@ -83,10 +83,7 @@ const Common = namespace('common');
 })
 export default class ProductStaffList extends Vue {
   @SearchGWUser.Action('getSearchGWUser')
-  getSearchGWUserAction!: (payload: {
-    empName: string;
-    loginId: string;
-  }) => Promise<any>;
+  getSearchGWUserAction;
   @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @Prop() readonly staffs!: any;
   @Watch('staffs', { immediate: true, deep: true })
@@ -115,6 +112,10 @@ export default class ProductStaffList extends Vue {
   };
 
   async onClickAddStaff(): Promise<any> {
+    // for (let i = 0; i < this.temp.length; i++) {
+    //   this.localStaffs.push(this.temp[i]);
+    // }
+
     if (!this.$store.state.searchGWUser.searchGWUserList.length) {
       await this.getSearchGWUserAction({
         empName: '',

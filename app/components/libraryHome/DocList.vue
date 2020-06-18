@@ -261,7 +261,7 @@ const Doc = namespace('document');
 export default class DocList extends Vue {
   @Doc.Action('getDocsByProduct') docsByProductAction!: (payload: {
     data: IProduct;
-  }) => Promise<any>;
+  }) => void;
   @Doc.Mutation('selectedProduct') selectedProductMutation!: (
     data: IProduct
   ) => void;

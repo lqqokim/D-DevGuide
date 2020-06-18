@@ -365,7 +365,7 @@ export default class ForumProductDetail extends Vue {
   @Forum.Action('updateViewCount') updateViewCountAction!: () => Promise<any>;
   @Forum.Action('updateLikeCount') updateLikeCountAction!: (
     arg0: string
-  ) => Promise<any>;
+  ) => void;
   @Forum.Action('createComment') createCommentAction!: (
     contents: string
   ) => Promise<any>;
@@ -384,14 +384,6 @@ export default class ForumProductDetail extends Vue {
   @Forum.Action('removePostSubDocument') removePostSubDocumentAction!: (
     subComment: IComment
   ) => Promise<any>;
-  @Forum.Action('updateSubComment') updateSubCommentAction!: ({
-    comment: IComment,
-    contents: string,
-  }) => Promise<any>;
-  @Forum.Action('deleteSubComment') deleteSubCommentAction!: (payload: {
-    commentId: string;
-    subCommentId: string;
-  }) => Promise<any>;
   @Forum.Mutation('commentEditMode') commentEditMode!: ({
     comment: IComment,
     type: string,
@@ -403,6 +395,14 @@ export default class ForumProductDetail extends Vue {
     comment: IComment,
     type: string,
   }) => void;
+  @Forum.Action('updateSubComment') updateSubCommentAction!: ({
+    comment: IComment,
+    contents: string,
+  }) => void;
+  @Forum.Action('deleteSubComment') deleteSubCommentAction!: (payload: {
+    commentId: string;
+    subCommentId: string;
+  }) => void;
 
   $refs!: {
     tui: any;
@@ -411,6 +411,17 @@ export default class ForumProductDetail extends Vue {
     postSubCommentRef: any;
     subCommentEditorRef: any;
   };
+
+  mounted() {
+    // setTimeout(() => {
+    //   // remove toolbar image button
+    //   const commentRefImageBtnEl: HTMLButtonElement = this.$refs.tui.$el.querySelector(
+    //     '.tui-image.tui-toolbar-icons'
+    //   );
+    //
+    //   commentRefImageBtnEl.parentNode!.removeChild(commentRefImageBtnEl);
+    // });
+  }
 
   user!: IUser;
 
@@ -530,6 +541,19 @@ export default class ForumProductDetail extends Vue {
     }
 
     this.postSubCommentEdit(type);
+
+    // setTimeout(() => {
+    //   // remove tui toolbar image button
+    //   if (type === 'edit') {
+    //     const postSubCommentEditorImageBtnEl: HTMLButtonElement = this.$refs.postSubCommentRef.$el.querySelector(
+    //       '.tui-image.tui-toolbar-icons'
+    //     );
+    //
+    //     postSubCommentEditorImageBtnEl.parentNode!.removeChild(
+    //       postSubCommentEditorImageBtnEl
+    //     );
+    //   }
+    // });
   }
 
   // 댓글의 댓글 추가 버튼 클릭
@@ -553,9 +577,22 @@ export default class ForumProductDetail extends Vue {
       comment,
       type,
     });
+
+    // setTimeout(() => {
+    //   if (type === 'edit') {
+    //     // remove tui toolbar image button
+    //     const subCommentEditorRefEditorImageBtnEl: HTMLButtonElement = this.$refs.subCommentEditorRef[0].$el.querySelector(
+    //       '.tui-image.tui-toolbar-icons'
+    //     );
+    //
+    //     subCommentEditorRefEditorImageBtnEl.parentNode!.removeChild(
+    //       subCommentEditorRefEditorImageBtnEl
+    //     );
+    //   }
+    // });
   }
 
-  // 잘문의 서브 댓글 (질문에 바로 붙어 있는 댓글) 삭제 버튼 클릭
+  // 잘문의 서브 댓글 삭제 버튼 클릭
   onclickRemovePostSubComment(subComment: IComment): void {
     this.alertAction({
       type: 'question',
@@ -568,7 +605,6 @@ export default class ForumProductDetail extends Vue {
     });
   }
 
-  // 댓글의 댓글 삭제 버튼 클릭
   onclickRemoveSubComment(commentId: string, subCommentId: string): void {
     this.alertAction({
       type: 'question',
@@ -714,6 +750,19 @@ export default class ForumProductDetail extends Vue {
       comment,
       type,
     });
+
+    // setTimeout(() => {
+    //   if (type === 'edit') {
+    //     // remove tui toolbar image button
+    //     const commentEditorRefEditorImageBtnEl: HTMLButtonElement = this.$refs.commentEditorRef[0].$el.querySelector(
+    //       '.tui-image.tui-toolbar-icons'
+    //     );
+    //
+    //     commentEditorRefEditorImageBtnEl.parentNode!.removeChild(
+    //       commentEditorRefEditorImageBtnEl
+    //     );
+    //   }
+    // });
   }
 
   // 댓글 삭제 버튼 클릭
@@ -733,7 +782,6 @@ export default class ForumProductDetail extends Vue {
     });
   }
 
-  // 질물 목록 페이지 이동
   redirectForumList(): void {
     this.$router.push({
       name: 'forumList',
@@ -742,6 +790,23 @@ export default class ForumProductDetail extends Vue {
         product: this.$store.state.forum.selectedProduct,
       },
     });
+  }
+
+  //
+  // convertCommentHtml() {
+  //   // @ts-ignore
+  //   this.$refs.map((ref, index) => {
+  //     if (ref !== 'tui') {
+  //       ref.innerHTML = marked(this.post.contents[index]);
+  //     }
+  //   });
+  // }
+
+  mdToHtml(contents): string {
+    // console.log('refs :: ', this.$refs);
+    // console.log('commentRef :: ', commentRef);
+    // this.$refs[commentRef].innerHTML = marked(contents);
+    return marked(contents);
   }
 
   convertDateFormat(time): string {

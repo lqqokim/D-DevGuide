@@ -39,6 +39,10 @@ import { IVideo } from '@/store/modules/video';
 @Component
 export default class VideoSingleEditor extends Vue {
   @Prop() readonly video!: IVideo;
+  // @Watch('video', { immediate: true, deep: true })
+  // onVideoChange(val, oldVal) {
+  //   console.log('onVideoChange', val);
+  // }
 
   description!: string;
 

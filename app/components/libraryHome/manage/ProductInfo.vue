@@ -54,6 +54,8 @@ export default class ProductInfo extends Vue {
   @Prop() readonly product!: any;
   @Watch('product', { immediate: true, deep: false })
   onProductChange(val, oldVal) {
+    // console.log('onProductChange', val, oldVal);
+
     if (oldVal && val.productCode !== oldVal.productCode) {
       this.emitEvent();
     }

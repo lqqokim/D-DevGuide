@@ -1,8 +1,6 @@
 import { ActionTree, MutationTree, GetterTree, ActionContext } from 'vuex';
 import { RootState } from '@/store';
-// eslint-disable-next-line no-duplicate-imports,import/no-duplicates
 import * as common from '@/store/modules/common';
-// eslint-disable-next-line no-duplicate-imports,import/no-duplicates
 import { ALERT_TYPE } from '@/store/modules/common';
 import { IUser } from '~/store/modules/user';
 
@@ -735,7 +733,6 @@ export const actions: ActionTree<ForumState, RootState> = {
       matchSearchWord = matchSearchWord.filter((item, idx, array) => {
         return array.indexOf(item) === idx;
       });
-
       for (let idx = 0; idx < matchSearchWord.length; idx++) {
         searchWordParam = searchWordParam
           .split(matchSearchWord[idx])

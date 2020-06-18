@@ -142,18 +142,14 @@ const Common = namespace('common');
 
 @Component
 export default class SearchGWUserModal extends Vue {
-  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
   @SearchGWUser.Action('getSearchGWUser')
-  getSearchGWUserAction!: (payload: {
-    empName: string;
-    loginId: string;
-  }) => Promise<any>;
+  getSearchGWUserAction;
   @SearchGWUser.Action('getSearchGWUserByName')
-  getSearchGWUserByNameAction!: (payload: { empName: string }) => Promise<any>;
+  getSearchGWUserByNameAction;
   @SearchGWUser.Action('getSearchGWUserByID')
-  getSearchGWUserByIDAction!: (payload: { loginId: string }) => Promise<any>;
-  @SearchGWUser.Mutation('emptySearchGWUserList')
-  emptySearchGWUserList!: () => void;
+  getSearchGWUserByIDAction;
+  @SearchGWUser.Mutation('emptySearchGWUserList') emptySearchGWUserList;
+  @Common.Action('alert') alertAction!: (payload: IAlert) => Promise<any>;
 
   searchCategory: string = '전체';
   clickSelectBoxFlag: boolean = false;

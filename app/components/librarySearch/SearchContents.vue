@@ -177,7 +177,7 @@ const Download = namespace('download');
 @Component
 export default class SearchContents extends Vue {
   @Download.Action('updateDownloadCount')
-  updateDownloadCountAction!: (file: IFile) => Promise<any>;
+  updateDownloadCountAction!: (file: IFile) => void;
 
   isSearchData: boolean = true;
   totalSearchVideoDataLength: number = 0;
@@ -188,6 +188,12 @@ export default class SearchContents extends Vue {
   $refs!: {
     contentRef: any;
   };
+
+  imagePath(video): string {
+    return `https://img.youtube.com/vi/${
+      video.isSeries ? video.series[0].youtubeId : video.youtubeId
+    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
+  }
 
   created() {
     if (
@@ -215,12 +221,6 @@ export default class SearchContents extends Vue {
         this.totalSearchDownloadDataLength += result.searchData.length;
       });
     }
-  }
-
-  imagePath(video): string {
-    return `https://img.youtube.com/vi/${
-      video.isSeries ? video.series[0].youtubeId : video.youtubeId
-    }/${this.$store.state.video.ytbThumbnailQuality}.jpg`;
   }
 
   isNew(updateDate: number): boolean {

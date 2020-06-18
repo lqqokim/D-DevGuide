@@ -137,6 +137,13 @@ export const mutations: MutationTree<DownloadState> = {
   countIncrement(state) {
     state.selectedFile.downloadCount++;
   },
+  // count(state, payload) {
+  //   state.filesByProduct.map((file) => {
+  //     if (file._id === payload._id) {
+  //       file.downloadCount++;
+  //     }
+  //   });
+  // },
   filesByProducts(state, payload): void {
     state.filesByProducts = payload;
   },
@@ -242,6 +249,7 @@ export const actions: ActionTree<DownloadState, RootState> = {
       }
     } catch (e) {
       console.error(e);
+      // await dispatch('selectedProduct', state.selectedProduct); // for remove downloadList searchWord
       await dispatch('getFilesByProduct', {
         data: state.selectedProduct,
       });
