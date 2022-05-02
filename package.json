@@ -42,7 +42,7 @@
     "gitlab": "^11.0.2",
     "http-errors": "^1.7.3",
     "liquor-tree": "^0.2.68",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "marked": "^4.0.10",
     "mongoose": "^5.7.4",
     "mongoose-auto-increment": "^5.0.1",
