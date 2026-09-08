@@ -47,7 +47,7 @@
     "mongoose": "^8.9.5",
     "mongoose-auto-increment": "^5.0.1",
     "morgan": "^1.9.1",
-    "multer": "^2.2.0",
+    "multer": "^2.3.0",
     "nuxt": "^3.21.10",
     "nuxt-property-decorator": "^2.4.0",
     "pdf-image": "^2.0.0",
